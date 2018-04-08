@@ -1,6 +1,6 @@
 var ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'g')
 var HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'g')
-var FAKENEWS_PATTERN = new RegExp('(MSNBC)|(NBC)|(NYTimes)|(NYT)|(New York Times)|(NBC News)|(HuffPo)|(Huffington Post)|(ABC News)|(American Broadcasting Company)|(CBS)', 'g')
+var FAKENEWS_PATTERN = new RegExp('(MSNBC)|(NBC)|(NYTIMES)|(NYTimes)|(TNYT)|(NYT)|(New York Times)|(NBC News)|(HuffPo)|(Huffington Post)|(ABC News)|(American Broadcasting Company)|(CBS)', 'g')
 var CNN_PATTERN = new RegExp('CNN', 'g')
 var CRUZ_PATTERN = new RegExp('Ted Cruz', 'g')
 var MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'g')
@@ -23,6 +23,8 @@ var JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'g')
 var CHUCK_SCHUMER_PATTERN = new RegExp('Chuck Schumer', 'g')
 var BERNIE_PATTERN = new RegExp('Bernie Sanders', 'g')
 var KASICH_PATTERN = new RegExp('John Kasich', 'g')
+var ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'g')
+var COFFEE_PATTERN = new RegExp('coffee', 'g')
 
 
 
@@ -162,6 +164,14 @@ function buildTrumpMap () {
         "chuckschumer": {
             "regex": CHUCK_SCHUMER_PATTERN,
             "nick": "Cryin' Chuck Schumer"
+        },
+        "coffee": {
+            "regex": COFFEE_PATTERN,
+            "nick": "covfefe"
+        },
+        "assad": {
+            "regex": ASSAD_PATTERN,
+            "nick": "Animal Assad"
         }
     }
 }
