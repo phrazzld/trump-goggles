@@ -24,7 +24,7 @@ var CHUCK_SCHUMER_PATTERN = new RegExp('Chuck Schumer', 'g')
 var BERNIE_PATTERN = new RegExp('Bernie Sanders', 'g')
 var KASICH_PATTERN = new RegExp('John Kasich', 'g')
 var ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'g')
-var COFFEE_PATTERN = new RegExp('coffee', 'g')
+var COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'g')
 
 
 
