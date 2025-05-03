@@ -1,3 +1,3 @@
-chrome.browserAction.onClicked.addListener(function() {
+chrome.action.onClicked.addListener(function() {
   chrome.runtime.openOptionsPage();
 });
