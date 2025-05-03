@@ -6,6 +6,7 @@ images/.DS_Store
 **/.claude/settings.local.json
 SCOPE-ANALYSIS.md
 TODO-*.md
+ci-failure-analysis*.md
 
 # Node and dependencies
 node_modules/
