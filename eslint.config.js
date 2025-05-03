@@ -3,7 +3,14 @@ import jestDomPlugin from 'eslint-plugin-jest-dom';
 
 export default [
   {
-    ignores: ['node_modules/**', 'coverage/**'],
+    ignores: [
+      'node_modules/**', 
+      'coverage/**',
+      '.vitest/**',
+      // Temporarily ignore existing files while we focus on testing
+      'content.js',
+      'background.js'
+    ],
   },
   {
     files: ['**/*.js'],

@@ -13,6 +13,8 @@ describe('Background Script', () => {
     
     // Import the background script (testing the actual behavior)
     // This is a direct execution test, where we import the script and test its effects
+    // Note: Dynamically importing the file for testing purposes
+    // eslint-disable-next-line no-undef
     import('../../background.js');
     
     // Verify that the listener was registered
