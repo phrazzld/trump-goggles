@@ -2,4 +2,14 @@
 *.sw?
 images/.DS_Store
 
+# Project files
 **/.claude/settings.local.json
+SCOPE-ANALYSIS.md
+
+# Node and dependencies
+node_modules/
+.pnpm-store/
+
+# Test files
+coverage/
+.vitest/

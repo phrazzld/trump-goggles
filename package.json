@@ -1,0 +1,33 @@
+{
+  "name": "trump-goggles",
+  "version": "18.4.08",
+  "description": "See the world like Trump does - Chrome Extension",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "ci": "pnpm lint && pnpm test"
+  },
+  "keywords": [
+    "chrome-extension",
+    "text-replacement"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0",
+    "pnpm": ">=7.0.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.1.2",
+    "eslint": "^9.26.0",
+    "eslint-plugin-jest-dom": "^5.5.0",
+    "eslint-plugin-vitest": "^0.5.4",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.1.2"
+  }
+}
