@@ -1,0 +1,9 @@
+# Temporarily ignore existing files while we focus on testing
+# These files will be addressed in a separate linting PR
+content.js
+background.js
+
+# Ignore build and dependency directories
+node_modules/
+coverage/
+.vitest/

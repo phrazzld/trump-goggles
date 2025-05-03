@@ -16,17 +16,17 @@ function createTextNode(text) {
 // Mock the functions that would be in content.js
 function buildTrumpMap() {
   return {
-    "cnn": {
-      "regex": new RegExp('CNN', 'g'),
-      "nick": "Clinton News Network"
+    'cnn': {
+      'regex': new RegExp('CNN', 'g'),
+      'nick': 'Clinton News Network'
     },
-    "hillary": {
-      "regex": new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\\. Clinton)', 'g'),
-      "nick": "Crooked Hillary"
+    'hillary': {
+      'regex': new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\\. Clinton)', 'g'),
+      'nick': 'Crooked Hillary'
     },
-    "coffee": {
-      "regex": new RegExp('(coffee)|(Coffee)', 'g'),
-      "nick": "covfefe"
+    'coffee': {
+      'regex': new RegExp('(coffee)|(Coffee)', 'g'),
+      'nick': 'covfefe'
     }
   };
 }
@@ -66,7 +66,7 @@ describe('Content Script', () => {
       expect(textNode.nodeValue).toBe('I drink covfefe every morning');
     });
 
-    it('should not replace text that doesn\'t match patterns', () => {
+    it('should not replace text that does not match patterns', () => {
       const textNode = createTextNode('Just some random text here');
       convert(textNode);
       expect(textNode.nodeValue).toBe('Just some random text here');
