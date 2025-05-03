@@ -1,29 +1,25 @@
 // Original patterns
-var ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'g');
-var HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'g');
-var FAKENEWS_PATTERN = new RegExp(
-  '(MSNBC)|(NBC)|(NYTIMES)|(NYTimes)|(TNYT)|(NYT)|(New York Times)|(NBC News)|(HuffPo)|(Huffington Post)|(ABC News)|(American Broadcasting Company)|(CBS)',
-  'g'
-);
-var CRUZ_PATTERN = new RegExp('Ted Cruz', 'g');
-var MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'g');
-var JEB_PATTERN = new RegExp('(Jeb Bush)|(Jeb)', 'g');
-var WARREN_PATTERN = new RegExp('Elizabeth Warren', 'g');
-var LAMB_PATTERN = new RegExp('Conor Lamb', 'g');
-var BANNON_PATTERN = new RegExp('Steve Bannon', 'g');
-var DURBIN_PATTERN = new RegExp('Dick Durbin', 'g');
-var FEINSTEIN_PATTERN = new RegExp('Dianne Feinstein', 'g');
-var FLAKE_PATTERN = new RegExp('Jeff Flake', 'g');
-var FRANKEN_PATTERN = new RegExp('Al Franken', 'g');
-var CORKER_PATTERN = new RegExp('Bob Corker', 'g');
-var KELLY_PATTERN = new RegExp('Megyn Kelly', 'g');
-var SCARBOROUGH_PATTERN = new RegExp('Joe Scarborough', 'g');
-var MIKA_PATTERN = new RegExp('Mika Brzezinski', 'g');
-var CHUCK_TODD_PATTERN = new RegExp('Chuck Todd', 'g');
-var JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'g');
-var KASICH_PATTERN = new RegExp('John Kasich', 'g');
-var ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'g');
-var COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'g');
+var ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'gi');
+var HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'gi');
+var CRUZ_PATTERN = new RegExp('Ted Cruz', 'gi');
+var MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'gi');
+var JEB_PATTERN = new RegExp('(Jeb Bush)|(Jeb)', 'gi');
+var WARREN_PATTERN = new RegExp('Elizabeth Warren', 'gi');
+var LAMB_PATTERN = new RegExp('Conor Lamb', 'gi');
+var BANNON_PATTERN = new RegExp('Steve Bannon', 'gi');
+var DURBIN_PATTERN = new RegExp('Dick Durbin', 'gi');
+var FEINSTEIN_PATTERN = new RegExp('Dianne Feinstein', 'gi');
+var FLAKE_PATTERN = new RegExp('Jeff Flake', 'gi');
+var FRANKEN_PATTERN = new RegExp('Al Franken', 'gi');
+var CORKER_PATTERN = new RegExp('Bob Corker', 'gi');
+var KELLY_PATTERN = new RegExp('Megyn Kelly', 'gi');
+var SCARBOROUGH_PATTERN = new RegExp('Joe Scarborough', 'gi');
+var MIKA_PATTERN = new RegExp('Mika Brzezinski', 'gi');
+var CHUCK_TODD_PATTERN = new RegExp('Chuck Todd', 'gi');
+var JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'gi');
+var KASICH_PATTERN = new RegExp('John Kasich', 'gi');
+var ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'gi');
+var COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'gi');
 
 // 2025 Upgrade Pack - Politicians & Prosecutors
 var BIDEN_PATTERN = new RegExp('Joe\\s+Biden', 'gi');
@@ -46,17 +42,23 @@ var LETITIA_JAMES_PATTERN = new RegExp('Letitia\\s+James', 'gi');
 // Foreign Leaders
 var KIM_JONG_UN_PATTERN = new RegExp('(Kim Jong-un)|(Kim Jong Un)', 'gi');
 
-// Media & Organizations
-var CNN_PATTERN = new RegExp('CNN', 'gi');
-var NYT_PATTERN = new RegExp('(NYT|New\\s+York\\s+Times)', 'gi');
-var WP_PATTERN = new RegExp('(Washington\\s+Post|WaPo)', 'gi');
-var MSNBC_PATTERN = new RegExp('(MSNBC|MSDNC)', 'gi');
-var COMCAST_PATTERN = new RegExp('Comcast', 'gi');
-var FORBES_PATTERN = new RegExp('Forbes', 'gi');
+// Media & Organizations - Fixed to avoid overlap
+var CNN_PATTERN = new RegExp('\\bCNN\\b', 'gi');
+var NYT_PATTERN = new RegExp('\\b(NYT|New\\s+York\\s+Times)\\b', 'gi');
+var WP_PATTERN = new RegExp('\\b(Washington\\s+Post|WaPo)\\b', 'gi');
+var MSNBC_PATTERN = new RegExp('\\bMSNBC\\b', 'gi');
+var NBC_PATTERN = new RegExp('\\bNBC\\b(?!\\s+News)', 'gi'); // NBC but not NBC News
+var NBC_NEWS_PATTERN = new RegExp('\\bNBC\\s+News\\b', 'gi');
+var ABC_PATTERN = new RegExp('\\bABC\\b(?!\\s+News)', 'gi'); // ABC but not ABC News
+var ABC_NEWS_PATTERN = new RegExp('\\bABC\\s+News\\b', 'gi');
+var CBS_PATTERN = new RegExp('\\bCBS\\b', 'gi');
+var HUFFPO_PATTERN = new RegExp('\\b(HuffPo|Huffington\\s+Post)\\b', 'gi');
+var COMCAST_PATTERN = new RegExp('\\bComcast\\b', 'gi');
+var FORBES_PATTERN = new RegExp('\\bForbes\\b', 'gi');
 
 // COVID-related patterns
-var COVID_PATTERN = new RegExp('(COVID[- ]?19|Covid|Coronavirus)', 'gi');
-var COVID_ALT_PATTERN = new RegExp('(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)', 'gi');
+var COVID_PATTERN = new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi');
+var COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi');
 
 chrome.storage.sync.get(null, function (obj) {
   walk(document.body);
@@ -84,184 +86,13 @@ function walk(node) {
   }
 }
 
-// Analyzes context of the text node to determine if replacements should be applied
-function analyzeContext(textNode) {
-  // Get parent elements for context
-  var parentNode = textNode.parentNode;
-  if (!parentNode) return 0;
-
-  // Get context score based on HTML elements and content
-  var contextScore = 0;
-
-  // Check if we're in a news article or political content
-  if (isNewsContext(parentNode)) {
-    contextScore += 50;
-  }
-
-  if (isPoliticalContext(parentNode)) {
-    contextScore += 40;
-  }
-
-  // Check text content for political keywords
-  var content = textNode.nodeValue.toLowerCase();
-  var politicalKeywords = [
-    'president',
-    'congress',
-    'senator',
-    'representative',
-    'election',
-    'politics',
-    'political',
-    'government',
-    'democrat',
-    'republican',
-    'campaign',
-    'policy',
-    'policies',
-    'administration',
-  ];
-
-  // Count political keywords in the text
-  politicalKeywords.forEach(function (keyword) {
-    if (content.indexOf(keyword) !== -1) {
-      contextScore += 5;
-    }
-  });
-
-  return Math.min(contextScore, 100); // Cap at 100
-}
-
-// Checks if we're in a news context
-function isNewsContext(node) {
-  // Check for common news site elements
-  var newsElements = ['article', 'main', 'section'];
-  var newsClasses = ['news', 'article', 'story', 'post'];
-
-  // Check current node and its parents
-  var currentNode = node;
-  while (currentNode && currentNode.nodeType === 1) {
-    // Check tag name
-    if (newsElements.indexOf(currentNode.tagName.toLowerCase()) !== -1) {
-      return true;
-    }
-
-    // Check class names
-    if (currentNode.className) {
-      var classNames = currentNode.className.toLowerCase();
-      for (var i = 0; i < newsClasses.length; i++) {
-        if (classNames.indexOf(newsClasses[i]) !== -1) {
-          return true;
-        }
-      }
-    }
-
-    // Check for news domains in the URL
-    if (window.location.hostname) {
-      var hostname = window.location.hostname.toLowerCase();
-      var newsDomains = [
-        'news',
-        'cnn',
-        'fox',
-        'msnbc',
-        'nbc',
-        'abc',
-        'cbs',
-        'bbc',
-        'reuters',
-        'bloomberg',
-        'politico',
-        'washingtonpost',
-        'nytimes',
-      ];
-
-      for (var j = 0; j < newsDomains.length; j++) {
-        if (hostname.indexOf(newsDomains[j]) !== -1) {
-          return true;
-        }
-      }
-    }
-
-    currentNode = currentNode.parentNode;
-  }
-
-  return false;
-}
-
-// Checks if we're in political content
-function isPoliticalContext(node) {
-  // Check for political content indicators
-  var politicalClasses = ['politics', 'political', 'government', 'election'];
-  var politicalIds = ['politics', 'political', 'government', 'election'];
-
-  // Check current node and its parents
-  var currentNode = node;
-  while (currentNode && currentNode.nodeType === 1) {
-    // Check class names
-    if (currentNode.className) {
-      var classNames = currentNode.className.toLowerCase();
-      for (var i = 0; i < politicalClasses.length; i++) {
-        if (classNames.indexOf(politicalClasses[i]) !== -1) {
-          return true;
-        }
-      }
-    }
-
-    // Check ID
-    if (currentNode.id) {
-      var id = currentNode.id.toLowerCase();
-      for (var j = 0; j < politicalIds.length; j++) {
-        if (id.indexOf(politicalIds[j]) !== -1) {
-          return true;
-        }
-      }
-    }
-
-    currentNode = currentNode.parentNode;
-  }
-
-  return false;
-}
-
-// Convert text with context awareness
+// Simple convert function - applies all replacements without context awareness
 function convert(textNode) {
   var mappings = buildTrumpMap();
   var mapKeys = Object.keys(mappings);
 
-  // Analyze context to determine if we should apply replacements
-  var contextScore = analyzeContext(textNode);
-  var confidenceThreshold = 20; // Minimum score to do replacements
-
-  // Skip replacements if context score is too low
-  if (contextScore < confidenceThreshold) {
-    return;
-  }
-
-  // Adjust replacement strategy based on confidence
-  // - Low confidence (20-40): Only replace high-profile political figures
-  // - Medium confidence (40-70): Replace most political figures
-  // - High confidence (70+): Replace all targets
-
-  var priorityMappings = [];
-
-  if (contextScore >= 70) {
-    // High confidence - apply all replacements
-    priorityMappings = mapKeys;
-  } else if (contextScore >= 40) {
-    // Medium confidence - focus on political figures
-    priorityMappings = mapKeys.filter(function (key) {
-      // Only include political figures, not media or COVID
-      return !['covid', 'covidalt', 'coffee'].includes(key);
-    });
-  } else {
-    // Low confidence - only high-profile targets
-    var highProfileTargets = ['biden', 'kamala', 'cnn', 'nyt', 'kimjongun'];
-    priorityMappings = mapKeys.filter(function (key) {
-      return highProfileTargets.includes(key);
-    });
-  }
-
-  // Apply replacements for prioritized mappings
-  priorityMappings.forEach(function (key) {
+  // Apply all replacements unconditionally
+  mapKeys.forEach(function (key) {
     textNode.nodeValue = textNode.nodeValue.replace(mappings[key].regex, mappings[key].nick);
   });
 }
@@ -277,10 +108,6 @@ function buildTrumpMap() {
     hillary: {
       regex: HILL_PATTERN,
       nick: 'Crooked Hillary',
-    },
-    fakenews: {
-      regex: FAKENEWS_PATTERN,
-      nick: 'Fake News',
     },
     cruz: {
       regex: CRUZ_PATTERN,
@@ -429,7 +256,7 @@ function buildTrumpMap() {
       nick: 'Little Rocket Man',
     },
 
-    // Media & Organizations
+    // Media & Organizations - Fixed to avoid overlaps
     cnn: {
       regex: CNN_PATTERN,
       nick: 'Fake News CNN',
@@ -445,6 +272,30 @@ function buildTrumpMap() {
     msnbc: {
       regex: MSNBC_PATTERN,
       nick: 'MSDNC',
+    },
+    nbc: {
+      regex: NBC_PATTERN,
+      nick: 'Fake News NBC',
+    },
+    nbcnews: {
+      regex: NBC_NEWS_PATTERN,
+      nick: 'Fake News NBC News',
+    },
+    abc: {
+      regex: ABC_PATTERN,
+      nick: 'Fake News ABC',
+    },
+    abcnews: {
+      regex: ABC_NEWS_PATTERN,
+      nick: 'Fake News ABC News',
+    },
+    cbs: {
+      regex: CBS_PATTERN,
+      nick: 'Fake News CBS',
+    },
+    huffpo: {
+      regex: HUFFPO_PATTERN,
+      nick: 'Liberal Huffington Post',
     },
     comcast: {
       regex: COMCAST_PATTERN,
