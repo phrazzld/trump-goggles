@@ -24,7 +24,7 @@ export default [
       'indent': ['error', 2],
       'linebreak-style': ['error', 'unix'],
       'quotes': ['error', 'single', { 'avoidEscape': true }],
-      'semi': ['always'],
+      'semi': ['error', 'always'],
       'no-unused-vars': ['warn'],
       'vitest/expect-expect': 'error',
       'vitest/no-disabled-tests': 'warn',
