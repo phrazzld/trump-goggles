@@ -8,7 +8,9 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
-    "ci": "pnpm lint && pnpm test"
+    "format": "prettier --write .",
+    "ci": "pnpm lint && pnpm test",
+    "prepare": "husky"
   },
   "keywords": [
     "chrome-extension",
@@ -27,7 +29,10 @@
     "eslint": "^9.26.0",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-vitest": "^0.5.4",
+    "husky": "9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "15.5.1",
+    "prettier": "3.5.3",
     "vitest": "^3.1.2"
   }
 }
