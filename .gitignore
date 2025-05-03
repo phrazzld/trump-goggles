@@ -5,6 +5,7 @@ images/.DS_Store
 # Project files
 **/.claude/settings.local.json
 SCOPE-ANALYSIS.md
+TODO-*.md
 
 # Node and dependencies
 node_modules/
