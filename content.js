@@ -1,4 +1,13 @@
-// Trump Goggles - Chrome extension to see the world through Trump's eyes
+/**
+ * Trump Goggles - Chrome extension to see the world through Trump's eyes
+ *
+ * This content script replaces mentions of politicians, media figures, and other entities
+ * with Donald Trump's nicknames for them. It works by traversing the DOM tree and replacing
+ * text in non-editable elements.
+ *
+ * @author Original developer (unknown)
+ * @version 2.0.0
+ */
 
 // Cache the Trump mappings to avoid rebuilding for each text node
 const trumpMap = buildTrumpMap();
@@ -7,7 +16,16 @@ const mapKeys = Object.keys(trumpMap);
 // Initialize text replacement when DOM is loaded
 walk(document.body);
 
-// Checks if a node is editable or within an editable element
+/**
+ * Determines if a DOM node is editable or within an editable element.
+ *
+ * An element is considered editable if it's an input, textarea,
+ * or has the contenteditable attribute set. This function
+ * recursively checks the node and its ancestors.
+ *
+ * @param {Node} node - The DOM node to check
+ * @returns {boolean} - True if the node is editable or within an editable element, false otherwise
+ */
 function isEditableNode(node) {
   // Check if it's a text node
   if (node.nodeType === 3) {
@@ -38,8 +56,19 @@ function isEditableNode(node) {
   return node.parentNode ? isEditableNode(node.parentNode) : false;
 }
 
-// Credit to t-j-crowder on StackOverflow for this walk function
-// http://bit.ly/1o47R7V
+/**
+ * Recursively traverses the DOM tree and applies text replacements to text nodes.
+ *
+ * This function walks through all nodes in the DOM tree, including elements,
+ * documents, document fragments, and text nodes. For text nodes, it calls
+ * the convert function to apply Trump's nicknames, unless the node is within
+ * an editable element.
+ *
+ * Credit to t-j-crowder on StackOverflow for this walk function:
+ * http://bit.ly/1o47R7V
+ *
+ * @param {Node} node - The starting DOM node to traverse
+ */
 function walk(node) {
   let child, next;
 
@@ -63,7 +92,15 @@ function walk(node) {
   }
 }
 
-// Simple convert function - applies all replacements without context awareness
+/**
+ * Applies Trump nickname replacements to the content of a text node.
+ *
+ * This function takes a text node and replaces all occurrences of target phrases
+ * with Trump's nicknames for them. It uses a temporary variable to batch all
+ * replacements before updating the DOM once, which improves performance.
+ *
+ * @param {Text} textNode - The text node whose content will be modified
+ */
 function convert(textNode) {
   // Create a temporary variable to avoid multiple DOM updates
   let replacedText = textNode.nodeValue;
@@ -77,7 +114,21 @@ function convert(textNode) {
   textNode.nodeValue = replacedText;
 }
 
-// Build RegEx patterns and replacements for each object of Trump's derision
+/**
+ * Builds a mapping of regular expressions to Trump's nicknames.
+ *
+ * This function creates and returns an object that maps keywords and phrases
+ * to their corresponding Trump nicknames. Each entry contains a regex pattern
+ * and a nickname. The patterns are organized into categories:
+ * - Politicians
+ * - Media figures
+ * - Foreign leaders
+ * - Media & Organizations
+ * - COVID-related terms
+ * - Miscellaneous
+ *
+ * @returns {Object.<string, {regex: RegExp, nick: string}>} - An object mapping keys to regex and nickname pairs
+ */
 function buildTrumpMap() {
   return {
     // Original mappings - Politicians
