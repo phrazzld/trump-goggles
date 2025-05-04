@@ -60,6 +60,10 @@ var FORBES_PATTERN = new RegExp('\\bForbes\\b', 'gi');
 var COVID_PATTERN = new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi');
 var COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi');
 
+// Cache the Trump mappings to avoid rebuilding for each text node
+var trumpMap = buildTrumpMap();
+var mapKeys = Object.keys(trumpMap);
+
 chrome.storage.sync.get(null, function (obj) {
   walk(document.body);
 });
@@ -88,12 +92,9 @@ function walk(node) {
 
 // Simple convert function - applies all replacements without context awareness
 function convert(textNode) {
-  var mappings = buildTrumpMap();
-  var mapKeys = Object.keys(mappings);
-
-  // Apply all replacements unconditionally
+  // Apply all replacements unconditionally using the cached map
   mapKeys.forEach(function (key) {
-    textNode.nodeValue = textNode.nodeValue.replace(mappings[key].regex, mappings[key].nick);
+    textNode.nodeValue = textNode.nodeValue.replace(trumpMap[key].regex, trumpMap[key].nick);
   });
 }
 
