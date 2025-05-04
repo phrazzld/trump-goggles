@@ -82,20 +82,21 @@ This document provides a structured, actionable breakdown of the tasks required 
   - **Status**: Already implemented in code. Found comprehensive test coverage in test/content/trumpMap.test.js which verifies structure, regex flags, nicknames, and boundary patterns. All tests are passing.
 
 **TASK-C6: Write Unit Tests for convert Function**
-- [ ] Create comprehensive tests for the convert function
+- [x] Create comprehensive tests for the convert function
   - **Dependencies**: TASK-C4, TASK-C1, TASK-C2
   - **Effort**: High (3-4 hours)
   - **Acceptance Criteria**:
-    - [ ] Tests for basic replacements for each pattern
-    - [ ] Tests for case-insensitivity
-    - [ ] Tests for word boundaries
-    - [ ] Tests for multiple patterns in one text node
-    - [ ] Tests for edge cases (empty strings, no matches)
-    - [ ] Tests achieve high coverage of convert function
+    - [x] Tests for basic replacements for each pattern
+    - [x] Tests for case-insensitivity
+    - [x] Tests for word boundaries
+    - [x] Tests for multiple patterns in one text node
+    - [x] Tests for edge cases (empty strings, no matches)
+    - [x] Tests achieve high coverage of convert function
   - **Implementation Notes**:
     - Simulate text nodes for testing
     - Test various input/output scenarios
     - Ensure optimized version works correctly
+  - **Status**: Already implemented in code. Found comprehensive test coverage in test/content/convert.test.js which includes tests for basic replacements, case-insensitivity, word boundaries, multiple patterns, and edge cases. All tests are passing.
 
 ## Important Tasks
 
