@@ -64,9 +64,8 @@ var COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', '
 var trumpMap = buildTrumpMap();
 var mapKeys = Object.keys(trumpMap);
 
-chrome.storage.sync.get(null, function (obj) {
-  walk(document.body);
-});
+// Initialize text replacement when DOM is loaded
+walk(document.body);
 
 // Credit to t-j-crowder on StackOverflow for this walk function
 // http://bit.ly/1o47R7V
