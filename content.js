@@ -7,6 +7,9 @@
  *
  * @author Original developer (unknown)
  * @version 2.0.0
+ * @typedef {Object} TrumpMapping
+ * @property {RegExp} regex - The regular expression pattern to match
+ * @property {string} nick - The nickname to replace the matched text with
  */
 
 // Cache the Trump mappings to avoid rebuilding for each text node
@@ -39,15 +42,17 @@ function isEditableNode(node) {
   }
 
   // Check for common editable elements
-  const nodeName = node.nodeName.toLowerCase();
+  const element = /** @type {Element} */ (node);
+  const nodeName = element.nodeName.toLowerCase();
   if (nodeName === 'textarea' || nodeName === 'input') {
     return true;
   }
 
   // Check for contenteditable attribute
   if (
-    node.getAttribute &&
-    (node.getAttribute('contenteditable') === 'true' || node.getAttribute('contenteditable') === '')
+    element.getAttribute &&
+    (element.getAttribute('contenteditable') === 'true' ||
+      element.getAttribute('contenteditable') === '')
   ) {
     return true;
   }
@@ -68,6 +73,7 @@ function isEditableNode(node) {
  * http://bit.ly/1o47R7V
  *
  * @param {Node} node - The starting DOM node to traverse
+ * @returns {void}
  */
 function walk(node) {
   let child, next;
@@ -86,7 +92,7 @@ function walk(node) {
     case 3: // Text node
       // Only convert if the node is not within an editable element
       if (!isEditableNode(node)) {
-        convert(node);
+        convert(/** @type {Text} */ (node));
       }
       break;
   }
@@ -100,6 +106,7 @@ function walk(node) {
  * replacements before updating the DOM once, which improves performance.
  *
  * @param {Text} textNode - The text node whose content will be modified
+ * @returns {void}
  */
 function convert(textNode) {
   // Create a temporary variable to avoid multiple DOM updates
@@ -127,7 +134,7 @@ function convert(textNode) {
  * - COVID-related terms
  * - Miscellaneous
  *
- * @returns {Object.<string, {regex: RegExp, nick: string}>} - An object mapping keys to regex and nickname pairs
+ * @returns {Object.<string, TrumpMapping>} - An object mapping keys to regex and nickname pairs
  */
 function buildTrumpMap() {
   return {

@@ -15,10 +15,11 @@
 
 3. Make your changes
 
-4. Run tests and linting
+4. Run tests, linting, and type checking
    ```bash
    pnpm test
    pnpm lint
+   pnpm typecheck
    ```
 
 5. Submit a pull request
@@ -53,6 +54,47 @@ pnpm test:watch
 
 # Run tests with coverage
 pnpm test:coverage
+```
+
+## TypeScript
+
+While the project primarily uses JavaScript, we've set up TypeScript for type checking to improve code quality and catch errors early.
+
+### Type Checking
+
+```bash
+# Check types
+pnpm typecheck
+
+# Check types in watch mode
+pnpm typecheck:watch
+```
+
+### Adding Types to JavaScript Files
+
+Add JSDoc comments with type annotations to your JavaScript files:
+
+```javascript
+/**
+ * @typedef {Object} MyType
+ * @property {string} name - The name property
+ * @property {number} age - The age property
+ */
+
+/**
+ * Example function with JSDoc type annotations
+ * @param {string} text - The input text
+ * @param {number} [count=1] - Optional count parameter
+ * @returns {boolean} - The result
+ */
+function myFunction(text, count = 1) {
+  // Function body
+  return true;
+}
+
+// Type assertion for complex types
+/** @type {Element} */
+const element = document.getElementById('my-element');
 ```
 
 ## Pull Request Process

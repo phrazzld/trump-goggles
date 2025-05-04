@@ -1,3 +1,10 @@
-chrome.action.onClicked.addListener(function() {
+/**
+ * Event handler for the extension icon click.
+ * Opens the options page when the extension icon is clicked.
+ *
+ * @param {chrome.tabs.Tab} [tab] - The active tab when the icon is clicked (unused)
+ * @returns {void}
+ */
+chrome.action.onClicked.addListener(function () {
   chrome.runtime.openOptionsPage();
 });

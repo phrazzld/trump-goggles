@@ -9,8 +9,10 @@
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write .",
-    "ci": "pnpm lint && pnpm test",
-    "prepare": "husky"
+    "ci": "pnpm lint && pnpm typecheck && pnpm test",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch"
   },
   "keywords": [
     "chrome-extension",
@@ -25,6 +27,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/chrome": "0.0.318",
     "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.26.0",
     "eslint-plugin-jest-dom": "^5.5.0",
@@ -33,6 +36,7 @@
     "jsdom": "^26.1.0",
     "lint-staged": "15.5.1",
     "prettier": "3.5.3",
+    "typescript": "5.8.3",
     "vitest": "^3.1.2"
   }
 }
