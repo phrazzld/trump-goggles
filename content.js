@@ -3,7 +3,7 @@
  *
  * This content script replaces mentions of politicians, media figures, and other entities
  * with Donald Trump's nicknames for them. It works by traversing the DOM tree and replacing
- * text in non-editable elements.
+ * text in non-editable elements. It also observes DOM changes to handle dynamically loaded content.
  *
  * @author Original developer (unknown)
  * @version 2.0.0
@@ -17,7 +17,14 @@ const trumpMap = buildTrumpMap();
 const mapKeys = Object.keys(trumpMap);
 
 // Initialize text replacement when DOM is loaded
-walk(document.body);
+try {
+  walk(document.body);
+
+  // Setup MutationObserver to handle dynamic content
+  setupMutationObserver();
+} catch (error) {
+  console.error('Trump Goggles: Error initializing extension', error);
+}
 
 /**
  * Determines if a DOM node is editable or within an editable element.
@@ -76,25 +83,40 @@ function isEditableNode(node) {
  * @returns {void}
  */
 function walk(node) {
-  let child, next;
+  try {
+    // Skip if node is undefined, null, or not a valid node
+    if (!node || !node.nodeType) {
+      return;
+    }
 
-  switch (node.nodeType) {
-    case 1: // Element
-    case 9: // Document
-    case 11: // Document fragment
-      child = node.firstChild;
-      while (child) {
-        next = child.nextSibling;
-        walk(child);
-        child = next;
-      }
-      break;
-    case 3: // Text node
-      // Only convert if the node is not within an editable element
-      if (!isEditableNode(node)) {
-        convert(/** @type {Text} */ (node));
-      }
-      break;
+    let child, next;
+
+    switch (node.nodeType) {
+      case 1: // Element
+        // Skip script, style, and SVG elements
+        const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
+        if (tagName === 'script' || tagName === 'style' || tagName === 'svg') {
+          return;
+        }
+      // Continue to default processing
+      case 9: // Document
+      case 11: // Document fragment
+        child = node.firstChild;
+        while (child) {
+          next = child.nextSibling;
+          walk(child);
+          child = next;
+        }
+        break;
+      case 3: // Text node
+        // Only convert if the node is not within an editable element
+        if (!isEditableNode(node)) {
+          convert(/** @type {Text} */ (node));
+        }
+        break;
+    }
+  } catch (error) {
+    console.error('Trump Goggles: Error walking node', error);
   }
 }
 
@@ -109,16 +131,37 @@ function walk(node) {
  * @returns {void}
  */
 function convert(textNode) {
-  // Create a temporary variable to avoid multiple DOM updates
-  let replacedText = textNode.nodeValue;
+  try {
+    // Skip if node is invalid or has no content
+    if (!textNode || !textNode.nodeValue) {
+      return;
+    }
 
-  // Apply all replacements to the temporary variable
-  mapKeys.forEach(function (key) {
-    replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
-  });
+    // Create a temporary variable to avoid multiple DOM updates
+    let replacedText = textNode.nodeValue;
+    const originalText = replacedText;
 
-  // Update DOM only once after all replacements are done
-  textNode.nodeValue = replacedText;
+    // Apply all replacements to the temporary variable
+    mapKeys.forEach(function (key) {
+      try {
+        replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+
+        // Reset the regex lastIndex if it has global flag
+        if (trumpMap[key].regex.global) {
+          trumpMap[key].regex.lastIndex = 0;
+        }
+      } catch (regexError) {
+        console.error('Trump Goggles: Error applying regex', key, regexError);
+      }
+    });
+
+    // Update DOM only once after all replacements are done, and only if text changed
+    if (replacedText !== originalText) {
+      textNode.nodeValue = replacedText;
+    }
+  } catch (error) {
+    console.error('Trump Goggles: Error converting text node', error);
+  }
 }
 
 /**
@@ -360,4 +403,66 @@ function buildTrumpMap() {
       nick: 'Kung Flu',
     },
   };
+}
+
+/**
+ * Sets up a MutationObserver to handle dynamically added content.
+ *
+ * This function creates and configures a MutationObserver instance that
+ * watches for changes to the DOM (e.g., new nodes being added). When
+ * changes occur, it processes only the new content to apply Trump's nicknames,
+ * making the extension work with dynamic content loading like infinite scrolling
+ * or AJAX-loaded content commonly found in modern web applications.
+ *
+ * @returns {void}
+ */
+function setupMutationObserver() {
+  // Don't run in frames - focus only on the main document
+  if (window !== window.top) {
+    return;
+  }
+
+  // Define a MutationObserver that will process new content
+  const trumpObserver = new MutationObserver((mutations) => {
+    try {
+      // Process each mutation
+      mutations.forEach((mutation) => {
+        // Process new nodes (childList mutations)
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            // Only process element and text nodes
+            if (node.nodeType === 1 || node.nodeType === 3) {
+              walk(node);
+            }
+          });
+        }
+
+        // Process changed text content (characterData mutations)
+        if (mutation.type === 'characterData' && mutation.target.nodeType === 3) {
+          // Make sure the node isn't in an editable field
+          if (!isEditableNode(mutation.target)) {
+            convert(/** @type {Text} */ (mutation.target));
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Trump Goggles: Error processing mutations', error);
+    }
+  });
+
+  // Configure the observer to watch for relevant changes
+  const observerConfig = {
+    childList: true, // Watch for new nodes
+    subtree: true, // Watch the entire subtree
+    characterData: true, // Watch for text content changes
+  };
+
+  // Start observing
+  try {
+    trumpObserver.observe(document.body, observerConfig);
+  } catch (error) {
+    console.error('Trump Goggles: Error setting up MutationObserver', error);
+  }
+
+  // Error handling is already integrated into the MutationObserver callbacks
 }
