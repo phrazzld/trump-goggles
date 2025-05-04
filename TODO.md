@@ -68,17 +68,18 @@ This document provides a structured, actionable breakdown of the tasks required 
   - **Status**: Already implemented in code. The test infrastructure is properly set up with Vitest configured to use JSDOM (vitest.config.js), helper functions for DOM testing are created (e.g., createTextNode in content.test.js and convert.test.js), and test scripts are defined in package.json.
 
 **TASK-C5: Write Unit Tests for buildTrumpMap**
-- [ ] Create comprehensive tests for the buildTrumpMap function
+- [x] Create comprehensive tests for the buildTrumpMap function
   - **Dependencies**: TASK-C4
   - **Effort**: Medium (2-3 hours)
   - **Acceptance Criteria**:
-    - [ ] Tests verify correct structure of returned map
-    - [ ] Tests verify regex patterns have correct flags
-    - [ ] Tests verify nicknames are correct
-    - [ ] Tests achieve high coverage of buildTrumpMap
+    - [x] Tests verify correct structure of returned map
+    - [x] Tests verify regex patterns have correct flags
+    - [x] Tests verify nicknames are correct
+    - [x] Tests achieve high coverage of buildTrumpMap
   - **Implementation Notes**:
     - May require export modifications to make function testable
     - Consider using a snapshot test for the entire map
+  - **Status**: Already implemented in code. Found comprehensive test coverage in test/content/trumpMap.test.js which verifies structure, regex flags, nicknames, and boundary patterns. All tests are passing.
 
 **TASK-C6: Write Unit Tests for convert Function**
 - [ ] Create comprehensive tests for the convert function
