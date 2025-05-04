@@ -7,6 +7,37 @@ const mapKeys = Object.keys(trumpMap);
 // Initialize text replacement when DOM is loaded
 walk(document.body);
 
+// Checks if a node is editable or within an editable element
+function isEditableNode(node) {
+  // Check if it's a text node
+  if (node.nodeType === 3) {
+    // For text nodes, check the parent
+    return isEditableNode(node.parentNode);
+  }
+
+  // Handle non-text nodes
+  if (!node || node.nodeType !== 1) {
+    return false;
+  }
+
+  // Check for common editable elements
+  const nodeName = node.nodeName.toLowerCase();
+  if (nodeName === 'textarea' || nodeName === 'input') {
+    return true;
+  }
+
+  // Check for contenteditable attribute
+  if (
+    node.getAttribute &&
+    (node.getAttribute('contenteditable') === 'true' || node.getAttribute('contenteditable') === '')
+  ) {
+    return true;
+  }
+
+  // Check if any parent is editable (recursively)
+  return node.parentNode ? isEditableNode(node.parentNode) : false;
+}
+
 // Credit to t-j-crowder on StackOverflow for this walk function
 // http://bit.ly/1o47R7V
 function walk(node) {
@@ -24,7 +55,10 @@ function walk(node) {
       }
       break;
     case 3: // Text node
-      convert(node);
+      // Only convert if the node is not within an editable element
+      if (!isEditableNode(node)) {
+        convert(node);
+      }
       break;
   }
 }
