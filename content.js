@@ -1,68 +1,68 @@
 // Original patterns
-var ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'gi');
-var HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'gi');
-var CRUZ_PATTERN = new RegExp('Ted Cruz', 'gi');
-var MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'gi');
-var JEB_PATTERN = new RegExp('(Jeb Bush)|(Jeb)', 'gi');
-var WARREN_PATTERN = new RegExp('Elizabeth Warren', 'gi');
-var LAMB_PATTERN = new RegExp('Conor Lamb', 'gi');
-var BANNON_PATTERN = new RegExp('Steve Bannon', 'gi');
-var DURBIN_PATTERN = new RegExp('Dick Durbin', 'gi');
-var FEINSTEIN_PATTERN = new RegExp('Dianne Feinstein', 'gi');
-var FLAKE_PATTERN = new RegExp('Jeff Flake', 'gi');
-var FRANKEN_PATTERN = new RegExp('Al Franken', 'gi');
-var CORKER_PATTERN = new RegExp('Bob Corker', 'gi');
-var KELLY_PATTERN = new RegExp('Megyn Kelly', 'gi');
-var SCARBOROUGH_PATTERN = new RegExp('Joe Scarborough', 'gi');
-var MIKA_PATTERN = new RegExp('Mika Brzezinski', 'gi');
-var CHUCK_TODD_PATTERN = new RegExp('Chuck Todd', 'gi');
-var JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'gi');
-var KASICH_PATTERN = new RegExp('John Kasich', 'gi');
-var ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'gi');
-var COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'gi');
+const ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'gi');
+const HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'gi');
+const CRUZ_PATTERN = new RegExp('Ted Cruz', 'gi');
+const MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'gi');
+const JEB_PATTERN = new RegExp('(Jeb Bush)|(Jeb)', 'gi');
+const WARREN_PATTERN = new RegExp('Elizabeth Warren', 'gi');
+const LAMB_PATTERN = new RegExp('Conor Lamb', 'gi');
+const BANNON_PATTERN = new RegExp('Steve Bannon', 'gi');
+const DURBIN_PATTERN = new RegExp('Dick Durbin', 'gi');
+const FEINSTEIN_PATTERN = new RegExp('Dianne Feinstein', 'gi');
+const FLAKE_PATTERN = new RegExp('Jeff Flake', 'gi');
+const FRANKEN_PATTERN = new RegExp('Al Franken', 'gi');
+const CORKER_PATTERN = new RegExp('Bob Corker', 'gi');
+const KELLY_PATTERN = new RegExp('Megyn Kelly', 'gi');
+const SCARBOROUGH_PATTERN = new RegExp('Joe Scarborough', 'gi');
+const MIKA_PATTERN = new RegExp('Mika Brzezinski', 'gi');
+const CHUCK_TODD_PATTERN = new RegExp('Chuck Todd', 'gi');
+const JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'gi');
+const KASICH_PATTERN = new RegExp('John Kasich', 'gi');
+const ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'gi');
+const COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'gi');
 
 // 2025 Upgrade Pack - Politicians & Prosecutors
-var BIDEN_PATTERN = new RegExp('Joe\\s+Biden', 'gi');
-var KAMALA_PATTERN = new RegExp('Kamala\\s+Harris', 'gi');
-var DESANTIS_PATTERN = new RegExp('Ron\\s+DeSantis', 'gi');
-var HALEY_PATTERN = new RegExp('Nikki\\s+Haley', 'gi');
-var MCCONNELL_PATTERN = new RegExp('Mitch\\s+McConnell', 'gi');
-var CHAO_PATTERN = new RegExp('Elaine\\s+Chao', 'gi');
-var SCHIFF_PATTERN = new RegExp('Adam\\s+Schiff', 'gi');
-var PELOSI_PATTERN = new RegExp('Nancy\\s+Pelosi', 'gi');
-var SCHUMER_PATTERN = new RegExp('Chuck\\s+Schumer', 'gi');
-var BLOOMBERG_PATTERN = new RegExp('(Michael|Mike)\\s+Bloomberg', 'gi');
-var CHENEY_PATTERN = new RegExp('Liz\\s+Cheney', 'gi');
-var CHRISTIE_PATTERN = new RegExp('Chris\\s+Christie', 'gi');
-var BERNIE_PATTERN = new RegExp('Bernie\\s+Sanders', 'gi');
-var JACK_SMITH_PATTERN = new RegExp('Jack\\s+Smith', 'gi');
-var BRAGG_PATTERN = new RegExp('Alvin\\s+Bragg', 'gi');
-var LETITIA_JAMES_PATTERN = new RegExp('Letitia\\s+James', 'gi');
+const BIDEN_PATTERN = new RegExp('Joe\\s+Biden', 'gi');
+const KAMALA_PATTERN = new RegExp('Kamala\\s+Harris', 'gi');
+const DESANTIS_PATTERN = new RegExp('Ron\\s+DeSantis', 'gi');
+const HALEY_PATTERN = new RegExp('Nikki\\s+Haley', 'gi');
+const MCCONNELL_PATTERN = new RegExp('Mitch\\s+McConnell', 'gi');
+const CHAO_PATTERN = new RegExp('Elaine\\s+Chao', 'gi');
+const SCHIFF_PATTERN = new RegExp('Adam\\s+Schiff', 'gi');
+const PELOSI_PATTERN = new RegExp('Nancy\\s+Pelosi', 'gi');
+const SCHUMER_PATTERN = new RegExp('Chuck\\s+Schumer', 'gi');
+const BLOOMBERG_PATTERN = new RegExp('(Michael|Mike)\\s+Bloomberg', 'gi');
+const CHENEY_PATTERN = new RegExp('Liz\\s+Cheney', 'gi');
+const CHRISTIE_PATTERN = new RegExp('Chris\\s+Christie', 'gi');
+const BERNIE_PATTERN = new RegExp('Bernie\\s+Sanders', 'gi');
+const JACK_SMITH_PATTERN = new RegExp('Jack\\s+Smith', 'gi');
+const BRAGG_PATTERN = new RegExp('Alvin\\s+Bragg', 'gi');
+const LETITIA_JAMES_PATTERN = new RegExp('Letitia\\s+James', 'gi');
 
 // Foreign Leaders
-var KIM_JONG_UN_PATTERN = new RegExp('(Kim Jong-un)|(Kim Jong Un)', 'gi');
+const KIM_JONG_UN_PATTERN = new RegExp('(Kim Jong-un)|(Kim Jong Un)', 'gi');
 
 // Media & Organizations - Fixed to avoid overlap
-var CNN_PATTERN = new RegExp('\\bCNN\\b', 'gi');
-var NYT_PATTERN = new RegExp('\\b(NYT|New\\s+York\\s+Times)\\b', 'gi');
-var WP_PATTERN = new RegExp('\\b(Washington\\s+Post|WaPo)\\b', 'gi');
-var MSNBC_PATTERN = new RegExp('\\bMSNBC\\b', 'gi');
-var NBC_PATTERN = new RegExp('\\bNBC\\b(?!\\s+News)', 'gi'); // NBC but not NBC News
-var NBC_NEWS_PATTERN = new RegExp('\\bNBC\\s+News\\b', 'gi');
-var ABC_PATTERN = new RegExp('\\bABC\\b(?!\\s+News)', 'gi'); // ABC but not ABC News
-var ABC_NEWS_PATTERN = new RegExp('\\bABC\\s+News\\b', 'gi');
-var CBS_PATTERN = new RegExp('\\bCBS\\b', 'gi');
-var HUFFPO_PATTERN = new RegExp('\\b(HuffPo|Huffington\\s+Post)\\b', 'gi');
-var COMCAST_PATTERN = new RegExp('\\bComcast\\b', 'gi');
-var FORBES_PATTERN = new RegExp('\\bForbes\\b', 'gi');
+const CNN_PATTERN = new RegExp('\\bCNN\\b', 'gi');
+const NYT_PATTERN = new RegExp('\\b(NYT|New\\s+York\\s+Times)\\b', 'gi');
+const WP_PATTERN = new RegExp('\\b(Washington\\s+Post|WaPo)\\b', 'gi');
+const MSNBC_PATTERN = new RegExp('\\bMSNBC\\b', 'gi');
+const NBC_PATTERN = new RegExp('\\bNBC\\b(?!\\s+News)', 'gi'); // NBC but not NBC News
+const NBC_NEWS_PATTERN = new RegExp('\\bNBC\\s+News\\b', 'gi');
+const ABC_PATTERN = new RegExp('\\bABC\\b(?!\\s+News)', 'gi'); // ABC but not ABC News
+const ABC_NEWS_PATTERN = new RegExp('\\bABC\\s+News\\b', 'gi');
+const CBS_PATTERN = new RegExp('\\bCBS\\b', 'gi');
+const HUFFPO_PATTERN = new RegExp('\\b(HuffPo|Huffington\\s+Post)\\b', 'gi');
+const COMCAST_PATTERN = new RegExp('\\bComcast\\b', 'gi');
+const FORBES_PATTERN = new RegExp('\\bForbes\\b', 'gi');
 
 // COVID-related patterns
-var COVID_PATTERN = new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi');
-var COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi');
+const COVID_PATTERN = new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi');
+const COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi');
 
 // Cache the Trump mappings to avoid rebuilding for each text node
-var trumpMap = buildTrumpMap();
-var mapKeys = Object.keys(trumpMap);
+const trumpMap = buildTrumpMap();
+const mapKeys = Object.keys(trumpMap);
 
 // Initialize text replacement when DOM is loaded
 walk(document.body);
@@ -70,7 +70,7 @@ walk(document.body);
 // Credit to t-j-crowder on StackOverflow for this walk function
 // http://bit.ly/1o47R7V
 function walk(node) {
-  var child, next;
+  let child, next;
 
   switch (node.nodeType) {
     case 1: // Element
@@ -92,7 +92,7 @@ function walk(node) {
 // Simple convert function - applies all replacements without context awareness
 function convert(textNode) {
   // Create a temporary variable to avoid multiple DOM updates
-  var replacedText = textNode.nodeValue;
+  let replacedText = textNode.nodeValue;
 
   // Apply all replacements to the temporary variable
   mapKeys.forEach(function (key) {
