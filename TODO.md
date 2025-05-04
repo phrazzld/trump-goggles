@@ -53,18 +53,19 @@ This document provides a structured, actionable breakdown of the tasks required 
 ### Test Coverage
 
 **TASK-C4: Create Test Framework Setup**
-- [ ] Ensure test infrastructure is properly set up for content.js testing
+- [x] Ensure test infrastructure is properly set up for content.js testing
   - **Dependencies**: None
   - **Effort**: Medium (2-3 hours)
   - **Acceptance Criteria**:
-    - [ ] Vitest configured correctly for extension testing
-    - [ ] JSDOM available for simulating DOM
-    - [ ] Test helper functions created (e.g., createTextNode)
-    - [ ] Test scripts added to package.json
+    - [x] Vitest configured correctly for extension testing
+    - [x] JSDOM available for simulating DOM
+    - [x] Test helper functions created (e.g., createTextNode)
+    - [x] Test scripts added to package.json
   - **Implementation Notes**:
     - Review existing test setup in test/ directory
     - Add necessary configuration for content script testing
     - Create helper functions for DOM simulation
+  - **Status**: Already implemented in code. The test infrastructure is properly set up with Vitest configured to use JSDOM (vitest.config.js), helper functions for DOM testing are created (e.g., createTextNode in content.test.js and convert.test.js), and test scripts are defined in package.json.
 
 **TASK-C5: Write Unit Tests for buildTrumpMap**
 - [ ] Create comprehensive tests for the buildTrumpMap function
