@@ -129,17 +129,18 @@ This document provides a structured, actionable breakdown of the tasks required 
   - **Status**: Already implemented in code. The codebase already uses modern JavaScript with `const` and `let` throughout. No `var` declarations were found in content.js or any other JavaScript files in the project.
 
 **TASK-R2: Improve Regex Pattern Organization**
-- [ ] Refactor global regex pattern definitions into buildTrumpMap function
+- [x] Refactor global regex pattern definitions into buildTrumpMap function
   - **Dependencies**: TASK-C1, TASK-C5 (to ensure tests pass after refactoring)
   - **Effort**: Medium (2-3 hours)
   - **Acceptance Criteria**:
-    - [ ] Global regex constants removed
-    - [ ] Patterns defined inline in buildTrumpMap
-    - [ ] No functional changes introduced
-    - [ ] Tests continue to pass
+    - [x] Global regex constants removed
+    - [x] Patterns defined inline in buildTrumpMap
+    - [x] No functional changes introduced
+    - [x] Tests continue to pass
   - **Implementation Notes**:
     - Move pattern definitions into the map object
     - Maintain correct regex flags and patterns
+  - **Status**: Already implemented in code. All regex patterns are already defined inline within the buildTrumpMap function (lines 183-406). There are no global regex constants to be removed. All tests pass successfully, confirming that the patterns are properly organized.
 
 **TASK-R3: Skip Replacements in Editable Fields**
 - [ ] Modify walk function to avoid processing editable elements
