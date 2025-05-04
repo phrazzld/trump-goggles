@@ -1,64 +1,4 @@
-// Original patterns
-const ISIS_PATTERN = new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'gi');
-const HILL_PATTERN = new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'gi');
-const CRUZ_PATTERN = new RegExp('Ted Cruz', 'gi');
-const MARCO_PATTERN = new RegExp('(Marco Rubio)|(Rubio)', 'gi');
-const JEB_PATTERN = new RegExp('(Jeb Bush)|(Jeb)', 'gi');
-const WARREN_PATTERN = new RegExp('Elizabeth Warren', 'gi');
-const LAMB_PATTERN = new RegExp('Conor Lamb', 'gi');
-const BANNON_PATTERN = new RegExp('Steve Bannon', 'gi');
-const DURBIN_PATTERN = new RegExp('Dick Durbin', 'gi');
-const FEINSTEIN_PATTERN = new RegExp('Dianne Feinstein', 'gi');
-const FLAKE_PATTERN = new RegExp('Jeff Flake', 'gi');
-const FRANKEN_PATTERN = new RegExp('Al Franken', 'gi');
-const CORKER_PATTERN = new RegExp('Bob Corker', 'gi');
-const KELLY_PATTERN = new RegExp('Megyn Kelly', 'gi');
-const SCARBOROUGH_PATTERN = new RegExp('Joe Scarborough', 'gi');
-const MIKA_PATTERN = new RegExp('Mika Brzezinski', 'gi');
-const CHUCK_TODD_PATTERN = new RegExp('Chuck Todd', 'gi');
-const JIM_ACOSTA_PATTERN = new RegExp('Jim Acosta', 'gi');
-const KASICH_PATTERN = new RegExp('John Kasich', 'gi');
-const ASSAD_PATTERN = new RegExp('Bashar (Hafez)? al-Assad', 'gi');
-const COFFEE_PATTERN = new RegExp('(coffee)|(Coffee)', 'gi');
-
-// 2025 Upgrade Pack - Politicians & Prosecutors
-const BIDEN_PATTERN = new RegExp('Joe\\s+Biden', 'gi');
-const KAMALA_PATTERN = new RegExp('Kamala\\s+Harris', 'gi');
-const DESANTIS_PATTERN = new RegExp('Ron\\s+DeSantis', 'gi');
-const HALEY_PATTERN = new RegExp('Nikki\\s+Haley', 'gi');
-const MCCONNELL_PATTERN = new RegExp('Mitch\\s+McConnell', 'gi');
-const CHAO_PATTERN = new RegExp('Elaine\\s+Chao', 'gi');
-const SCHIFF_PATTERN = new RegExp('Adam\\s+Schiff', 'gi');
-const PELOSI_PATTERN = new RegExp('Nancy\\s+Pelosi', 'gi');
-const SCHUMER_PATTERN = new RegExp('Chuck\\s+Schumer', 'gi');
-const BLOOMBERG_PATTERN = new RegExp('(Michael|Mike)\\s+Bloomberg', 'gi');
-const CHENEY_PATTERN = new RegExp('Liz\\s+Cheney', 'gi');
-const CHRISTIE_PATTERN = new RegExp('Chris\\s+Christie', 'gi');
-const BERNIE_PATTERN = new RegExp('Bernie\\s+Sanders', 'gi');
-const JACK_SMITH_PATTERN = new RegExp('Jack\\s+Smith', 'gi');
-const BRAGG_PATTERN = new RegExp('Alvin\\s+Bragg', 'gi');
-const LETITIA_JAMES_PATTERN = new RegExp('Letitia\\s+James', 'gi');
-
-// Foreign Leaders
-const KIM_JONG_UN_PATTERN = new RegExp('(Kim Jong-un)|(Kim Jong Un)', 'gi');
-
-// Media & Organizations - Fixed to avoid overlap
-const CNN_PATTERN = new RegExp('\\bCNN\\b', 'gi');
-const NYT_PATTERN = new RegExp('\\b(NYT|New\\s+York\\s+Times)\\b', 'gi');
-const WP_PATTERN = new RegExp('\\b(Washington\\s+Post|WaPo)\\b', 'gi');
-const MSNBC_PATTERN = new RegExp('\\bMSNBC\\b', 'gi');
-const NBC_PATTERN = new RegExp('\\bNBC\\b(?!\\s+News)', 'gi'); // NBC but not NBC News
-const NBC_NEWS_PATTERN = new RegExp('\\bNBC\\s+News\\b', 'gi');
-const ABC_PATTERN = new RegExp('\\bABC\\b(?!\\s+News)', 'gi'); // ABC but not ABC News
-const ABC_NEWS_PATTERN = new RegExp('\\bABC\\s+News\\b', 'gi');
-const CBS_PATTERN = new RegExp('\\bCBS\\b', 'gi');
-const HUFFPO_PATTERN = new RegExp('\\b(HuffPo|Huffington\\s+Post)\\b', 'gi');
-const COMCAST_PATTERN = new RegExp('\\bComcast\\b', 'gi');
-const FORBES_PATTERN = new RegExp('\\bForbes\\b', 'gi');
-
-// COVID-related patterns
-const COVID_PATTERN = new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi');
-const COVID_ALT_PATTERN = new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi');
+// Trump Goggles - Chrome extension to see the world through Trump's eyes
 
 // Cache the Trump mappings to avoid rebuilding for each text node
 const trumpMap = buildTrumpMap();
@@ -106,219 +46,225 @@ function convert(textNode) {
 // Build RegEx patterns and replacements for each object of Trump's derision
 function buildTrumpMap() {
   return {
-    // Original mappings
+    // Original mappings - Politicians
     isis: {
-      regex: ISIS_PATTERN,
+      regex: new RegExp('(ISIS)|(ISIL)|(Islamic State)|(Isis)|(Isil)', 'gi'),
       nick: 'Evil Losers',
     },
     hillary: {
-      regex: HILL_PATTERN,
+      regex: new RegExp('(Hillary Clinton)|(Hillary Rodham Clinton)|(Mrs\. Clinton)', 'gi'),
       nick: 'Crooked Hillary',
     },
     cruz: {
-      regex: CRUZ_PATTERN,
+      regex: new RegExp('Ted Cruz', 'gi'),
       nick: "Lyin' Ted",
     },
     marco: {
-      regex: MARCO_PATTERN,
+      regex: new RegExp('(Marco Rubio)|(Rubio)', 'gi'),
       nick: 'Little Marco',
     },
     jeb: {
-      regex: JEB_PATTERN,
+      regex: new RegExp('(Jeb Bush)|(Jeb)', 'gi'),
       nick: 'Low Energy Jeb',
     },
     warren: {
-      regex: WARREN_PATTERN,
+      regex: new RegExp('Elizabeth Warren', 'gi'),
       nick: 'Goofy Pocahontas',
     },
     lamb: {
-      regex: LAMB_PATTERN,
+      regex: new RegExp('Conor Lamb', 'gi'),
       nick: 'Lamb the Sham',
     },
     bannon: {
-      regex: BANNON_PATTERN,
+      regex: new RegExp('Steve Bannon', 'gi'),
       nick: 'Sloppy Steve',
     },
     durbin: {
-      regex: DURBIN_PATTERN,
+      regex: new RegExp('Dick Durbin', 'gi'),
       nick: 'Dicky Durbin',
     },
     feinstein: {
-      regex: FEINSTEIN_PATTERN,
+      regex: new RegExp('Dianne Feinstein', 'gi'),
       nick: 'Sneaky Dianne Feinstein',
     },
     flake: {
-      regex: FLAKE_PATTERN,
+      regex: new RegExp('Jeff Flake', 'gi'),
       nick: 'Jeff Flakey',
     },
     franken: {
-      regex: FRANKEN_PATTERN,
+      regex: new RegExp('Al Franken', 'gi'),
       nick: 'Al Frankenstein',
     },
     corker: {
-      regex: CORKER_PATTERN,
+      regex: new RegExp('Bob Corker', 'gi'),
       nick: "Liddle' Bob Corker",
     },
+    kasich: {
+      regex: new RegExp('John Kasich', 'gi'),
+      nick: '1 for 38 Kasich',
+    },
+    assad: {
+      regex: new RegExp('Bashar (Hafez)? al-Assad', 'gi'),
+      nick: 'Animal Assad',
+    },
+
+    // Original mappings - Media
     kelly: {
-      regex: KELLY_PATTERN,
+      regex: new RegExp('Megyn Kelly', 'gi'),
       nick: 'Crazy Megyn',
     },
     scarborough: {
-      regex: SCARBOROUGH_PATTERN,
+      regex: new RegExp('Joe Scarborough', 'gi'),
       nick: 'Psycho Joe',
     },
     mika: {
-      regex: MIKA_PATTERN,
+      regex: new RegExp('Mika Brzezinski', 'gi'),
       nick: 'Dumb as a Rock Mika',
     },
     chucktodd: {
-      regex: CHUCK_TODD_PATTERN,
+      regex: new RegExp('Chuck Todd', 'gi'),
       nick: 'Sleepy Eyes Chuck Todd',
     },
     jimacosta: {
-      regex: JIM_ACOSTA_PATTERN,
+      regex: new RegExp('Jim Acosta', 'gi'),
       nick: 'Crazy Jim Acosta',
     },
-    kasich: {
-      regex: KASICH_PATTERN,
-      nick: '1 for 38 Kasich',
-    },
+
+    // Misc
     coffee: {
-      regex: COFFEE_PATTERN,
+      regex: new RegExp('(coffee)|(Coffee)', 'gi'),
       nick: 'covfefe',
-    },
-    assad: {
-      regex: ASSAD_PATTERN,
-      nick: 'Animal Assad',
     },
 
     // 2025 Upgrade Pack - Politicians & Prosecutors
     biden: {
-      regex: BIDEN_PATTERN,
+      regex: new RegExp('Joe\\s+Biden', 'gi'),
       nick: 'Sleepy Joe',
     },
     kamala: {
-      regex: KAMALA_PATTERN,
+      regex: new RegExp('Kamala\\s+Harris', 'gi'),
       nick: "Laffin' Kamala",
     },
     desantis: {
-      regex: DESANTIS_PATTERN,
+      regex: new RegExp('Ron\\s+DeSantis', 'gi'),
       nick: 'Ron DeSanctimonious',
     },
     haley: {
-      regex: HALEY_PATTERN,
+      regex: new RegExp('Nikki\\s+Haley', 'gi'),
       nick: 'Birdbrain Nikki',
     },
     mcconnell: {
-      regex: MCCONNELL_PATTERN,
+      regex: new RegExp('Mitch\\s+McConnell', 'gi'),
       nick: 'Old Crow Mitch',
     },
     chao: {
-      regex: CHAO_PATTERN,
+      regex: new RegExp('Elaine\\s+Chao', 'gi'),
       nick: 'Coco Chow',
     },
     schiff: {
-      regex: SCHIFF_PATTERN,
+      regex: new RegExp('Adam\\s+Schiff', 'gi'),
       nick: 'Shifty Schiff',
     },
     pelosi: {
-      regex: PELOSI_PATTERN,
+      regex: new RegExp('Nancy\\s+Pelosi', 'gi'),
       nick: 'Crazy Nancy',
     },
     schumer: {
-      regex: SCHUMER_PATTERN,
+      regex: new RegExp('Chuck\\s+Schumer', 'gi'),
       nick: "Cryin' Chuck",
     },
     bloomberg: {
-      regex: BLOOMBERG_PATTERN,
+      regex: new RegExp('(Michael|Mike)\\s+Bloomberg', 'gi'),
       nick: 'Mini Mike',
     },
     cheney: {
-      regex: CHENEY_PATTERN,
+      regex: new RegExp('Liz\\s+Cheney', 'gi'),
       nick: "Lyin' Liz",
     },
     christie: {
-      regex: CHRISTIE_PATTERN,
+      regex: new RegExp('Chris\\s+Christie', 'gi'),
       nick: 'Sloppy Chris',
     },
     bernie: {
-      regex: BERNIE_PATTERN,
+      regex: new RegExp('Bernie\\s+Sanders', 'gi'),
       nick: 'Crazy Bernie',
     },
     jacksmith: {
-      regex: JACK_SMITH_PATTERN,
+      regex: new RegExp('Jack\\s+Smith', 'gi'),
       nick: 'Deranged Jack Smith',
     },
     bragg: {
-      regex: BRAGG_PATTERN,
+      regex: new RegExp('Alvin\\s+Bragg', 'gi'),
       nick: 'Fat Alvin',
     },
     letitiajames: {
-      regex: LETITIA_JAMES_PATTERN,
+      regex: new RegExp('Letitia\\s+James', 'gi'),
       nick: 'Peekaboo',
     },
+
+    // Foreign Leaders
     kimjongun: {
-      regex: KIM_JONG_UN_PATTERN,
+      regex: new RegExp('(Kim Jong-un)|(Kim Jong Un)', 'gi'),
       nick: 'Little Rocket Man',
     },
 
     // Media & Organizations - Fixed to avoid overlaps
     cnn: {
-      regex: CNN_PATTERN,
+      regex: new RegExp('\\bCNN\\b', 'gi'),
       nick: 'Fake News CNN',
     },
     nyt: {
-      regex: NYT_PATTERN,
+      regex: new RegExp('\\b(NYT|New\\s+York\\s+Times)\\b', 'gi'),
       nick: 'Failing New York Times',
     },
     washingtonpost: {
-      regex: WP_PATTERN,
+      regex: new RegExp('\\b(Washington\\s+Post|WaPo)\\b', 'gi'),
       nick: 'Amazon Washington Post',
     },
     msnbc: {
-      regex: MSNBC_PATTERN,
+      regex: new RegExp('\\bMSNBC\\b', 'gi'),
       nick: 'MSDNC',
     },
     nbc: {
-      regex: NBC_PATTERN,
+      regex: new RegExp('\\bNBC\\b(?!\\s+News)', 'gi'), // NBC but not NBC News
       nick: 'Fake News NBC',
     },
     nbcnews: {
-      regex: NBC_NEWS_PATTERN,
+      regex: new RegExp('\\bNBC\\s+News\\b', 'gi'),
       nick: 'Fake News NBC News',
     },
     abc: {
-      regex: ABC_PATTERN,
+      regex: new RegExp('\\bABC\\b(?!\\s+News)', 'gi'), // ABC but not ABC News
       nick: 'Fake News ABC',
     },
     abcnews: {
-      regex: ABC_NEWS_PATTERN,
+      regex: new RegExp('\\bABC\\s+News\\b', 'gi'),
       nick: 'Fake News ABC News',
     },
     cbs: {
-      regex: CBS_PATTERN,
+      regex: new RegExp('\\bCBS\\b', 'gi'),
       nick: 'Fake News CBS',
     },
     huffpo: {
-      regex: HUFFPO_PATTERN,
+      regex: new RegExp('\\b(HuffPo|Huffington\\s+Post)\\b', 'gi'),
       nick: 'Liberal Huffington Post',
     },
     comcast: {
-      regex: COMCAST_PATTERN,
+      regex: new RegExp('\\bComcast\\b', 'gi'),
       nick: 'Concast',
     },
     forbes: {
-      regex: FORBES_PATTERN,
+      regex: new RegExp('\\bForbes\\b', 'gi'),
       nick: 'Failing Forbes Magazine',
     },
 
     // COVID-related terms
     covid: {
-      regex: COVID_PATTERN,
+      regex: new RegExp('\\b(COVID[- ]?19|Covid|Coronavirus)\\b', 'gi'),
       nick: 'China Virus',
     },
     covidalt: {
-      regex: COVID_ALT_PATTERN,
+      regex: new RegExp('\\b(SARS[- ]CoV[- ]?2|Wuhan\\s+Virus)\\b', 'gi'),
       nick: 'Kung Flu',
     },
   };
