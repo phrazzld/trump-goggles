@@ -92,10 +92,16 @@ function walk(node) {
 
 // Simple convert function - applies all replacements without context awareness
 function convert(textNode) {
-  // Apply all replacements unconditionally using the cached map
+  // Create a temporary variable to avoid multiple DOM updates
+  var replacedText = textNode.nodeValue;
+
+  // Apply all replacements to the temporary variable
   mapKeys.forEach(function (key) {
-    textNode.nodeValue = textNode.nodeValue.replace(trumpMap[key].regex, trumpMap[key].nick);
+    replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
   });
+
+  // Update DOM only once after all replacements are done
+  textNode.nodeValue = replacedText;
 }
 
 // Build RegEx patterns and replacements for each object of Trump's derision
