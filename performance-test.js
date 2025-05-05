@@ -7,7 +7,8 @@
 
 // Global variables to store performance metrics
 let startTime, endTime;
-let domOperations = 0;
+// Counter for DOM element manipulation operations (used in monitoring)
+let domElementOperations = 0;
 let nodeValueUpdates = 0;
 
 // Function to inject performance monitoring
@@ -35,6 +36,7 @@ function reportPerformanceMetrics() {
   console.log('=== PERFORMANCE METRICS ===');
   console.log(`Total execution time: ${duration.toFixed(2)} ms`);
   console.log(`DOM nodeValue updates: ${nodeValueUpdates}`);
+  console.log(`DOM element operations: ${domElementOperations}`);
 
   // Report memory usage if available
   if (window.performance && window.performance.memory) {
@@ -61,6 +63,7 @@ function reportPerformanceMetrics() {
     <p><strong>Version:</strong> ${window.trumpVersion || 'Unknown'}</p>
     <p><strong>Execution Time:</strong> ${duration.toFixed(2)} ms</p>
     <p><strong>DOM Updates:</strong> ${nodeValueUpdates}</p>
+    <p><strong>Element Operations:</strong> ${domElementOperations}</p>
     <button id="btn-close-results" style="margin-top: 10px; padding: 5px 10px;">Close</button>
   `;
 

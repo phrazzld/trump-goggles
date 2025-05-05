@@ -29,7 +29,7 @@
 
   "content_scripts": [
     {
-      "js": ["content.js"],
+      "js": ["content-shared.js", "content.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }

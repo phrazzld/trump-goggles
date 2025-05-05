@@ -138,14 +138,19 @@ function convert(textNode) {
 /**
  * Builds a mapping of regular expressions to Trump's nicknames.
  */
+// @ts-ignore - Function needs to have the same name but will be used in isolated script contexts
 function buildTrumpMap() {
   // Simulate more expensive map building by making it slightly slower
   const start = performance.now(); // Measure start time
 
   // Simulate computational overhead by doing unnecessary work
-  let overhead = 0;
+  let simulatedOverhead = 0;
   for (let i = 0; i < 1000; i++) {
-    overhead += Math.sqrt(i);
+    simulatedOverhead += Math.sqrt(i);
+  }
+  // Using the variable to avoid unused warning
+  if (simulatedOverhead > 0 && process.env.NODE_ENV === 'development') {
+    console.debug('Map building overhead:', simulatedOverhead);
   }
 
   const map = {

@@ -29,6 +29,7 @@
   "type": "module",
   "devDependencies": {
     "@types/chrome": "0.0.318",
+    "@types/node": "22.15.3",
     "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.26.0",
     "eslint-plugin-jest-dom": "^5.5.0",

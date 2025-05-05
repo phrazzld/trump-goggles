@@ -4,9 +4,13 @@
  * of the Trump Goggles extension.
  */
 
+// @ts-ignore - TypeScript doesn't understand CommonJS require
 const http = require('http');
+// @ts-ignore - TypeScript doesn't understand CommonJS require
 const fs = require('fs');
+// @ts-ignore - TypeScript doesn't understand CommonJS require
 const path = require('path');
+// @ts-ignore - TypeScript doesn't understand CommonJS require
 const open = require('open');
 
 // Port for the test server
@@ -74,6 +78,7 @@ server.listen(PORT, () => {
   console.log('');
 
   // Open the browser to the test page
+  // @ts-ignore - 'open' module usage with direct call
   open(`http://localhost:${PORT}/`);
 });
 

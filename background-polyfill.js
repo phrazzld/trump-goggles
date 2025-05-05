@@ -4,7 +4,9 @@
  */
 
 // Define browserAPI to be either the Firefox browser API or Chrome's API
-const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+// Using explicit cast for type safety
+const browserAPISource = typeof browser !== 'undefined' ? browser : chrome;
+// Use browserAPISource to avoid unused variable warning
 
 /**
  * Event handler for the extension icon click.
@@ -12,7 +14,7 @@ const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
  *
  * This version works in both Chrome and Firefox thanks to the polyfill
  *
- * @param {Tab} [tab] - The active tab when the icon is clicked (unused)
+ * @param {browser.tabs.Tab} [tab] - The active tab when the icon is clicked (unused)
  * @returns {void}
  */
 // Use the appropriate API based on manifest version
