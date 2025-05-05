@@ -12,7 +12,8 @@
     "ci": "pnpm lint && pnpm typecheck && pnpm test",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
-    "typecheck:watch": "tsc --noEmit --watch"
+    "typecheck:watch": "tsc --noEmit --watch",
+    "perf-test": "node setup-performance-test.js"
   },
   "keywords": [
     "chrome-extension",
@@ -35,6 +36,7 @@
     "husky": "9.1.7",
     "jsdom": "^26.1.0",
     "lint-staged": "15.5.1",
+    "open": "10.1.2",
     "prettier": "3.5.3",
     "typescript": "5.8.3",
     "vitest": "^3.1.2"

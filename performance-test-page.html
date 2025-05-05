@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trump Goggles Performance Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .article {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .editable {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #f9f9f9;
+    }
+    #dynamic-content {
+      margin-top: 30px;
+    }
+    .controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #f8f8f8;
+      padding: 10px;
+      border: 1px solid #ddd;
+      z-index: 100;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #0052a3;
+    }
+    button.primary {
+      background-color: #28a745;
+    }
+    button.danger {
+      background-color: #dc3545;
+    }
+    .test-options {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .version-selector {
+      margin-bottom: 15px;
+    }
+    .performance-metrics {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      display: none;
+    }
+  </style>
+  <!-- Load the performance test script -->
+  <script src="performance-test.js" defer></script>
+</head>
+<body>
+  <h1>Trump Goggles Performance Test</h1>
+  
+  <div class="test-options">
+    <h2>Test Options</h2>
+    <div class="version-selector">
+      <p>Current version: <span id="current-version">Loading...</span></p>
+      <button id="btn-test-optimized" class="primary">Test Optimized Version</button>
+      <button id="btn-test-unoptimized">Test Unoptimized Version</button>
+    </div>
+    
+    <div class="content-controls">
+      <button id="load-more">Load More Content (x1)</button>
+      <button id="load-bulk">Load Bulk Content (x10)</button>
+      <button id="duplicate-content">Duplicate All Content</button>
+    </div>
+  </div>
+  
+  <div class="performance-metrics" id="metrics-display">
+    <h2>Performance Metrics</h2>
+    <div id="metrics-content">
+      <p>Run the test to see metrics...</p>
+    </div>
+  </div>
+  
+  <h2>Test Content</h2>
+  <p>The page contains various terms that trigger Trump Goggles replacements. The test will measure performance differences between optimized and unoptimized versions.</p>
+  
+  <div class="article">
+    <h2>Political News Update</h2>
+    <p>Joe Biden and Kamala Harris attended a press conference yesterday to address recent economic developments. The event was covered extensively by CNN, NBC News, and the New York Times.</p>
+    <p>Meanwhile, Mitch McConnell and Nancy Pelosi have been negotiating a new bipartisan bill with Chuck Schumer. Elizabeth Warren and Bernie Sanders expressed skepticism about the proposal.</p>
+    <p>Hillary Clinton and Ted Cruz made rare joint appearances on ABC News to discuss foreign policy matters related to the ongoing COVID-19 pandemic.</p>
+    <p>Nikki Haley and Ron DeSantis announced new policy initiatives that sparked debate among Democrats and Republicans alike. Marco Rubio offered his support while Jeb Bush remained silent.</p>
+  </div>
+  
+  <div class="article">
+    <h2>Media Coverage Analysis</h2>
+    <p>A recent study by the Washington Post examined reporting patterns on MSNBC, Fox News, and CNN. Journalists like Jim Acosta and Chuck Todd were mentioned in the analysis.</p>
+    <p>Megyn Kelly and Joe Scarborough offered contrasting perspectives on the study's findings. Media critics at the New York Times and CBS published additional commentary.</p>
+    <p>Forbes magazine suggested the COVID-19 reporting across networks showed significant bias, particularly on stories involving Marco Rubio and Liz Cheney.</p>
+  </div>
+  
+  <div class="article">
+    <h2>International Relations</h2>
+    <p>Diplomatic tensions escalated after comments made by Kim Jong Un were published by the Washington Post. Bashar al-Assad also made statements that drew criticism from MSNBC analysts.</p>
+    <p>The New York Times published an exposé on international COVID-19 response strategies, highlighting controversies surrounding SARS-CoV-2 origins.</p>
+    <p>Mike Bloomberg and other business leaders have called for increased international cooperation on economic policies, according to NBC News reports.</p>
+  </div>
+  
+  <h2>Editable Elements (should not be converted)</h2>
+  <div class="editable" contenteditable="true">
+    <p>Hillary Clinton and Joe Biden met with CNN reporters to discuss new policies. This text is in a contenteditable div and should not be converted by Trump Goggles.</p>
+  </div>
+  
+  <textarea class="editable" rows="4" cols="50">Nancy Pelosi and Chuck Schumer discussed the New York Times coverage with MSNBC hosts. This text in a textarea should not be converted.</textarea>
+  
+  <div id="dynamic-content">
+    <!-- Dynamically loaded content will appear here -->
+  </div>
+  
+  <script>
+    // Display current version
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const version = urlParams.get('version') || 'optimized';
+      document.getElementById('current-version').textContent = version;
+    });
+    
+    // Version selection buttons
+    document.getElementById('btn-test-optimized').addEventListener('click', function() {
+      window.location.href = 'performance-test-page.html?version=optimized';
+    });
+    
+    document.getElementById('btn-test-unoptimized').addEventListener('click', function() {
+      window.location.href = 'performance-test-page.html?version=unoptimized';
+    });
+    
+    // Template for dynamically added content
+    const contentTemplate = `
+      <div class="article">
+        <h2>Breaking News</h2>
+        <p>Joe Biden announced a new initiative today with Kamala Harris at his side. The press conference was attended by reporters from CNN, NBC News, and the New York Times.</p>
+        <p>Chuck Schumer and Nancy Pelosi voiced their support while Mitch McConnell expressed concerns about the funding model. Liz Cheney and Nikki Haley weighed in on the discussion.</p>
+        <p>Analysis from Washington Post and CBS suggested the economic impact would be significant, especially regarding COVID-19 recovery efforts.</p>
+      </div>
+    `;
+    
+    // Load more content button
+    document.getElementById('load-more').addEventListener('click', function() {
+      const dynamicContent = document.getElementById('dynamic-content');
+      dynamicContent.innerHTML += contentTemplate;
+    });
+    
+    // Load bulk content (x10)
+    document.getElementById('load-bulk').addEventListener('click', function() {
+      const dynamicContent = document.getElementById('dynamic-content');
+      for (let i = 0; i < 10; i++) {
+        dynamicContent.innerHTML += contentTemplate;
+      }
+    });
+    
+    // Duplicate all content button
+    document.getElementById('duplicate-content').addEventListener('click', function() {
+      const articles = document.querySelectorAll('.article');
+      const dynamicContent = document.getElementById('dynamic-content');
+      
+      articles.forEach(article => {
+        const clone = article.cloneNode(true);
+        dynamicContent.appendChild(clone);
+      });
+    });
+  </script>
+</body>
+</html>
