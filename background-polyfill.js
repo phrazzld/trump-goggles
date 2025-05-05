@@ -1,36 +1,38 @@
 /**
- * Polyfill for browser API compatibility
+ * Polyfill for browser API compatibility (Chrome/Firefox, MV2/MV3)
  * This allows the extension to work in both Chrome and Firefox with a single codebase
  */
 
-// Define browserAPI to be either the Firefox browser API or Chrome's API
-// Using explicit cast for type safety
-const browserAPISource = typeof browser !== 'undefined' ? browser : chrome;
-// Use browserAPISource to avoid unused variable warning
+// Determine the correct browser API namespace ('chrome' or 'browser').
+// This variable holds the API root object for consistent access.
+// @ts-ignore - 'browser' is defined in Firefox, 'chrome' in Chrome environments.
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 /**
- * Event handler for the extension icon click.
- * Opens the options page when the extension icon is clicked.
- *
- * This version works in both Chrome and Firefox thanks to the polyfill
- *
- * @param {browser.tabs.Tab} [tab] - The active tab when the icon is clicked (unused)
- * @returns {void}
+ * Opens the extension's options page.
+ * @param {browser.tabs.Tab} [_tab] - The tab where the action occurred (unused).
  */
-// Use the appropriate API based on manifest version
-if (typeof chrome !== 'undefined' && chrome.action) {
-  // Manifest V3 (Chrome)
-  chrome.action.onClicked.addListener(function () {
-    chrome.runtime.openOptionsPage();
-  });
-} else if (typeof browser !== 'undefined' && browser.browserAction) {
-  // Manifest V2 (Firefox)
-  browser.browserAction.onClicked.addListener(function () {
-    browser.runtime.openOptionsPage();
-  });
-} else if (typeof chrome !== 'undefined' && chrome.browserAction) {
-  // Manifest V2 (Chrome)
-  chrome.browserAction.onClicked.addListener(function () {
-    chrome.runtime.openOptionsPage();
-  });
+function openOptionsOnClick(_tab) {
+  if (browserAPI && browserAPI.runtime && browserAPI.runtime.openOptionsPage) {
+    browserAPI.runtime.openOptionsPage();
+  } else {
+    console.error(
+      'Trump Goggles: Cannot open options page - browserAPI.runtime.openOptionsPage not found.'
+    );
+  }
+}
+
+// Attach the click listener using the appropriate API via the polyfill
+// @ts-ignore - Types for browserAPI are not fully recognized by TypeScript
+if (browserAPI && browserAPI.action && browserAPI.action.onClicked) {
+  // Manifest V3 API (chrome.action)
+  // @ts-ignore - Types for browserAPI.action are not fully recognized by TypeScript
+  browserAPI.action.onClicked.addListener(openOptionsOnClick);
+} else if (browserAPI && browserAPI.browserAction && browserAPI.browserAction.onClicked) {
+  // Manifest V2 API (browser.browserAction or chrome.browserAction)
+  browserAPI.browserAction.onClicked.addListener(openOptionsOnClick);
+} else {
+  console.error(
+    'Trump Goggles: Could not attach listener - browserAPI.action/browserAction.onClicked not found.'
+  );
 }
