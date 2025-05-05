@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Trump Goggles",
+  "short_name": "trumpgoggles",
+  "description": "See the world like Trump does.",
+  "version": "2.0.0",
+
+  "action": {
+    "default_title": "Trump Goggles",
+    "default_icon": {
+      "19": "images/djt.png",
+      "38": "images/djt.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background-polyfill.js"
+  },
+
+  "permissions": [
+    "storage",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "*://*/*"
+  ],
+
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["*://*/*"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+
+  "icons": {
+    "16": "images/djt.png",
+    "48": "images/djt.png",
+    "128": "images/djt.png"
+  }
+}
