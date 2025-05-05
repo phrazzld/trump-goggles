@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trump Goggles Crash Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 1200px;
+    }
+    
+    .controls {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 100;
+    }
+    
+    .content {
+      margin-top: 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .article {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    
+    .editable {
+      border: 2px dashed #007bff;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #f0f8ff;
+    }
+    
+    button {
+      padding: 8px 16px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    
+    button.warning {
+      background-color: #ff6347;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    #metrics {
+      position: fixed;
+      top: 60px;
+      right: 15px;
+      background: #efefef;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 12px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <div>
+      <button id="load-normal" title="Load a moderate amount of content to test basic functionality">Load Normal Content</button>
+      <button id="load-heavy" title="Load a very large amount of content to stress-test the extension" class="warning">Load Heavy Content</button>
+    </div>
+    <div>
+      <button id="dynamic-btn" title="Add dynamic content to test MutationObserver">Add Dynamic Content</button>
+      <button id="toggle-fixed" title="Toggle between fixed and original extension code">Using Fixed Version</button>
+    </div>
+  </div>
+  
+  <div id="metrics">
+    <h4>Performance Metrics</h4>
+    <div id="metrics-content">
+      <p>Loading...</p>
+    </div>
+  </div>
+  
+  <div id="content" class="content">
+    <!-- Content will be loaded dynamically -->
+  </div>
+  
+  <script>
+    // Configuration
+    let useFixedVersion = true;
+    let nodeCount = 0;
+    let startTime = performance.now();
+    
+    // Toggle between fixed and original versions
+    document.getElementById('toggle-fixed').addEventListener('click', () => {
+      useFixedVersion = !useFixedVersion;
+      document.getElementById('toggle-fixed').textContent = useFixedVersion ? 'Using Fixed Version' : 'Using Original Version';
+      document.getElementById('toggle-fixed').style.backgroundColor = useFixedVersion ? '#0066cc' : '#dc3545';
+    });
+    
+    // Update metrics display
+    function updateMetrics() {
+      const metrics = document.getElementById('metrics-content');
+      const now = performance.now();
+      const elapsed = (now - startTime).toFixed(2);
+      
+      metrics.innerHTML = `
+        <p><strong>Nodes:</strong> ${nodeCount}</p>
+        <p><strong>Time:</strong> ${elapsed}ms</p>
+        <p><strong>Version:</strong> ${useFixedVersion ? 'Fixed' : 'Original'}</p>
+      `;
+    }
+    
+    // Template for individual article
+    function createArticleTemplate(index, heavy = false) {
+      const politicians = [
+        'Joe Biden', 'Kamala Harris', 'Ted Cruz', 'Nancy Pelosi', 'Chuck Schumer', 
+        'Mitch McConnell', 'Liz Cheney', 'Bernie Sanders', 'Elizabeth Warren',
+        'Nikki Haley', 'Ron DeSantis', 'Hillary Clinton', 'Marco Rubio'
+      ];
+      
+      const media = [
+        'CNN', 'NBC News', 'CBS', 'ABC News', 'New York Times', 'Washington Post', 
+        'MSNBC', 'Fox News', 'Chuck Todd', 'Jim Acosta', 'Megyn Kelly'
+      ];
+      
+      // Random politician and media picks for this article
+      const politician1 = politicians[Math.floor(Math.random() * politicians.length)];
+      const politician2 = politicians[Math.floor(Math.random() * politicians.length)];
+      const mediaOutlet1 = media[Math.floor(Math.random() * media.length)];
+      const mediaOutlet2 = media[Math.floor(Math.random() * media.length)];
+      
+      // Generate more content for heavy load testing
+      let extraParagraphs = '';
+      if (heavy) {
+        for (let i = 0; i < 5; i++) {
+          const p1 = politicians[Math.floor(Math.random() * politicians.length)];
+          const p2 = politicians[Math.floor(Math.random() * politicians.length)];
+          const m1 = media[Math.floor(Math.random() * media.length)];
+          extraParagraphs += `<p>${p1} and ${p2} discussed the latest developments in the ongoing COVID-19 crisis on ${m1} yesterday.</p>`;
+        }
+      }
+      
+      // Create article HTML
+      return `
+        <div class="article">
+          <h3>Political News Update #${index}</h3>
+          <p>${politician1} and ${politician2} attended a press conference yesterday to address recent economic developments. The event was covered extensively by ${mediaOutlet1} and ${mediaOutlet2}.</p>
+          <p>The discussion centered around inflation, COVID-19 recovery, and infrastructure spending proposed by Joe Biden's administration.</p>
+          ${extraParagraphs}
+          ${heavy ? `<p>Additional coverage was provided by CNN, NBC News, and the New York Times, with analysts from each network offering different perspectives on the implications for Elizabeth Warren's proposal.</p>` : ''}
+          ${index % 5 === 0 ? `<div class="editable" contenteditable="true">This is an editable region containing Nancy Pelosi and Joe Biden. This text should not be replaced by the extension.</div>` : ''}
+        </div>
+      `;
+    }
+    
+    // Load a normal amount of content
+    document.getElementById('load-normal').addEventListener('click', () => {
+      const contentDiv = document.getElementById('content');
+      contentDiv.innerHTML = '';
+      nodeCount = 0;
+      startTime = performance.now();
+      
+      for (let i = 1; i <= 20; i++) {
+        contentDiv.innerHTML += createArticleTemplate(i);
+        nodeCount += 5; // Approximate node count per article
+      }
+      
+      // Load extension script
+      loadExtensionScript();
+      updateMetrics();
+    });
+    
+    // Load a very heavy amount of content to stress test
+    document.getElementById('load-heavy').addEventListener('click', () => {
+      const contentDiv = document.getElementById('content');
+      contentDiv.innerHTML = '';
+      nodeCount = 0;
+      startTime = performance.now();
+      
+      for (let i = 1; i <= 100; i++) {
+        contentDiv.innerHTML += createArticleTemplate(i, true);
+        nodeCount += 15; // More nodes for heavy articles
+      }
+      
+      // Load extension script
+      loadExtensionScript();
+      updateMetrics();
+    });
+    
+    // Add dynamic content to test MutationObserver
+    document.getElementById('dynamic-btn').addEventListener('click', () => {
+      const contentDiv = document.getElementById('content');
+      const dynamicArticle = document.createElement('div');
+      dynamicArticle.innerHTML = createArticleTemplate(Math.floor(Math.random() * 1000), false);
+      contentDiv.prepend(dynamicArticle.firstElementChild);
+      nodeCount += 5;
+      updateMetrics();
+    });
+    
+    // Load the extension script based on selected version
+    function loadExtensionScript() {
+      // Remove any existing script
+      const existingScript = document.getElementById('trump-goggles-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Create and add the new script
+      const script = document.createElement('script');
+      script.id = 'trump-goggles-script';
+      script.src = useFixedVersion ? 'content-fixed.js' : 'content.js';
+      document.body.appendChild(script);
+    }
+    
+    // Initial metrics display
+    updateMetrics();
+    
+    // Update metrics regularly
+    setInterval(updateMetrics, 500);
+  </script>
+</body>
+</html>
