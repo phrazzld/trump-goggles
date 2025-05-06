@@ -34,11 +34,11 @@ This document provides a detailed, actionable task breakdown for implementing th
 - **Dependencies**: None
 - **Description**: Add clear documentation in `manifest.json` about content script loading order
 - **Steps**:
-  - [ ] Add detailed comment in `manifest.json` explaining why `content-shared.js` must load before `content.js`
-  - [ ] Ensure comment mentions the global function sharing mechanism
+  - [x] Add detailed comment in `manifest.json` explaining why `content-shared.js` must load before `content.js`
+  - [x] Ensure comment mentions the global function sharing mechanism
 - **Verification**:
-  - [ ] Review comment for clarity and accuracy
-  - [ ] Quick functional test to ensure comment didn't affect parsing
+  - [x] Review comment for clarity and accuracy
+  - [x] Quick functional test to ensure comment didn't affect parsing
 
 #### CS-01: Implement Type Assertions for Global Functions
 - **Priority**: Important
