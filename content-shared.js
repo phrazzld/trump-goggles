@@ -5,6 +5,10 @@
  * content.js and content-fixed.js to avoid duplicate declarations.
  */
 
+// Global flag to prevent multiple scripts from initializing simultaneously
+// @ts-ignore - We need to add this to the window object for cross-script coordination
+window.trumpGogglesInitialized = window.trumpGogglesInitialized || false;
+
 /**
  * Builds a mapping of regular expressions to Trump's nicknames.
  *
@@ -19,7 +23,7 @@
  * @returns {Object.<string, TrumpMapping>} - An object mapping keys to regex and nickname pairs
  */
 // @ts-nocheck - We need this entire file to be ignored by TypeScript as it defines global functions
- 
+
 // Only define the function if it doesn't already exist in the global scope
 if (typeof window.buildTrumpMap !== 'function') {
   window.buildTrumpMap = function buildTrumpMap() {

@@ -69,8 +69,12 @@ if (typeof window.buildTrumpMap !== 'function') {
   );
   // Extension functionality will be effectively disabled
   enabled = false; // Explicitly disable the extension when buildTrumpMap is missing
-} else {
-  // Only execute initialization if buildTrumpMap exists
+} else if (!window.trumpGogglesInitialized) {
+  // Only execute initialization if buildTrumpMap exists AND the extension hasn't already been initialized
+  // Set the initialization flag to prevent duplicate processing
+  window.trumpGogglesInitialized = true;
+
+  console.log('Trump Goggles: Initializing from content-fixed.js');
 
   // Cache the Trump mappings to avoid rebuilding for each text node
   trumpMap = window.buildTrumpMap();
@@ -91,6 +95,8 @@ if (typeof window.buildTrumpMap !== 'function') {
   } catch (error) {
     console.error('Trump Goggles: Error initializing extension', error);
   }
+} else {
+  console.log('Trump Goggles: Already initialized by another script');
 }
 
 /**

@@ -51,8 +51,12 @@ if (typeof window.buildTrumpMap !== 'function') {
       'Check manifest.json script order. Replacements disabled.'
   );
   // Extension functionality will be effectively disabled since we can't proceed without buildTrumpMap
-} else {
-  // Only execute initialization if buildTrumpMap exists
+} else if (!window.trumpGogglesInitialized) {
+  // Only execute initialization if buildTrumpMap exists AND the extension hasn't already been initialized
+  // Set the initialization flag to prevent duplicate processing
+  window.trumpGogglesInitialized = true;
+
+  console.log('Trump Goggles: Initializing from content.js');
 
   // Cache the Trump mappings to avoid rebuilding for each text node
   trumpMap = window.buildTrumpMap();
@@ -67,6 +71,8 @@ if (typeof window.buildTrumpMap !== 'function') {
   } catch (error) {
     console.error('Trump Goggles: Error initializing extension', error);
   }
+} else {
+  console.log('Trump Goggles: Already initialized by another script');
 }
 
 /**
