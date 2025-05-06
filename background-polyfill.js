@@ -19,9 +19,9 @@ const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 /**
  * Opens the extension's options page.
- * @param {browser.tabs.Tab} [_tab] - The tab where the action occurred (unused).
+ * The event handler expects a tab parameter but we don't use it.
  */
-function openOptionsOnClick(_tab) {
+function openOptionsOnClick() {
   if (browserAPI && browserAPI.runtime && browserAPI.runtime.openOptionsPage) {
     browserAPI.runtime.openOptionsPage();
   } else {

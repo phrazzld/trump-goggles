@@ -9,7 +9,7 @@
  * Builds a mapping of regular expressions to Trump's nicknames.
  *
  * This function is deliberately declared in the global scope so that it can be
- * accessed by other content scripts. The @ts-ignore is necessary because:
+ * accessed by other content scripts. The @ts-ignore directives are necessary because:
  * 1. Multiple content scripts need to access this function
  * 2. Browser extension content scripts run in isolated JavaScript contexts
  * 3. Functions declared in the global scope in one content script become accessible to others
@@ -18,7 +18,8 @@
  *
  * @returns {Object.<string, TrumpMapping>} - An object mapping keys to regex and nickname pairs
  */
-// @ts-ignore - Function needs to be globally accessible to other content scripts via window/global scope
+// @ts-nocheck - We need this entire file to be ignored by TypeScript as it defines global functions
+/* eslint-disable-next-line no-unused-vars */
 function buildTrumpMap() {
   return {
     // Original mappings - Politicians
