@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trump Goggles - Static Content Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .highlight {
+            background-color: yellow;
+            padding: 2px;
+        }
+        form {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        input, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trump Goggles - Static Content Test</h1>
+    
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>This page contains various static content with text mentions of Donald Trump and related terms to test the Trump Goggles extension.</p>
+        <p>The extension should transform mentions of "Donald Trump" and related terms with configured alternatives.</p>
+    </section>
+
+    <section id="news-article">
+        <h2>Sample News Article</h2>
+        <article>
+            <h3>President Trump Announces New Policy</h3>
+            <p>WASHINGTON — In a news conference yesterday, Donald Trump unveiled a new policy initiative aimed at economic growth. Trump stated that this initiative would be "the best policy ever created."</p>
+            <p>Critics argue that Trump's plan lacks concrete details. Senator Johnson said, "President Trump has once again failed to provide specifics."</p>
+            <p>Later, Trump responded on Twitter, calling his critics "fake news." The White House spokesperson said that Trump will address these concerns in the coming days.</p>
+        </article>
+    </section>
+
+    <section id="mixed-content">
+        <h2>Mixed Content References</h2>
+        <p>This section contains mixed references:</p>
+        <ul>
+            <li>Donald Trump spoke at the rally</li>
+            <li>Trump International Hotel opened a new location</li>
+            <li>President Trump signed the executive order</li>
+            <li>The Trump administration announced new regulations</li>
+            <li>Trump Tower is located in Manhattan</li>
+            <li>@realDonaldTrump posted on social media</li>
+            <li>Donald J. Trump Foundation was dissolved</li>
+        </ul>
+    </section>
+
+    <section id="proximity-test">
+        <h2>Proximity Test</h2>
+        <p>This tests how the extension handles multiple mentions in close proximity:</p>
+        <p>Trump said Trump will meet with Trump's advisors at Trump Tower to discuss Trump's campaign strategy. Donald Trump believes Trump can win the election if Trump focuses on Trump's core message.</p>
+    </section>
+
+    <section id="form-test">
+        <h2>Form Fields Test</h2>
+        <p>The extension should NOT modify text within form fields:</p>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" value="Donald Trump">
+            
+            <label for="message">Message:</label>
+            <textarea id="message" rows="4">This is a message about Donald Trump and the Trump administration's policies.</textarea>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+
+    <section id="html-entities">
+        <h2>HTML Entities Test</h2>
+        <p>Testing with HTML entities: Donald&nbsp;Trump, Trump&apos;s policy, President&nbsp;Trump</p>
+    </section>
+
+    <section id="nickname-test">
+        <h2>Nickname Test</h2>
+        <p>Testing various nicknames and references:</p>
+        <ul>
+            <li>The Donald spoke at the event</li>
+            <li>POTUS 45 signed the bill</li>
+            <li>DJT won the election in 2016</li>
+            <li>45th President of the United States</li>
+        </ul>
+    </section>
+</body>
+</html>
