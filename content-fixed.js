@@ -9,6 +9,31 @@
  * @version 2.0.1
  */
 
+// Global state initialization - These MUST be at the top of the file
+// to ensure they're defined before any code tries to use them
+
+// Use a shared global cache of processed nodes to avoid reprocessing
+window.trumpProcessedNodes = window.trumpProcessedNodes || new WeakSet();
+
+// Global observer for the MutationObserver
+window.trumpObserver = window.trumpObserver || null;
+
+// Global observer configuration - Must be defined before any references to it
+const observerConfig = {
+  childList: true, // Watch for new nodes
+  subtree: true, // Watch the entire subtree
+  characterData: true, // Watch for text content changes
+};
+
+// Debug mode
+const DEBUG = false;
+
+// Extension state
+let enabled = true;
+let processingInProgress = false;
+let operationCount = 0;
+const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit
+
 // Import shared definitions from content-shared.js
 /**
  * Function that builds a mapping of regular expressions to Trump's nicknames.
@@ -23,18 +48,6 @@
  */
 // @ts-ignore - Function defined in content-shared.js loaded via manifest.json before this script
 // We access the function directly from the window object to avoid redeclarations
-
-// Debug mode
-const DEBUG = false;
-
-// Extension state
-let enabled = true;
-let processingInProgress = false;
-let operationCount = 0;
-const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit
-
-// Use a shared global cache of processed nodes to avoid reprocessing
-window.trumpProcessedNodes = window.trumpProcessedNodes || new WeakSet();
 
 // Pre-declare mapping variables to avoid scoping issues
 /**
@@ -140,6 +153,11 @@ function walkChunked(rootNode, chunkSize = 50) {
     return;
   }
 
+  // Initialize the processed nodes collection if it doesn't exist
+  if (!window.trumpProcessedNodes) {
+    window.trumpProcessedNodes = new WeakSet();
+  }
+
   const nodesToProcess = [rootNode];
   let processed = 0;
 
@@ -154,6 +172,11 @@ function walkChunked(rootNode, chunkSize = 50) {
 
     while (nodesToProcess.length > 0 && Date.now() < deadline && processed < chunkSize) {
       const node = nodesToProcess.shift();
+
+      // Ensure we have a valid WeakSet before checking it
+      if (!window.trumpProcessedNodes) {
+        window.trumpProcessedNodes = new WeakSet();
+      }
 
       if (!node || !node.nodeType || window.trumpProcessedNodes.has(node)) {
         continue;
@@ -264,6 +287,16 @@ function convert(textNode) {
       return;
     }
 
+    // Make sure trumpProcessedNodes is initialized
+    if (!window.trumpProcessedNodes) {
+      window.trumpProcessedNodes = new WeakSet();
+    }
+
+    // Skip if the node is already in our processed set
+    if (window.trumpProcessedNodes.has(textNode)) {
+      return;
+    }
+
     // Create a temporary variable to avoid multiple DOM updates
     let replacedText = textNode.nodeValue;
     const originalText = replacedText;
@@ -300,12 +333,13 @@ function convert(textNode) {
 
       // Mark this node as processed
       textNode._trumpGogglesProcessed = true;
+      window.trumpProcessedNodes.add(textNode);
 
       // Increment operation counter
       operationCount++;
 
       // Reconnect observer after changes
-      if (window.trumpObserver && enabled) {
+      if (window.trumpObserver && enabled && document.body) {
         window.trumpObserver.observe(document.body, observerConfig);
       }
     }
@@ -315,14 +349,7 @@ function convert(textNode) {
 }
 
 // Note: buildTrumpMap is now imported from content-shared.js
-
-// Global observer and config for the MutationObserver
-window.trumpObserver = window.trumpObserver || null;
-const observerConfig = {
-  childList: true, // Watch for new nodes
-  subtree: true, // Watch the entire subtree
-  characterData: true, // Watch for text content changes
-};
+// observerConfig and trumpObserver are now defined at the top of the file
 
 /**
  * Sets up a MutationObserver to handle dynamically added content.
@@ -333,6 +360,11 @@ function setupMutationObserver() {
   // Don't run in frames - focus only on the main document
   if (window !== window.top) {
     return;
+  }
+
+  // Initialize the processed nodes collection if it doesn't exist
+  if (!window.trumpProcessedNodes) {
+    window.trumpProcessedNodes = new WeakSet();
   }
 
   // Define a MutationObserver that will process new content
@@ -372,6 +404,11 @@ function setupMutationObserver() {
         // Process new nodes (childList mutations)
         if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
           mutation.addedNodes.forEach((node) => {
+            // Ensure we have a valid WeakSet before checking it
+            if (!window.trumpProcessedNodes) {
+              window.trumpProcessedNodes = new WeakSet();
+            }
+
             // Only add element and text nodes
             if (
               (node.nodeType === 1 || node.nodeType === 3) &&
@@ -383,14 +420,19 @@ function setupMutationObserver() {
         }
 
         // Process changed text content (characterData mutations)
-        if (
-          mutation.type === 'characterData' &&
-          mutation.target.nodeType === 3 &&
-          !window.trumpProcessedNodes.has(mutation.target) &&
-          !mutation.target._trumpGogglesProcessed
-        ) {
-          if (!isEditableNode(mutation.target)) {
-            nodesToProcess.add(mutation.target);
+        if (mutation.type === 'characterData' && mutation.target.nodeType === 3) {
+          // Ensure we have a valid WeakSet before checking it
+          if (!window.trumpProcessedNodes) {
+            window.trumpProcessedNodes = new WeakSet();
+          }
+
+          if (
+            !window.trumpProcessedNodes.has(mutation.target) &&
+            !mutation.target._trumpGogglesProcessed
+          ) {
+            if (!isEditableNode(mutation.target)) {
+              nodesToProcess.add(mutation.target);
+            }
           }
         }
       });
@@ -398,7 +440,9 @@ function setupMutationObserver() {
       // Process collected nodes if there are any
       if (nodesToProcess.size > 0) {
         // Disconnect observer to avoid infinite loop
-        window.trumpObserver.disconnect();
+        if (window.trumpObserver) {
+          window.trumpObserver.disconnect();
+        }
 
         // Process nodes in chunks
         for (const node of nodesToProcess) {
@@ -412,7 +456,7 @@ function setupMutationObserver() {
         }
 
         // Reconnect observer after processing
-        if (enabled) {
+        if (enabled && window.trumpObserver) {
           window.trumpObserver.observe(document.body, observerConfig);
         }
       }
@@ -423,7 +467,11 @@ function setupMutationObserver() {
 
   // Start observing
   try {
-    window.trumpObserver.observe(document.body, observerConfig);
+    if (window.trumpObserver && document.body) {
+      window.trumpObserver.observe(document.body, observerConfig);
+    } else {
+      console.error('Trump Goggles: Unable to start observer - missing observer or document.body');
+    }
   } catch (error) {
     console.error('Trump Goggles: Error setting up MutationObserver', error);
   }
