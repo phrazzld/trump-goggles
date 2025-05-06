@@ -91,6 +91,7 @@ interface Window {
   TrumpMappings?: any;
   DOMProcessor?: any;
   TextProcessor?: any;
+  MutationObserverManager?: any;
   TrumpGoggles?: any;
   
   // Legacy functions

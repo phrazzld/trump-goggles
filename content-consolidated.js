@@ -14,17 +14,11 @@ const TrumpGoggles = (function () {
 
   // ===== CONSTANTS AND CONFIGURATION =====
 
-  // Global observer configuration
-  const observerConfig = {
-    childList: true, // Watch for new nodes
-    subtree: true, // Watch the entire subtree
-    characterData: true, // Watch for text content changes
-  };
-
   // Performance and safety settings
   const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit for text replacements
   const TIME_SLICE_MS = 15; // Maximum time to process in one chunk before yielding
   const DEFAULT_CHUNK_SIZE = 50; // Default number of nodes to process per chunk
+  const DEFAULT_DEBOUNCE_MS = 50; // Default debounce time for mutation processing
 
   // Debug settings (can be enabled via extension option in the future)
   const DEBUG = false;
@@ -37,9 +31,6 @@ const TrumpGoggles = (function () {
   let operationCount = 0; // Counter for operations performed
   let trumpMap = {}; // Mapping object for replacements
   let mapKeys = []; // Array of keys from trumpMap
-
-  // The observer instance
-  let mutationObserver = null;
 
   // ===== INITIALIZATION =====
 
@@ -179,119 +170,154 @@ const TrumpGoggles = (function () {
   // ===== MUTATION OBSERVER =====
 
   /**
-   * Sets up a MutationObserver to handle dynamically added content.
+   * Sets up the MutationObserverManager to handle dynamically added content.
    *
    * @private
    * @returns {void}
    */
   function setupMutationObserver() {
-    // Don't run in frames - focus only on the main document
-    if (window !== window.top) {
+    // Verify that the MutationObserverManager module is available
+    if (!window.MutationObserverManager) {
+      console.error(
+        'Trump Goggles Error: MutationObserverManager module not found! Check script loading order.'
+      );
       return;
     }
 
-    // Define a MutationObserver that will process new content
-    mutationObserver = new MutationObserver((mutations) => {
+    // Helper function to process collected nodes from mutations
+    function processMutationNodes(nodesToProcess) {
+      // Don't process if disabled or max operations reached
+      if (!enabled || operationCount >= MAX_OPERATIONS_PER_PAGE) {
+        return;
+      }
+
+      // Track if we're already processing to prevent concurrent processing
+      if (processingInProgress) {
+        return;
+      }
+
+      processingInProgress = true;
+
       try {
-        // Skip if disabled, max operations reached, or already processing
-        if (!enabled || operationCount >= MAX_OPERATIONS_PER_PAGE || processingInProgress) {
-          return;
-        }
-
-        // Filter out mutations caused by our own changes
-        const relevantMutations = mutations.filter((mutation) => {
-          // Skip if mutation is on our kill switch
-          if (mutation.target.id === 'trump-goggles-kill-switch') {
-            return false;
+        // Process all nodes in the set
+        for (const node of nodesToProcess) {
+          // Skip if we've hit the operation limit
+          if (operationCount >= MAX_OPERATIONS_PER_PAGE) {
+            break;
           }
 
-          // Skip processed nodes
-          if (window.DOMProcessor.isProcessed(mutation.target)) {
-            return false;
-          }
-
-          return true;
-        });
-
-        if (relevantMutations.length === 0) {
-          return;
-        }
-
-        // Collect nodes to process from mutations
-        const nodesToProcess = new Set();
-
-        // Disconnect observer to avoid infinite loop while processing
-        if (mutationObserver) {
-          mutationObserver.disconnect();
-        }
-
-        // Process mutations
-        relevantMutations.forEach((mutation) => {
-          // Process new nodes (childList mutations)
-          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            mutation.addedNodes.forEach((node) => {
-              // Only add element and text nodes that haven't been processed
-              if (
-                (node.nodeType === 1 || node.nodeType === 3) &&
-                !window.DOMProcessor.isProcessed(node)
-              ) {
-                nodesToProcess.add(node);
-              }
+          // Process based on node type
+          if (node.nodeType === 1) {
+            // Element node - process its subtree
+            processPage(node);
+          } else if (node.nodeType === 3 && !window.DOMProcessor.isEditableNode(node)) {
+            // Text node - process directly if not editable
+            window.TextProcessor.processTextNode(node, trumpMap, mapKeys, {
+              useCache: true,
+              earlyBailout: true,
+              onProcessed: () => {
+                operationCount++;
+                window.DOMProcessor.markProcessed(node);
+              },
             });
           }
-
-          // Process changed text content (characterData mutations)
-          if (
-            mutation.type === 'characterData' &&
-            mutation.target.nodeType === 3 &&
-            !window.DOMProcessor.isProcessed(mutation.target) &&
-            !window.DOMProcessor.isEditableNode(mutation.target)
-          ) {
-            nodesToProcess.add(mutation.target);
-          }
-        });
-
-        // Process collected nodes if there are any
-        if (nodesToProcess.size > 0) {
-          // Process each root node from the mutations
-          for (const node of nodesToProcess) {
-            if (node.nodeType === 1) {
-              // Element node - process its subtree
-              processPage(node);
-            } else if (node.nodeType === 3 && !window.DOMProcessor.isEditableNode(node)) {
-              // Text node - process directly if not editable
-              window.TextProcessor.processTextNode(node, trumpMap, mapKeys, {
-                useCache: true,
-                earlyBailout: true,
-                onProcessed: () => {
-                  operationCount++;
-                  window.DOMProcessor.markProcessed(node);
-                },
-              });
-            }
-          }
-        }
-
-        // Reconnect observer after processing
-        if (enabled && mutationObserver && document.body) {
-          mutationObserver.observe(document.body, observerConfig);
         }
       } catch (error) {
-        console.error('Trump Goggles: Error processing mutations', error);
+        console.error('Trump Goggles: Error processing mutation nodes', error);
+      } finally {
+        processingInProgress = false;
       }
+    }
+
+    // Create a filter function to identify which mutations to process
+    function mutationFilter(mutation) {
+      // Skip if mutation is on our kill switch
+      if (mutation.target.id === 'trump-goggles-kill-switch') {
+        return false;
+      }
+
+      // Skip processed nodes
+      if (window.DOMProcessor.isProcessed(mutation.target)) {
+        return false;
+      }
+
+      // Keep mutation if it's a childList mutation with added nodes or a characterData mutation
+      return (
+        (mutation.type === 'childList' && mutation.addedNodes.length > 0) ||
+        (mutation.type === 'characterData' &&
+          mutation.target.nodeType === 3 &&
+          !window.DOMProcessor.isEditableNode(mutation.target))
+      );
+    }
+
+    // Create a callback function to handle batched mutations
+    function handleMutations(mutations) {
+      // Skip if disabled or max operations reached
+      if (!enabled || operationCount >= MAX_OPERATIONS_PER_PAGE) {
+        return;
+      }
+
+      // Collect nodes to process from mutations
+      const nodesToProcess = new Set();
+
+      // Process each mutation
+      for (const mutation of mutations) {
+        // Process new nodes (childList mutations)
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            // Only add element and text nodes that haven't been processed
+            if (
+              (node.nodeType === 1 || node.nodeType === 3) &&
+              !window.DOMProcessor.isProcessed(node)
+            ) {
+              nodesToProcess.add(node);
+            }
+          });
+        }
+
+        // Process changed text content (characterData mutations)
+        if (
+          mutation.type === 'characterData' &&
+          mutation.target.nodeType === 3 &&
+          !window.DOMProcessor.isProcessed(mutation.target) &&
+          !window.DOMProcessor.isEditableNode(mutation.target)
+        ) {
+          nodesToProcess.add(mutation.target);
+        }
+      }
+
+      // Process collected nodes if there are any
+      if (nodesToProcess.size > 0) {
+        processMutationNodes(nodesToProcess);
+      }
+    }
+
+    // Initialize the MutationObserverManager
+    window.MutationObserverManager.initialize({
+      callback: handleMutations,
+      processFilter: mutationFilter,
+      batchSize: DEFAULT_CHUNK_SIZE,
+      debounceMs: DEFAULT_DEBOUNCE_MS,
+      killSwitchId: 'trump-goggles-kill-switch',
+      debug: DEBUG,
     });
 
-    // Start observing
-    try {
-      if (mutationObserver && document.body) {
-        mutationObserver.observe(document.body, observerConfig);
-      } else {
-        console.error(
-          'Trump Goggles: Unable to start observer - missing observer or document.body'
-        );
-      }
-    } catch (error) {
-      console.error('Trump Goggles: Error setting up MutationObserver', error);
+    // Start observing the document body
+    if (document.body) {
+      window.MutationObserverManager.start(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    } else {
+      // If document.body is not available yet, wait for it
+      document.addEventListener('DOMContentLoaded', () => {
+        window.MutationObserverManager.start(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
+      });
     }
   }
 
@@ -339,6 +365,24 @@ const TrumpGoggles = (function () {
   function enable() {
     enabled = true;
     console.log('Trump Goggles: Enabled');
+
+    // Resume mutation observation if MutationObserverManager exists
+    if (window.MutationObserverManager && !window.MutationObserverManager.isActive()) {
+      // If it's paused, resume it
+      if (
+        window.MutationObserverManager.getState() === window.MutationObserverManager.STATES.PAUSED
+      ) {
+        window.MutationObserverManager.resume();
+      }
+      // Otherwise start it fresh
+      else {
+        window.MutationObserverManager.start(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
+      }
+    }
   }
 
   /**
@@ -350,6 +394,11 @@ const TrumpGoggles = (function () {
   function disable() {
     enabled = false;
     console.log('Trump Goggles: Disabled');
+
+    // Pause mutation observation if MutationObserverManager exists
+    if (window.MutationObserverManager && window.MutationObserverManager.isActive()) {
+      window.MutationObserverManager.pause();
+    }
   }
 
   /**
