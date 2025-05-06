@@ -20,14 +20,13 @@
  *
  * TypeScript cannot statically analyze this cross-file dependency because:
  * 1. The function is defined in another file that's loaded at runtime
- * 2. It's made available through the global scope (window, self, etc.)
+ * 2. It's made available through the global scope (window)
  * 3. The browser extension architecture doesn't use standard ES modules
  *
  * @returns {Object.<string, {regex: RegExp, nick: string}>} Trump mapping object
  */
 // @ts-ignore - Function defined in content-shared.js loaded via manifest.json before this script
-const buildTrumpMap =
-  window.buildTrumpMap || self.buildTrumpMap || this.buildTrumpMap || globalThis.buildTrumpMap;
+// We access the function directly from the window object to avoid redeclarations
 
 // Pre-declare variables to avoid scoping issues
 /**
@@ -44,7 +43,7 @@ let trumpMap = {};
 let mapKeys = [];
 
 // Runtime check for the function's existence to handle loading failures
-if (typeof buildTrumpMap !== 'function') {
+if (typeof window.buildTrumpMap !== 'function') {
   // Log detailed error with troubleshooting instructions
   console.error(
     'Trump Goggles Error: buildTrumpMap function not found! ' +
@@ -56,7 +55,7 @@ if (typeof buildTrumpMap !== 'function') {
   // Only execute initialization if buildTrumpMap exists
 
   // Cache the Trump mappings to avoid rebuilding for each text node
-  trumpMap = buildTrumpMap();
+  trumpMap = window.buildTrumpMap();
   mapKeys = Object.keys(trumpMap);
 
   // Initialize text replacement when DOM is loaded
