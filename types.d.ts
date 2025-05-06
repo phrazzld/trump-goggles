@@ -91,6 +91,8 @@ interface Window {
   // Module exports
   Logger?: any;
   ErrorHandler?: any;
+  BrowserDetect?: any;
+  BrowserAdapter?: any;
   TrumpMappings?: any;
   DOMProcessor?: any;
   TextProcessor?: any;

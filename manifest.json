@@ -15,7 +15,7 @@
   },
 
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background-cross-browser.js"
   },
 
   "permissions": [
@@ -29,8 +29,8 @@
 
   "content_scripts": [
     {
-      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, mutation-observer.js provides the observer functionality, and content-consolidated.js uses all of them.",
-      "js": ["logger.js", "error-handler.js", "trump-mappings.js", "dom-processor.js", "text-processor.js", "mutation-observer.js", "content-consolidated.js"],
+      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, browser-detect.js detects browser environment, browser-adapter.js provides cross-browser compatibility, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, mutation-observer.js provides the observer functionality, and content-consolidated.js uses all of them.",
+      "js": ["logger.js", "error-handler.js", "browser-detect.js", "browser-adapter.js", "trump-mappings.js", "dom-processor.js", "text-processor.js", "mutation-observer.js", "content-consolidated.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }

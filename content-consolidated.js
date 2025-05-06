@@ -897,6 +897,8 @@ const TrumpGoggles = (function () {
       modules: {
         Logger: !!window.Logger,
         ErrorHandler: !!window.ErrorHandler,
+        BrowserDetect: !!window.BrowserDetect,
+        BrowserAdapter: !!window.BrowserAdapter,
         TrumpMappings: !!window.TrumpMappings,
         DOMProcessor: !!window.DOMProcessor,
         TextProcessor: !!window.TextProcessor,
@@ -912,6 +914,16 @@ const TrumpGoggles = (function () {
     // Add ErrorHandler stats if available
     if (window.ErrorHandler) {
       diagnostics.errorStats = window.ErrorHandler.getStats();
+    }
+
+    // Add BrowserDetect info if available
+    if (window.BrowserDetect) {
+      diagnostics.browserInfo = window.BrowserDetect.getDebugInfo();
+    }
+
+    // Add BrowserAdapter info if available
+    if (window.BrowserAdapter) {
+      diagnostics.browserAdapterInfo = window.BrowserAdapter.getDebugInfo();
     }
 
     // Add MutationObserver stats if available
