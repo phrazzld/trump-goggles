@@ -303,7 +303,7 @@ const MutationObserverManager = (function () {
    * @param {boolean} [customOptions.debug] - Enable debug logging
    * @returns {boolean} Whether initialization was successful
    */
-  function initialize(customOptions = {}) {
+  function initialize(customOptions = { callback: () => {} }) {
     // Merge custom options with defaults
     options = {
       ...options,

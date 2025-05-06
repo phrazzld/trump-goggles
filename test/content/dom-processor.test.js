@@ -148,7 +148,7 @@ const createDomProcessor = (options = {}) => {
         } else {
           node._trumpProcessed = true;
         }
-      } catch (e) {
+      } catch (/* eslint-disable-line no-unused-vars */ _e) {
         // Fallback for nodes that don't support dataset
         node._trumpProcessed = true;
       }

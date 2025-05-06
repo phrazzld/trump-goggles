@@ -49,6 +49,16 @@ interface Chrome {
   };
   runtime: {
     openOptionsPage(callback?: () => void): void;
+    getManifest?(): any;
+    lastError?: {
+      message?: string;
+    };
+    onInstalled?: {
+      addListener(callback: (details: any) => void): void;
+    };
+    onError?: {
+      addListener(callback: (error: Error) => void): void;
+    };
   };
   tabs: {
     query(queryInfo: object, callback: (tabs: browser.tabs.Tab[]) => void): void;
@@ -59,6 +69,7 @@ interface Chrome {
       set: (items: { [key: string]: any }, callback?: () => void) => void;
     };
   };
+  webRequest?: any;
 }
 
 declare const chrome: Chrome;
@@ -68,6 +79,13 @@ interface Node {
   _trumpGogglesProcessed?: boolean;
   _trumpProcessed?: boolean;
   id?: string;
+  nodeType: number;
+  hasAttribute?: (name: string) => boolean;
+  setAttribute?: (name: string, value: string) => void;
+  getAttribute?: (name: string) => string | null;
+  removeAttribute?: (name: string) => void;
+  querySelectorAll?: (selectors: string) => NodeListOf<Element>;
+  style?: CSSStyleDeclaration;
 }
 
 interface Text {
@@ -100,7 +118,7 @@ interface Window {
   TrumpGoggles?: any;
   
   // Legacy functions
-  buildTrumpMap?: () => TrumpMappingObject;
+  buildTrumpMap?: (() => TrumpMappingObject) & (() => { [key: string]: TrumpMapping });
 }
 
 // Performance extensions
@@ -121,4 +139,13 @@ interface TrumpMapping {
 // Define TrumpMappingObject type
 interface TrumpMappingObject {
   [key: string]: TrumpMapping;
+}
+
+// Extended Error Interface
+interface Error {
+  fileName?: string;
+  lineNumber?: number;
+  columnNumber?: number;
+  code?: string;
+  reason?: any;
 }

@@ -288,6 +288,7 @@ const TrumpMappings = (function () {
     /**
      * @deprecated Use TrumpMappings.getReplacementMap() instead
      */
+    // @ts-ignore: Complex function type overload for legacy compatibility
     window.buildTrumpMap = function buildTrumpMap() {
       console.warn(
         'TRUMP_MAPPINGS_DEPRECATION_WARNING',

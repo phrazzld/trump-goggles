@@ -214,7 +214,7 @@ const Logger = (function () {
    */
   function createPerformanceTimer(operationName) {
     const startTime = performance.now();
-    const start = new Date();
+    // Start date is not being used currently, removing to fix ESLint warning
 
     return {
       /**

@@ -110,7 +110,7 @@ const BrowserAdapter = (function () {
       try {
         // @ts-ignore - Firefox global 'browser' object is not recognized by TypeScript
         browserApi = typeof browser !== 'undefined' ? browser : chrome;
-      } catch (e) {
+      } catch (/* eslint-disable-line no-unused-vars */ _e) {
         browserApi = chrome;
       }
     }
@@ -154,7 +154,7 @@ const BrowserAdapter = (function () {
           return apiType;
         }
       }
-    } catch (e) {
+    } catch (/* eslint-disable-line no-unused-vars */ _e) {
       // Ignore errors during detection
     }
 
@@ -168,10 +168,12 @@ const BrowserAdapter = (function () {
    *
    * @private
    * @param {Function} apiFunction - The promise-based API function
-   * @param {...any} args - Arguments for the API function
+   * @param {Array<any>} args - Arguments for the API function
    * @param {Function} callback - Callback function for the result
    * @returns {void}
+   * @todo Currently unused, keeping for potential future use
    */
+  // eslint-disable-next-line no-unused-vars
   function promiseToCallback(apiFunction, args, callback) {
     try {
       apiFunction(...args)

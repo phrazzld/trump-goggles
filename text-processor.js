@@ -307,7 +307,16 @@ const TextProcessor = (function () {
    * @param {boolean} options.precompilePatterns - Whether to precompile patterns
    * @returns {string} - The processed text with replacements applied
    */
-  function processText(text, replacementMap, mapKeys, options = {}) {
+  function processText(
+    text,
+    replacementMap,
+    mapKeys,
+    options = {
+      useCache: true,
+      earlyBailout: true,
+      precompilePatterns: true,
+    }
+  ) {
     const useCache = options.useCache !== false;
     const earlyBailout = options.earlyBailout !== false;
     const shouldPrecompile = options.precompilePatterns !== false;
@@ -469,7 +478,18 @@ const TextProcessor = (function () {
    * @param {Function} options.onProcessed - Optional callback when processing is complete
    * @returns {boolean|Promise<boolean>} - Whether any replacements were made (or Promise resolving to this value if async)
    */
-  function processTextNode(textNode, replacementMap, mapKeys, options = {}) {
+  function processTextNode(
+    textNode,
+    replacementMap,
+    mapKeys,
+    options = {
+      useCache: true,
+      earlyBailout: true,
+      precompilePatterns: true,
+      async: false,
+      onProcessed: () => {},
+    }
+  ) {
     try {
       // Skip invalid nodes
       if (!textNode || textNode.nodeType !== 3 || !textNode.nodeValue) {

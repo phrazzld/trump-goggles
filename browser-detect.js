@@ -165,7 +165,7 @@ const BrowserDetect = (function () {
           return manifestVersion;
         }
       }
-    } catch (e) {
+    } catch (/* eslint-disable-line no-unused-vars */ _e) {
       // Ignore errors
     }
 
@@ -236,7 +236,7 @@ const BrowserDetect = (function () {
           localStorage.setItem('__test', '__test');
           localStorage.removeItem('__test');
         }
-      } catch (e) {
+      } catch (/* eslint-disable-line no-unused-vars */ _e) {
         isSupported = false;
       }
       break;

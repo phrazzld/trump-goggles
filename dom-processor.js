@@ -8,6 +8,10 @@
  * @version 3.0.0
  */
 
+// Default configuration constants
+const DEFAULT_CHUNK_SIZE = 50;
+const DEFAULT_TIME_SLICE_MS = 15;
+
 // DOM Processor module pattern
 const DOMProcessor = (function () {
   'use strict';
@@ -176,7 +180,11 @@ const DOMProcessor = (function () {
    * @param {boolean} options.skipProcessed - Whether to skip already processed nodes
    * @returns {void}
    */
-  function traverseDOM(rootNode, textNodeCallback, options = {}) {
+  function traverseDOM(
+    rootNode,
+    textNodeCallback,
+    options = { skipTags: DEFAULT_SKIP_TAGS, skipProcessed: true }
+  ) {
     if (!rootNode) {
       return;
     }
@@ -204,7 +212,7 @@ const DOMProcessor = (function () {
       switch (node.nodeType) {
       case 1: // Element node
         // Skip element if it matches our filter criteria
-        if (shouldSkipElement(node, skipTags)) {
+        if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
           continue;
         }
 
@@ -250,7 +258,16 @@ const DOMProcessor = (function () {
    * @param {string[]} options.skipTags - Array of tag names to skip
    * @returns {Promise<number>} - Promise resolving to the number of processed nodes
    */
-  function processInChunks(rootNode, textNodeCallback, options = {}) {
+  function processInChunks(
+    rootNode,
+    textNodeCallback,
+    options = {
+      chunkSize: DEFAULT_CHUNK_SIZE,
+      timeSliceMs: DEFAULT_TIME_SLICE_MS,
+      skipProcessed: true,
+      skipTags: DEFAULT_SKIP_TAGS,
+    }
+  ) {
     return new Promise((resolve) => {
       if (!rootNode) {
         resolve(0);
@@ -265,17 +282,13 @@ const DOMProcessor = (function () {
       // Stack for depth-first traversal
       const nodesToProcess = [rootNode];
       let processed = 0;
-      let processingInProgress = false;
 
       function processChunk() {
         // Circuit breakers
         if (nodesToProcess.length === 0) {
-          processingInProgress = false;
           resolve(processed);
           return;
         }
-
-        processingInProgress = true;
         const deadline = Date.now() + timeSliceMs; // Time slice for this chunk
         const chunkLimit = processed + chunkSize;
 
@@ -297,7 +310,7 @@ const DOMProcessor = (function () {
           switch (node.nodeType) {
           case 1: // Element node
             // Skip element if it matches our filter criteria
-            if (shouldSkipElement(node, skipTags)) {
+            if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
               continue;
             }
 
@@ -334,7 +347,6 @@ const DOMProcessor = (function () {
         if (nodesToProcess.length > 0) {
           setTimeout(processChunk, 0);
         } else {
-          processingInProgress = false;
           resolve(processed);
         }
       }
