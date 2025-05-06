@@ -10,14 +10,37 @@
  */
 
 // Import shared definitions from content-shared.js
-// @ts-ignore - Script tag inserted by extension
+/**
+ * Function that builds a mapping of regular expressions to Trump's nicknames.
+ * This function is defined in content-shared.js which is loaded before this script.
+ *
+ * It returns an object where:
+ * - Keys are identification strings like 'isis', 'hillary', etc.
+ * - Values are objects with structure {regex: RegExp, nick: string}
+ *
+ * TypeScript cannot statically analyze this cross-file dependency because:
+ * 1. The function is defined in another file that's loaded at runtime
+ * 2. It's made available through the global scope (window, self, etc.)
+ * 3. The browser extension architecture doesn't use standard ES modules
+ *
+ * @returns {Object.<string, {regex: RegExp, nick: string}>} Trump mapping object
+ */
+// @ts-ignore - Function defined in content-shared.js loaded via manifest.json before this script
 const buildTrumpMap =
   window.buildTrumpMap || self.buildTrumpMap || this.buildTrumpMap || globalThis.buildTrumpMap;
 
 // Cache the Trump mappings to avoid rebuilding for each text node
-// @ts-ignore - These variables need to have the same name but will be used in isolated script contexts
+/**
+ * Object containing all the Trump mapping entries.
+ * Structure: { [key: string]: { regex: RegExp, nick: string } }
+ */
+// @ts-ignore - Type is derived from buildTrumpMap's return value
 const trumpMap = buildTrumpMap();
-// @ts-ignore - These variables need to have the same name but will be used in isolated script contexts
+
+/**
+ * Array of keys from the Trump mapping object for iteration.
+ */
+// @ts-ignore - Type is derived from trumpMap
 const mapKeys = Object.keys(trumpMap);
 
 // Initialize text replacement when DOM is loaded

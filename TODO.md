@@ -45,12 +45,12 @@ This document provides a detailed, actionable task breakdown for implementing th
 - **Dependencies**: None
 - **Description**: Replace `@ts-ignore` with proper type assertions for globally shared functions
 - **Steps**:
-  - [ ] Verify `TrumpMapping` type is properly defined in `types.d.ts`
-  - [ ] Update the code that acquires `buildTrumpMap` to use type assertion (`as () => Record<string, TrumpMapping>`)
-  - [ ] Test if subsequent type errors for `trumpMap` and `mapKeys` are resolved
+  - [x] Verify `TrumpMapping` type is properly defined in `types.d.ts`
+  - [x] Update the code that acquires `buildTrumpMap` to use type assertion (`as () => Record<string, TrumpMapping>`)
+  - [x] Test if subsequent type errors for `trumpMap` and `mapKeys` are resolved
 - **Verification**:
-  - [ ] Run `tsc --noEmit` to check for type errors
-  - [ ] Functional test to ensure the extension still works correctly
+  - [x] Run `tsc --noEmit` to check for type errors
+  - [x] Functional test to ensure the extension still works correctly
 
 #### CS-02: Improve Documentation for Remaining @ts-ignore Directives
 - **Priority**: Important 
