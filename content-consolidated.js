@@ -5,13 +5,11 @@
  * with Donald Trump's nicknames for them. It works by traversing the DOM tree and replacing
  * text in non-editable elements. It also observes DOM changes to handle dynamically loaded content.
  *
- * @author Original developer (unknown)
  * @version 3.0.0
  */
 
-// This module pattern provides encapsulation for all state and functionality
-// while still allowing access to the window object for cross-script communication
-(function TrumpGoggles() {
+// TrumpGoggles module pattern - provides a self-contained module with proper encapsulation
+const TrumpGoggles = (function () {
   'use strict';
 
   // ===== CONSTANTS AND CONFIGURATION =====
@@ -37,20 +35,20 @@
   let enabled = true; // Main switch to enable/disable functionality
   let processingInProgress = false; // Flag to prevent concurrent processing
   let operationCount = 0; // Counter for operations performed
-  let trumpMap = {}; // Mapping object built by buildTrumpMap
+  let trumpMap = {}; // Mapping object for replacements
   let mapKeys = []; // Array of keys from trumpMap
 
   // The observer instance
   let mutationObserver = null;
 
   // WeakSet to track processed nodes (properly scoped in the module)
-  // This replaces window.trumpProcessedNodes with a local variable
   const processedNodes = new WeakSet();
 
   // ===== INITIALIZATION =====
 
   /**
    * Main initialization function - checks dependencies and starts the extension
+   * @public
    */
   function initialize() {
     // Get shared global state, but don't store module state in window object
@@ -64,21 +62,30 @@
     window.trumpGogglesInitialized = true;
     console.log('Trump Goggles: Initializing consolidated script');
 
-    // Runtime check for the buildTrumpMap function from content-shared.js
-    if (typeof window.buildTrumpMap !== 'function') {
-      console.error(
-        'Trump Goggles Error: buildTrumpMap function not found! ' +
-          'This likely means content-shared.js failed to load or loaded after content script. ' +
-          'Check manifest.json script order. Replacements disabled.'
-      );
-      enabled = false; // Explicitly disable when dependency is missing
-      return;
-    }
-
     try {
-      // Cache the Trump mappings to avoid rebuilding for each text node
-      trumpMap = window.buildTrumpMap();
-      mapKeys = Object.keys(trumpMap);
+      // First try to use the new TrumpMappings module
+      if (window.TrumpMappings && typeof window.TrumpMappings.getReplacementMap === 'function') {
+        // Use new module API
+        trumpMap = window.TrumpMappings.getReplacementMap();
+        mapKeys = window.TrumpMappings.getKeys();
+      }
+      // Fallback to legacy window.buildTrumpMap function
+      else if (typeof window.buildTrumpMap === 'function') {
+        // Using deprecated legacy function
+        console.warn('Trump Goggles: Using legacy buildTrumpMap function. Consider upgrading.');
+        trumpMap = window.buildTrumpMap();
+        mapKeys = Object.keys(trumpMap);
+      }
+      // No mapping functionality available
+      else {
+        console.error(
+          'Trump Goggles Error: No mapping functionality found! ' +
+            'This likely means trump-mappings.js failed to load or loaded after content script. ' +
+            'Check manifest.json script order. Replacements disabled.'
+        );
+        enabled = false; // Explicitly disable when dependency is missing
+        return;
+      }
 
       // Add kill switch if in debug mode
       if (DEBUG) {
@@ -103,6 +110,7 @@
   /**
    * Process DOM in chunks to avoid freezing the browser
    *
+   * @private
    * @param {Node} rootNode - Root node to start processing from
    * @param {number} [chunkSize=DEFAULT_CHUNK_SIZE] - Number of nodes to process per chunk
    */
@@ -186,6 +194,7 @@
   /**
    * Determines if a DOM node is editable or within an editable element.
    *
+   * @private
    * @param {Node} node - The DOM node to check
    * @returns {boolean} - True if editable, false otherwise
    */
@@ -226,6 +235,7 @@
   /**
    * Applies Trump nickname replacements to the content of a text node.
    *
+   * @private
    * @param {Text} textNode - The text node whose content will be modified
    * @returns {void}
    */
@@ -300,6 +310,7 @@
   /**
    * Sets up a MutationObserver to handle dynamically added content.
    *
+   * @private
    * @returns {void}
    */
   function setupMutationObserver() {
@@ -407,6 +418,8 @@
 
   /**
    * Create and add a kill switch to quickly disable the extension if needed
+   *
+   * @private
    */
   function addKillSwitch() {
     const killSwitch = document.createElement('div');
@@ -434,21 +447,51 @@
     document.body.appendChild(killSwitch);
   }
 
-  // ===== PUBLIC API (for future extension options or messaging) =====
+  // ===== PUBLIC API =====
 
-  // Expose minimal public API if needed for extension options or messaging
-  // This could be expanded in the future as needed
-  window.trumpGoggles = {
-    disable: function () {
-      enabled = false;
-      console.log('Trump Goggles: Disabled via API');
-    },
-    enable: function () {
-      enabled = true;
-      console.log('Trump Goggles: Enabled via API');
-    },
+  /**
+   * Enable the extension
+   *
+   * @public
+   * @returns {void}
+   */
+  function enable() {
+    enabled = true;
+    console.log('Trump Goggles: Enabled');
+  }
+
+  /**
+   * Disable the extension
+   *
+   * @public
+   * @returns {void}
+   */
+  function disable() {
+    enabled = false;
+    console.log('Trump Goggles: Disabled');
+  }
+
+  /**
+   * Check if the extension is enabled
+   *
+   * @public
+   * @returns {boolean} True if enabled, false otherwise
+   */
+  function isEnabled() {
+    return enabled;
+  }
+
+  // Public API
+  return {
+    initialize: initialize,
+    enable: enable,
+    disable: disable,
+    isEnabled: isEnabled,
   };
+})();
 
-  // Start initialization when the script loads
-  initialize();
-})(); // End of IIFE - immediately invoked function expression
+// Export the module to window for backward compatibility
+window.TrumpGoggles = TrumpGoggles;
+
+// Start the extension when the script loads
+TrumpGoggles.initialize();

@@ -29,8 +29,8 @@
 
   "content_scripts": [
     {
-      "_comment": "IMPORTANT: Order is critical! content-shared.js MUST be listed before content-consolidated.js because it defines global functions (like buildTrumpMap) that are dependencies. Changing this order will break the extension.",
-      "js": ["content-shared.js", "content-consolidated.js"],
+      "_comment": "IMPORTANT: Order is critical! trump-mappings.js MUST be listed first because it provides the mapping functionality that the main content script depends on.",
+      "js": ["trump-mappings.js", "content-consolidated.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }
