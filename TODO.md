@@ -116,21 +116,21 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
   - [x] Implement batched processing of mutations for better performance
   - [x] Properly handle observer disconnect/reconnect in a single location
 
-#### R-06: Optimize Text Replacement Engine
+#### R-06: Optimize Text Replacement Engine ✓
 - **Priority**: Medium
 - **Dependencies**: None (Previously R-05, now completed)
 - **Description**: Improve text replacement performance and reliability
 - **Steps**:
-  - [ ] Create optimized text replacement engine with pattern pre-compilation
-  - [ ] Implement incremental processing to avoid UI freezing
-  - [ ] Add result caching to avoid reprocessing identical text
-  - [ ] Add early bailout for text nodes unlikely to contain matches
+  - [x] Create optimized text replacement engine with pattern pre-compilation
+  - [x] Implement incremental processing to avoid UI freezing
+  - [x] Add result caching to avoid reprocessing identical text
+  - [x] Add early bailout for text nodes unlikely to contain matches
 
 ### Phase 3: Error Handling and Cross-Browser Support
 
 #### R-07: Improve Error Handling and Logging
 - **Priority**: Medium
-- **Dependencies**: R-06
+- **Dependencies**: None (Previously R-06, now completed)
 - **Description**: Create comprehensive error handling system
 - **Steps**:
   - [ ] Implement comprehensive error boundaries around major operations
