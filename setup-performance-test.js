@@ -4,13 +4,23 @@
  * of the Trump Goggles extension.
  */
 
-// @ts-ignore - TypeScript doesn't understand CommonJS require
+/**
+ * Node.js Module imports using CommonJS require syntax.
+ *
+ * The @ts-ignore directives are necessary because:
+ * 1. This file uses CommonJS require() syntax which TypeScript doesn't recognize by default
+ * 2. The project is not configured with Node.js type definitions (@types/node)
+ * 3. This file is a standalone utility script, not part of the main extension
+ * 4. TypeScript is used for the browser extension code, not server-side scripts
+ * 5. Adding full Node.js typings just for this utility script would be overkill
+ */
+// @ts-ignore - This file uses CommonJS require() syntax in a TypeScript environment without Node.js type definitions
 const http = require('http');
-// @ts-ignore - TypeScript doesn't understand CommonJS require
+// @ts-ignore - This file uses CommonJS require() syntax in a TypeScript environment without Node.js type definitions
 const fs = require('fs');
-// @ts-ignore - TypeScript doesn't understand CommonJS require
+// @ts-ignore - This file uses CommonJS require() syntax in a TypeScript environment without Node.js type definitions
 const path = require('path');
-// @ts-ignore - TypeScript doesn't understand CommonJS require
+// @ts-ignore - This file uses CommonJS require() syntax in a TypeScript environment without Node.js type definitions
 const open = require('open');
 
 // Port for the test server
@@ -78,7 +88,15 @@ server.listen(PORT, () => {
   console.log('');
 
   // Open the browser to the test page
-  // @ts-ignore - 'open' module usage with direct call
+  /**
+   * The `open` module launches a URL in the user's default browser.
+   * The @ts-ignore is necessary because:
+   * 1. TypeScript doesn't have type definitions for the 'open' module
+   * 2. The function call pattern doesn't match what TypeScript expects
+   * 3. This is a standalone utility script where strict typing is less critical
+   * 4. Adding @types/open just for this single usage would be excessive
+   */
+  // @ts-ignore - TypeScript lacks type definitions for the 'open' module's function signature
   open(`http://localhost:${PORT}/`);
 });
 

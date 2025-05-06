@@ -10,7 +10,18 @@
  */
 
 // Import shared definitions from content-shared.js
-// @ts-ignore - Script tag inserted by extension
+/**
+ * Function that builds a mapping of regular expressions to Trump's nicknames.
+ * This function is defined in content-shared.js which is loaded before this script.
+ *
+ * TypeScript cannot statically analyze this cross-file dependency because:
+ * 1. The function is defined in another file loaded at runtime via manifest.json
+ * 2. It's made available through the global scope (window, self, etc.)
+ * 3. Browser extension content scripts don't use standard ES module imports
+ *
+ * @returns {Object.<string, {regex: RegExp, nick: string}>} Trump mapping object
+ */
+// @ts-ignore - Function defined in content-shared.js loaded via manifest.json before this script
 const buildTrumpMap =
   window.buildTrumpMap || self.buildTrumpMap || this.buildTrumpMap || globalThis.buildTrumpMap;
 
@@ -27,9 +38,26 @@ const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit
 const processedNodes = new WeakSet();
 
 // Cache the Trump mappings to avoid rebuilding for each text node
-// @ts-ignore - These variables need to have the same name but will be used in isolated script contexts
+/**
+ * Object containing all Trump nickname mappings.
+ * The @ts-ignore is necessary because:
+ * 1. TypeScript cannot track the return type from buildTrumpMap across files
+ * 2. Multiple content scripts define variables with the same name in isolated contexts
+ * 3. The browser extension architecture isolates each content script but shares globals
+ *
+ * @type {Object.<string, {regex: RegExp, nick: string}>}
+ */
+// @ts-ignore - Type derived from buildTrumpMap's return value, which TypeScript cannot track across content scripts
 const trumpMap = buildTrumpMap();
-// @ts-ignore - These variables need to have the same name but will be used in isolated script contexts
+
+/**
+ * Array of keys from the Trump mapping object for iteration.
+ * The @ts-ignore is necessary because TypeScript cannot infer the correct type
+ * from trumpMap, which itself comes from a function defined in another file.
+ *
+ * @type {string[]}
+ */
+// @ts-ignore - Type derived from trumpMap, which TypeScript cannot properly type across content scripts
 const mapKeys = Object.keys(trumpMap);
 
 // Initialize text replacement when DOM is loaded
