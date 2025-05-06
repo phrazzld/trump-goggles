@@ -86,8 +86,11 @@ interface Window {
   trumpGogglesInitialized?: boolean;
   trumpProcessedNodes?: WeakSet<Node>;
   trumpObserver?: MutationObserver;
+  errorHandlerInitialized?: boolean;
   
   // Module exports
+  Logger?: any;
+  ErrorHandler?: any;
   TrumpMappings?: any;
   DOMProcessor?: any;
   TextProcessor?: any;
