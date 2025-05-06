@@ -33,8 +33,8 @@ let processingInProgress = false;
 let operationCount = 0;
 const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit
 
-// Cache of processed nodes to avoid reprocessing
-const processedNodes = new WeakSet();
+// Use a shared global cache of processed nodes to avoid reprocessing
+window.trumpProcessedNodes = window.trumpProcessedNodes || new WeakSet();
 
 // Pre-declare mapping variables to avoid scoping issues
 /**
@@ -155,12 +155,12 @@ function walkChunked(rootNode, chunkSize = 50) {
     while (nodesToProcess.length > 0 && Date.now() < deadline && processed < chunkSize) {
       const node = nodesToProcess.shift();
 
-      if (!node || !node.nodeType || processedNodes.has(node)) {
+      if (!node || !node.nodeType || window.trumpProcessedNodes.has(node)) {
         continue;
       }
 
       // Mark node as processed to avoid infinite loops
-      processedNodes.add(node);
+      window.trumpProcessedNodes.add(node);
 
       switch (node.nodeType) {
       case 1: // Element
@@ -292,8 +292,8 @@ function convert(textNode) {
     // Update DOM only once after all replacements are done, and only if text changed
     if (replacedText !== originalText) {
       // Important: Disconnect observer before making changes to avoid infinite loop
-      if (trumpObserver) {
-        trumpObserver.disconnect();
+      if (window.trumpObserver) {
+        window.trumpObserver.disconnect();
       }
 
       textNode.nodeValue = replacedText;
@@ -305,8 +305,8 @@ function convert(textNode) {
       operationCount++;
 
       // Reconnect observer after changes
-      if (trumpObserver && enabled) {
-        trumpObserver.observe(document.body, observerConfig);
+      if (window.trumpObserver && enabled) {
+        window.trumpObserver.observe(document.body, observerConfig);
       }
     }
   } catch (error) {
@@ -317,7 +317,7 @@ function convert(textNode) {
 // Note: buildTrumpMap is now imported from content-shared.js
 
 // Global observer and config for the MutationObserver
-let trumpObserver = null;
+window.trumpObserver = window.trumpObserver || null;
 const observerConfig = {
   childList: true, // Watch for new nodes
   subtree: true, // Watch the entire subtree
@@ -336,7 +336,7 @@ function setupMutationObserver() {
   }
 
   // Define a MutationObserver that will process new content
-  trumpObserver = new MutationObserver((mutations) => {
+  window.trumpObserver = new MutationObserver((mutations) => {
     try {
       // Skip if disabled or max operations reached
       if (!enabled || operationCount >= MAX_OPERATIONS_PER_PAGE || processingInProgress) {
@@ -373,7 +373,10 @@ function setupMutationObserver() {
         if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
           mutation.addedNodes.forEach((node) => {
             // Only add element and text nodes
-            if ((node.nodeType === 1 || node.nodeType === 3) && !processedNodes.has(node)) {
+            if (
+              (node.nodeType === 1 || node.nodeType === 3) &&
+              !window.trumpProcessedNodes.has(node)
+            ) {
               nodesToProcess.add(node);
             }
           });
@@ -383,7 +386,7 @@ function setupMutationObserver() {
         if (
           mutation.type === 'characterData' &&
           mutation.target.nodeType === 3 &&
-          !processedNodes.has(mutation.target) &&
+          !window.trumpProcessedNodes.has(mutation.target) &&
           !mutation.target._trumpGogglesProcessed
         ) {
           if (!isEditableNode(mutation.target)) {
@@ -395,7 +398,7 @@ function setupMutationObserver() {
       // Process collected nodes if there are any
       if (nodesToProcess.size > 0) {
         // Disconnect observer to avoid infinite loop
-        trumpObserver.disconnect();
+        window.trumpObserver.disconnect();
 
         // Process nodes in chunks
         for (const node of nodesToProcess) {
@@ -410,7 +413,7 @@ function setupMutationObserver() {
 
         // Reconnect observer after processing
         if (enabled) {
-          trumpObserver.observe(document.body, observerConfig);
+          window.trumpObserver.observe(document.body, observerConfig);
         }
       }
     } catch (error) {
@@ -420,7 +423,7 @@ function setupMutationObserver() {
 
   // Start observing
   try {
-    trumpObserver.observe(document.body, observerConfig);
+    window.trumpObserver.observe(document.body, observerConfig);
   } catch (error) {
     console.error('Trump Goggles: Error setting up MutationObserver', error);
   }

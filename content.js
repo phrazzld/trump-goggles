@@ -134,9 +134,17 @@ function isEditableNode(node) {
 function walk(node) {
   try {
     // Skip if node is undefined, null, or not a valid node
-    if (!node || !node.nodeType) {
+    if (
+      !node ||
+      !node.nodeType ||
+      window.trumpProcessedNodes.has(node) ||
+      node._trumpGogglesProcessed
+    ) {
       return;
     }
+
+    // Mark node as processed to avoid infinite loops
+    window.trumpProcessedNodes.add(node);
 
     let child, next;
 
@@ -181,8 +189,8 @@ function walk(node) {
  */
 function convert(textNode) {
   try {
-    // Skip if node is invalid or has no content
-    if (!textNode || !textNode.nodeValue) {
+    // Skip if node is invalid, has no content, or already processed
+    if (!textNode || !textNode.nodeValue || textNode._trumpGogglesProcessed) {
       return;
     }
 
@@ -193,6 +201,12 @@ function convert(textNode) {
     // Apply all replacements to the temporary variable
     mapKeys.forEach(function (key) {
       try {
+        // Optimization: Skip patterns unlikely to match
+        const pattern = trumpMap[key].regex.source.split('|')[0].replace(/[\\()]/g, '');
+        if (pattern.length > 3 && !replacedText.includes(pattern.replace(/\\b/g, ''))) {
+          return;
+        }
+
         replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
 
         // Reset the regex lastIndex if it has global flag
@@ -206,7 +220,20 @@ function convert(textNode) {
 
     // Update DOM only once after all replacements are done, and only if text changed
     if (replacedText !== originalText) {
+      // Disconnect observer before making changes to avoid infinite loop
+      if (window.trumpObserver) {
+        window.trumpObserver.disconnect();
+      }
+
       textNode.nodeValue = replacedText;
+
+      // Mark this node as processed
+      textNode._trumpGogglesProcessed = true;
+
+      // Reconnect observer after changes
+      if (window.trumpObserver) {
+        window.trumpObserver.observe(document.body, observerConfig);
+      }
     }
   } catch (error) {
     console.error('Trump Goggles: Error converting text node', error);
@@ -214,6 +241,19 @@ function convert(textNode) {
 }
 
 // Note: buildTrumpMap is now imported from content-shared.js
+
+// Cache of processed nodes to avoid reprocessing
+window.trumpProcessedNodes = window.trumpProcessedNodes || new WeakSet();
+
+// Global observer for the MutationObserver
+window.trumpObserver = window.trumpObserver || null;
+
+// Global observer configuration
+const observerConfig = {
+  childList: true, // Watch for new nodes
+  subtree: true, // Watch the entire subtree
+  characterData: true, // Watch for text content changes
+};
 
 /**
  * Sets up a MutationObserver to handle dynamically added content.
@@ -233,46 +273,83 @@ function setupMutationObserver() {
   }
 
   // Define a MutationObserver that will process new content
-  const trumpObserver = new MutationObserver((mutations) => {
+  window.trumpObserver = new MutationObserver((mutations) => {
     try {
-      // Process each mutation
-      mutations.forEach((mutation) => {
+      // Filter out mutations caused by our own changes
+      const relevantMutations = mutations.filter((mutation) => {
+        // Skip if mutation is on a node we've processed
+        if (
+          mutation.target._trumpGogglesProcessed ||
+          (mutation.target.parentNode && mutation.target.parentNode._trumpGogglesProcessed)
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+      if (relevantMutations.length === 0) {
+        return;
+      }
+
+      // Process new nodes from relevant mutations
+      const nodesToProcess = new Set();
+
+      relevantMutations.forEach((mutation) => {
         // Process new nodes (childList mutations)
         if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
           mutation.addedNodes.forEach((node) => {
-            // Only process element and text nodes
-            if (node.nodeType === 1 || node.nodeType === 3) {
-              walk(node);
+            // Only add element and text nodes
+            if (
+              (node.nodeType === 1 || node.nodeType === 3) &&
+              !window.trumpProcessedNodes.has(node)
+            ) {
+              nodesToProcess.add(node);
             }
           });
         }
 
         // Process changed text content (characterData mutations)
-        if (mutation.type === 'characterData' && mutation.target.nodeType === 3) {
-          // Make sure the node isn't in an editable field
+        if (
+          mutation.type === 'characterData' &&
+          mutation.target.nodeType === 3 &&
+          !window.trumpProcessedNodes.has(mutation.target) &&
+          !mutation.target._trumpGogglesProcessed
+        ) {
           if (!isEditableNode(mutation.target)) {
-            convert(/** @type {Text} */ (mutation.target));
+            nodesToProcess.add(mutation.target);
           }
         }
       });
+
+      // Process collected nodes if there are any
+      if (nodesToProcess.size > 0) {
+        // Disconnect observer to avoid infinite loop
+        window.trumpObserver.disconnect();
+
+        // Process nodes
+        for (const node of nodesToProcess) {
+          if (node.nodeType === 1) {
+            // Element node - process its children
+            walk(node);
+          } else if (node.nodeType === 3 && !isEditableNode(node)) {
+            // Text node - process directly if not editable
+            convert(/** @type {Text} */ (node));
+          }
+        }
+
+        // Reconnect observer after processing
+        window.trumpObserver.observe(document.body, observerConfig);
+      }
     } catch (error) {
       console.error('Trump Goggles: Error processing mutations', error);
     }
   });
 
-  // Configure the observer to watch for relevant changes
-  const observerConfig = {
-    childList: true, // Watch for new nodes
-    subtree: true, // Watch the entire subtree
-    characterData: true, // Watch for text content changes
-  };
-
   // Start observing
   try {
-    trumpObserver.observe(document.body, observerConfig);
+    window.trumpObserver.observe(document.body, observerConfig);
   } catch (error) {
     console.error('Trump Goggles: Error setting up MutationObserver', error);
   }
-
-  // Error handling is already integrated into the MutationObserver callbacks
 }
