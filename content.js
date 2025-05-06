@@ -29,28 +29,45 @@
 const buildTrumpMap =
   window.buildTrumpMap || self.buildTrumpMap || this.buildTrumpMap || globalThis.buildTrumpMap;
 
-// Cache the Trump mappings to avoid rebuilding for each text node
+// Pre-declare variables to avoid scoping issues
 /**
  * Object containing all the Trump mapping entries.
  * Structure: { [key: string]: { regex: RegExp, nick: string } }
  */
 // @ts-ignore - Type is derived from buildTrumpMap's return value
-const trumpMap = buildTrumpMap();
+let trumpMap = {};
 
 /**
  * Array of keys from the Trump mapping object for iteration.
  */
 // @ts-ignore - Type is derived from trumpMap
-const mapKeys = Object.keys(trumpMap);
+let mapKeys = [];
 
-// Initialize text replacement when DOM is loaded
-try {
-  walk(document.body);
+// Runtime check for the function's existence to handle loading failures
+if (typeof buildTrumpMap !== 'function') {
+  // Log detailed error with troubleshooting instructions
+  console.error(
+    'Trump Goggles Error: buildTrumpMap function not found! ' +
+      'This likely means content-shared.js failed to load or loaded after content.js. ' +
+      'Check manifest.json script order. Replacements disabled.'
+  );
+  // Extension functionality will be effectively disabled since we can't proceed without buildTrumpMap
+} else {
+  // Only execute initialization if buildTrumpMap exists
 
-  // Setup MutationObserver to handle dynamic content
-  setupMutationObserver();
-} catch (error) {
-  console.error('Trump Goggles: Error initializing extension', error);
+  // Cache the Trump mappings to avoid rebuilding for each text node
+  trumpMap = buildTrumpMap();
+  mapKeys = Object.keys(trumpMap);
+
+  // Initialize text replacement when DOM is loaded
+  try {
+    walk(document.body);
+
+    // Setup MutationObserver to handle dynamic content
+    setupMutationObserver();
+  } catch (error) {
+    console.error('Trump Goggles: Error initializing extension', error);
+  }
 }
 
 /**

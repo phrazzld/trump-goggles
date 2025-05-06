@@ -69,17 +69,17 @@ This document provides a detailed, actionable task breakdown for implementing th
 - **Dependencies**: CS-01, CS-02
 - **Description**: Implement runtime checks for shared function availability
 - **Steps**:
-  - [ ] Add a check after acquiring `buildTrumpMap` to verify it's a function
-  - [ ] Implement appropriate error handling and messaging
-  - [ ] Structure the code to conditionally run the initialization only if `buildTrumpMap` exists
+  - [x] Add a check after acquiring `buildTrumpMap` to verify it's a function
+  - [x] Implement appropriate error handling and messaging
+  - [x] Structure the code to conditionally run the initialization only if `buildTrumpMap` exists
 - **Verification**:
-  - [ ] Normal functionality test
-  - [ ] Simulated failure test:
-    - [ ] Temporarily reverse script order in `manifest.json`
-    - [ ] Load extension and visit a webpage
-    - [ ] Check for expected error in console
-    - [ ] Verify no uncaught exceptions
-    - [ ] Restore correct script order
+  - [x] Normal functionality test
+  - [x] Simulated failure test:
+    - [x] Temporarily reverse script order in `manifest.json`
+    - [x] Load extension and visit a webpage
+    - [x] Check for expected error in console
+    - [x] Verify no uncaught exceptions
+    - [x] Restore correct script order
 
 ### Testing Tasks
 

@@ -37,7 +37,7 @@ const MAX_OPERATIONS_PER_PAGE = 1000; // Safety limit
 // Cache of processed nodes to avoid reprocessing
 const processedNodes = new WeakSet();
 
-// Cache the Trump mappings to avoid rebuilding for each text node
+// Pre-declare mapping variables to avoid scoping issues
 /**
  * Object containing all Trump nickname mappings.
  * The @ts-ignore is necessary because:
@@ -48,7 +48,7 @@ const processedNodes = new WeakSet();
  * @type {Object.<string, {regex: RegExp, nick: string}>}
  */
 // @ts-ignore - Type derived from buildTrumpMap's return value, which TypeScript cannot track across content scripts
-const trumpMap = buildTrumpMap();
+let trumpMap = {};
 
 /**
  * Array of keys from the Trump mapping object for iteration.
@@ -58,22 +58,40 @@ const trumpMap = buildTrumpMap();
  * @type {string[]}
  */
 // @ts-ignore - Type derived from trumpMap, which TypeScript cannot properly type across content scripts
-const mapKeys = Object.keys(trumpMap);
+let mapKeys = [];
 
-// Initialize text replacement when DOM is loaded
-try {
-  // Add emergency kill switch to page
-  addKillSwitch();
+// Runtime check for the function's existence to handle loading failures
+if (typeof buildTrumpMap !== 'function') {
+  // Log detailed error with troubleshooting instructions
+  console.error(
+    'Trump Goggles Error: buildTrumpMap function not found! ' +
+      'This likely means content-shared.js failed to load or loaded after content.js. ' +
+      'Check manifest.json script order. Replacements disabled.'
+  );
+  // Extension functionality will be effectively disabled
+  enabled = false; // Explicitly disable the extension when buildTrumpMap is missing
+} else {
+  // Only execute initialization if buildTrumpMap exists
 
-  // Process in chunks to avoid freezing the browser
-  setTimeout(() => {
-    walkChunked(document.body);
-  }, 100);
+  // Cache the Trump mappings to avoid rebuilding for each text node
+  trumpMap = buildTrumpMap();
+  mapKeys = Object.keys(trumpMap);
 
-  // Setup MutationObserver to handle dynamic content
-  setupMutationObserver();
-} catch (error) {
-  console.error('Trump Goggles: Error initializing extension', error);
+  // Initialize text replacement when DOM is loaded
+  try {
+    // Add emergency kill switch to page
+    addKillSwitch();
+
+    // Process in chunks to avoid freezing the browser
+    setTimeout(() => {
+      walkChunked(document.body);
+    }, 100);
+
+    // Setup MutationObserver to handle dynamic content
+    setupMutationObserver();
+  } catch (error) {
+    console.error('Trump Goggles: Error initializing extension', error);
+  }
 }
 
 /**
