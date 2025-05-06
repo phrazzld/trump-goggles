@@ -29,8 +29,8 @@
 
   "content_scripts": [
     {
-      "_comment": "IMPORTANT: Order is critical! trump-mappings.js MUST be listed first because it provides the mapping functionality that the main content script depends on.",
-      "js": ["trump-mappings.js", "content-consolidated.js"],
+      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, and content-consolidated.js uses all of them.",
+      "js": ["trump-mappings.js", "dom-processor.js", "text-processor.js", "content-consolidated.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }

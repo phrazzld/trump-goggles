@@ -2,8 +2,8 @@
  * Trump Goggles - Chrome extension to see the world through Trump's eyes
  *
  * This content script replaces mentions of politicians, media figures, and other entities
- * with Donald Trump's nicknames for them. It works by traversing the DOM tree and replacing
- * text in non-editable elements. It also observes DOM changes to handle dynamically loaded content.
+ * with Donald Trump's nicknames for them. It uses a clean modular architecture with separate
+ * components for DOM traversal, text processing, and mutation observation.
  *
  * @version 3.0.0
  */
@@ -41,9 +41,6 @@ const TrumpGoggles = (function () {
   // The observer instance
   let mutationObserver = null;
 
-  // WeakSet to track processed nodes (properly scoped in the module)
-  const processedNodes = new WeakSet();
-
   // ===== INITIALIZATION =====
 
   /**
@@ -60,10 +57,25 @@ const TrumpGoggles = (function () {
 
     // Set global initialization flag
     window.trumpGogglesInitialized = true;
-    console.log('Trump Goggles: Initializing consolidated script');
+    console.log('Trump Goggles: Initializing with modular architecture');
 
     try {
-      // First try to use the new TrumpMappings module
+      // Verify that required modules are available
+      if (!window.DOMProcessor) {
+        console.error(
+          'Trump Goggles Error: DOMProcessor module not found! Check script loading order.'
+        );
+        return;
+      }
+
+      if (!window.TextProcessor) {
+        console.error(
+          'Trump Goggles Error: TextProcessor module not found! Check script loading order.'
+        );
+        return;
+      }
+
+      // First try to use the TrumpMappings module
       if (window.TrumpMappings && typeof window.TrumpMappings.getReplacementMap === 'function') {
         // Use new module API
         trumpMap = window.TrumpMappings.getReplacementMap();
@@ -95,7 +107,7 @@ const TrumpGoggles = (function () {
       // Process in chunks to avoid freezing the browser
       // Delay initial processing to allow page to render first
       setTimeout(() => {
-        walkChunked(document.body);
+        processPage();
       }, 100);
 
       // Setup MutationObserver to handle dynamic content
@@ -105,203 +117,62 @@ const TrumpGoggles = (function () {
     }
   }
 
-  // ===== DOM TRAVERSAL =====
+  // ===== PAGE PROCESSING =====
 
   /**
-   * Process DOM in chunks to avoid freezing the browser
+   * Process the current page, replacing text according to Trump mappings
    *
    * @private
-   * @param {Node} rootNode - Root node to start processing from
-   * @param {number} [chunkSize=DEFAULT_CHUNK_SIZE] - Number of nodes to process per chunk
+   * @param {Node} [rootNode=document.body] - Root node to process
+   * @returns {Promise<void>} Promise that resolves when processing is complete
    */
-  function walkChunked(rootNode, chunkSize = DEFAULT_CHUNK_SIZE) {
-    // Circuit breakers
-    if (!enabled || operationCount >= MAX_OPERATIONS_PER_PAGE) {
+  async function processPage(rootNode = document.body) {
+    // Skip if disabled or processing is already in progress
+    if (!enabled || processingInProgress || operationCount >= MAX_OPERATIONS_PER_PAGE) {
       return;
     }
 
-    const nodesToProcess = [rootNode];
-    let processed = 0;
+    // Set the processing flag to prevent concurrent processing
+    processingInProgress = true;
 
-    function processChunk() {
-      // Check circuit breakers before processing each chunk
-      if (!enabled || nodesToProcess.length === 0 || operationCount >= MAX_OPERATIONS_PER_PAGE) {
-        processingInProgress = false;
-        return;
-      }
-
-      processingInProgress = true;
-      const deadline = Date.now() + TIME_SLICE_MS; // Time slice for this chunk
-
-      // Process nodes until we hit time limit, chunk size, or run out of nodes
-      while (nodesToProcess.length > 0 && Date.now() < deadline && processed < chunkSize) {
-        const node = nodesToProcess.shift();
-
-        // Skip invalid nodes or already processed nodes
-        if (!node || !node.nodeType || processedNodes.has(node)) {
-          continue;
-        }
-
-        // Mark node as processed to avoid infinite loops
-        processedNodes.add(node);
-
-        switch (node.nodeType) {
-        case 1: // Element
-          // Skip script, style, SVG elements and our own UI elements
-          const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
-          if (
-            tagName === 'script' ||
-              tagName === 'style' ||
-              tagName === 'svg' ||
-              node.id === 'trump-goggles-kill-switch'
-          ) {
-            continue;
-          }
-
-          // Add child nodes to processing queue
-          if (node.childNodes && node.childNodes.length) {
-            for (let i = 0; i < node.childNodes.length; i++) {
-              nodesToProcess.push(node.childNodes[i]);
-            }
-          }
-          break;
-
-        case 3: // Text node
-          // Only convert if node is not within an editable element and has content
-          if (!isEditableNode(node) && node.nodeValue && node.nodeValue.trim().length > 0) {
-            convert(node);
-            processed++;
-          }
-          break;
-        }
-      }
-
-      // Schedule next chunk or finish processing
-      if (nodesToProcess.length > 0 && processed < chunkSize) {
-        setTimeout(processChunk, 0);
-      } else {
-        processingInProgress = false;
-        if (DEBUG) {
-          console.log(`Trump Goggles: Processed ${operationCount} operations`);
-        }
-      }
-    }
-
-    // Start processing first chunk
-    processChunk();
-  }
-
-  /**
-   * Determines if a DOM node is editable or within an editable element.
-   *
-   * @private
-   * @param {Node} node - The DOM node to check
-   * @returns {boolean} - True if editable, false otherwise
-   */
-  function isEditableNode(node) {
-    // Check if it's a text node
-    if (node.nodeType === 3) {
-      // For text nodes, check the parent
-      return isEditableNode(node.parentNode);
-    }
-
-    // Handle non-text nodes
-    if (!node || node.nodeType !== 1) {
-      return false;
-    }
-
-    // Check for common editable elements
-    const element = /** @type {Element} */ (node);
-    const nodeName = element.nodeName.toLowerCase();
-    if (nodeName === 'textarea' || nodeName === 'input') {
-      return true;
-    }
-
-    // Check for contenteditable attribute
-    if (
-      element.getAttribute &&
-      (element.getAttribute('contenteditable') === 'true' ||
-        element.getAttribute('contenteditable') === '')
-    ) {
-      return true;
-    }
-
-    // Check if any parent is editable (recursively)
-    return node.parentNode ? isEditableNode(node.parentNode) : false;
-  }
-
-  // ===== TEXT REPLACEMENT =====
-
-  /**
-   * Applies Trump nickname replacements to the content of a text node.
-   *
-   * @private
-   * @param {Text} textNode - The text node whose content will be modified
-   * @returns {void}
-   */
-  function convert(textNode) {
     try {
-      // Circuit breakers
-      if (
-        !enabled ||
-        operationCount >= MAX_OPERATIONS_PER_PAGE ||
-        !textNode ||
-        !textNode.nodeValue
-      ) {
-        return;
-      }
-
-      // Skip if the node is already in our processed set
-      if (processedNodes.has(textNode)) {
-        return;
-      }
-
-      // Create a temporary variable to avoid multiple DOM updates
-      let replacedText = textNode.nodeValue;
-      const originalText = replacedText;
-
-      // Apply all replacements to the temporary variable
-      mapKeys.forEach(function (key) {
-        try {
-          // Optimization: Skip patterns unlikely to match
-          const pattern = trumpMap[key].regex.source.split('|')[0].replace(/[\\()]/g, '');
-          if (pattern.length > 3 && !replacedText.includes(pattern.replace(/\\b/g, ''))) {
+      // Process the DOM in chunks
+      await window.DOMProcessor.processInChunks(
+        rootNode,
+        // Callback to apply to each text node
+        (textNode) => {
+          // Skip if we've hit the operation limit
+          if (operationCount >= MAX_OPERATIONS_PER_PAGE) {
             return;
           }
 
-          replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+          // Process the text node
+          const processed = window.TextProcessor.processTextNode(textNode, trumpMap, mapKeys, {
+            useCache: true,
+            earlyBailout: true,
+            onProcessed: () => {
+              // Increment operation counter when a replacement actually happens
+              operationCount++;
+            },
+          });
 
-          // Reset the regex lastIndex if it has global flag
-          if (trumpMap[key].regex.global) {
-            trumpMap[key].regex.lastIndex = 0;
-          }
-        } catch (regexError) {
-          console.error('Trump Goggles: Error applying regex', key, regexError);
+          return processed;
+        },
+        {
+          chunkSize: DEFAULT_CHUNK_SIZE,
+          timeSliceMs: TIME_SLICE_MS,
+          skipProcessed: true,
         }
-      });
+      );
 
-      // Update DOM only once after all replacements are done, and only if text changed
-      if (replacedText !== originalText) {
-        // Disconnect observer before making changes to avoid infinite loop
-        if (mutationObserver) {
-          mutationObserver.disconnect();
-        }
-
-        textNode.nodeValue = replacedText;
-
-        // Mark this node as processed
-        processedNodes.add(textNode);
-
-        // Increment operation counter
-        operationCount++;
-
-        // Reconnect observer after changes
-        if (mutationObserver && enabled && document.body) {
-          mutationObserver.observe(document.body, observerConfig);
-        }
+      if (DEBUG) {
+        console.log(`Trump Goggles: Processed ${operationCount} operations`);
       }
     } catch (error) {
-      console.error('Trump Goggles: Error converting text node', error);
+      console.error('Trump Goggles: Error processing page', error);
+    } finally {
+      // Reset the processing flag when done
+      processingInProgress = false;
     }
   }
 
@@ -335,7 +206,7 @@ const TrumpGoggles = (function () {
           }
 
           // Skip processed nodes
-          if (processedNodes.has(mutation.target)) {
+          if (window.DOMProcessor.isProcessed(mutation.target)) {
             return false;
           }
 
@@ -346,15 +217,24 @@ const TrumpGoggles = (function () {
           return;
         }
 
-        // Process new nodes from relevant mutations
+        // Collect nodes to process from mutations
         const nodesToProcess = new Set();
 
+        // Disconnect observer to avoid infinite loop while processing
+        if (mutationObserver) {
+          mutationObserver.disconnect();
+        }
+
+        // Process mutations
         relevantMutations.forEach((mutation) => {
           // Process new nodes (childList mutations)
           if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
             mutation.addedNodes.forEach((node) => {
               // Only add element and text nodes that haven't been processed
-              if ((node.nodeType === 1 || node.nodeType === 3) && !processedNodes.has(node)) {
+              if (
+                (node.nodeType === 1 || node.nodeType === 3) &&
+                !window.DOMProcessor.isProcessed(node)
+              ) {
                 nodesToProcess.add(node);
               }
             });
@@ -364,36 +244,37 @@ const TrumpGoggles = (function () {
           if (
             mutation.type === 'characterData' &&
             mutation.target.nodeType === 3 &&
-            !processedNodes.has(mutation.target)
+            !window.DOMProcessor.isProcessed(mutation.target) &&
+            !window.DOMProcessor.isEditableNode(mutation.target)
           ) {
-            if (!isEditableNode(mutation.target)) {
-              nodesToProcess.add(mutation.target);
-            }
+            nodesToProcess.add(mutation.target);
           }
         });
 
         // Process collected nodes if there are any
         if (nodesToProcess.size > 0) {
-          // Disconnect observer to avoid infinite loop
-          if (mutationObserver) {
-            mutationObserver.disconnect();
-          }
-
-          // Process nodes in chunks
+          // Process each root node from the mutations
           for (const node of nodesToProcess) {
             if (node.nodeType === 1) {
-              // Element node - process its children
-              walkChunked(node);
-            } else if (node.nodeType === 3 && !isEditableNode(node)) {
+              // Element node - process its subtree
+              processPage(node);
+            } else if (node.nodeType === 3 && !window.DOMProcessor.isEditableNode(node)) {
               // Text node - process directly if not editable
-              convert(/** @type {Text} */ (node));
+              window.TextProcessor.processTextNode(node, trumpMap, mapKeys, {
+                useCache: true,
+                earlyBailout: true,
+                onProcessed: () => {
+                  operationCount++;
+                  window.DOMProcessor.markProcessed(node);
+                },
+              });
             }
           }
+        }
 
-          // Reconnect observer after processing
-          if (enabled && mutationObserver && document.body) {
-            mutationObserver.observe(document.body, observerConfig);
-          }
+        // Reconnect observer after processing
+        if (enabled && mutationObserver && document.body) {
+          mutationObserver.observe(document.body, observerConfig);
         }
       } catch (error) {
         console.error('Trump Goggles: Error processing mutations', error);
@@ -481,12 +362,109 @@ const TrumpGoggles = (function () {
     return enabled;
   }
 
+  /**
+   * Process a specific DOM subtree with custom options
+   *
+   * @public
+   * @param {Object} options - Processing options
+   * @param {Node} options.root - Root node to process (defaults to document.body)
+   * @param {boolean} options.skipInteractiveElements - Whether to skip interactive elements
+   * @param {number} options.chunkSize - Number of nodes to process per chunk
+   * @param {number} options.processingDelay - Delay between processing chunks in ms
+   * @returns {Promise<number>} - Promise resolving to the number of replacements made
+   */
+  async function process(options = {}) {
+    const root = options.root || document.body;
+    const skipInteractiveElements = options.skipInteractiveElements !== false;
+    const chunkSize = options.chunkSize || DEFAULT_CHUNK_SIZE;
+    const processingDelay = options.processingDelay || TIME_SLICE_MS;
+
+    // Skip if disabled
+    if (!enabled) {
+      return 0;
+    }
+
+    let replacementCount = 0;
+
+    // Configure the skip tags based on options
+    const skipTags = [...window.DOMProcessor.DEFAULT_SKIP_TAGS];
+    if (!skipInteractiveElements) {
+      // Remove interactive elements from skip list if specified
+      const interactiveElements = ['input', 'textarea', 'select', 'option'];
+      interactiveElements.forEach((tag) => {
+        const index = skipTags.indexOf(tag);
+        if (index !== -1) {
+          skipTags.splice(index, 1);
+        }
+      });
+    }
+
+    // Process the DOM tree
+    await window.DOMProcessor.processInChunks(
+      root,
+      (textNode) => {
+        const replaced = window.TextProcessor.processTextNode(textNode, trumpMap, mapKeys, {
+          useCache: true,
+          earlyBailout: true,
+        });
+
+        if (replaced) {
+          replacementCount++;
+        }
+      },
+      {
+        chunkSize: chunkSize,
+        timeSliceMs: processingDelay,
+        skipProcessed: true,
+        skipTags: skipTags,
+      }
+    );
+
+    return replacementCount;
+  }
+
+  /**
+   * Reprocess all nodes, including those already processed
+   *
+   * @public
+   * @param {Node} [root=document.body] - Root node to reprocess
+   * @returns {Promise<number>} - Promise resolving to the number of replacements made
+   */
+  async function reprocessAll(root = document.body) {
+    // Skip if disabled
+    if (!enabled) {
+      return 0;
+    }
+
+    // Reset the processed state for all nodes
+    window.DOMProcessor.resetProcessedState(root);
+
+    // Clear the text processor cache
+    window.TextProcessor.clearCache();
+
+    // Reset operation count to allow full reprocessing
+    operationCount = 0;
+
+    // Process the DOM tree
+    return await process({
+      root: root,
+      skipInteractiveElements: true,
+      chunkSize: DEFAULT_CHUNK_SIZE,
+      processingDelay: TIME_SLICE_MS,
+    });
+  }
+
   // Public API
   return {
+    // Core functionality
     initialize: initialize,
     enable: enable,
     disable: disable,
     isEnabled: isEnabled,
+
+    // Enhanced API
+    process: process,
+    reprocessAll: reprocessAll,
   };
 })();
 

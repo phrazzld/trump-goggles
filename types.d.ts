@@ -53,6 +53,12 @@ interface Chrome {
   tabs: {
     query(queryInfo: object, callback: (tabs: browser.tabs.Tab[]) => void): void;
   };
+  storage: {
+    sync: {
+      get: (keys: any, callback: (items: { [key: string]: any }) => void) => void;
+      set: (items: { [key: string]: any }, callback?: () => void) => void;
+    };
+  };
 }
 
 declare const chrome: Chrome;
@@ -60,20 +66,35 @@ declare const chrome: Chrome;
 // DOM extensions
 interface Node {
   _trumpGogglesProcessed?: boolean;
+  _trumpProcessed?: boolean;
   id?: string;
 }
 
 interface Text {
   _trumpGogglesProcessed?: boolean;
+  _trumpProcessed?: boolean;
 }
 
 interface ParentNode {
   _trumpGogglesProcessed?: boolean;
+  _trumpProcessed?: boolean;
 }
 
 // Window extensions
 interface Window {
   trumpVersion?: string;
+  trumpGogglesInitialized?: boolean;
+  trumpProcessedNodes?: WeakSet<Node>;
+  trumpObserver?: MutationObserver;
+  
+  // Module exports
+  TrumpMappings?: any;
+  DOMProcessor?: any;
+  TextProcessor?: any;
+  TrumpGoggles?: any;
+  
+  // Legacy functions
+  buildTrumpMap?: () => TrumpMappingObject;
 }
 
 // Performance extensions
@@ -89,4 +110,9 @@ interface Performance {
 interface TrumpMapping {
   regex: RegExp;
   nick: string;
+}
+
+// Define TrumpMappingObject type
+interface TrumpMappingObject {
+  [key: string]: TrumpMapping;
 }
