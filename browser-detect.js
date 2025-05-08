@@ -74,8 +74,13 @@ const BrowserDetect = (function () {
       return detectedBrowser;
     }
 
-    // Check for Chrome
-    if (window.chrome && navigator.userAgent.indexOf('Chrome') !== -1) {
+    // Check for Chrome - using type guard
+    // This is safer than just checking window.chrome which might not be defined
+    if (
+      typeof window.chrome === 'object' &&
+      window.chrome !== null &&
+      navigator.userAgent.indexOf('Chrome') !== -1
+    ) {
       // Check for Opera which uses Chrome engine
       if (navigator.userAgent.indexOf('OPR') !== -1) {
         detectedBrowser = BROWSERS.OPERA;
@@ -158,9 +163,16 @@ const BrowserDetect = (function () {
 
     try {
       // Try to get the manifest version directly (this works in MV3)
-      if (chrome && chrome.runtime && chrome.runtime.getManifest) {
+      // Use proper type guards to ensure chrome and its properties exist
+      if (
+        typeof chrome === 'object' &&
+        chrome !== null &&
+        typeof chrome.runtime === 'object' &&
+        chrome.runtime !== null &&
+        typeof chrome.runtime.getManifest === 'function'
+      ) {
         const manifest = chrome.runtime.getManifest();
-        if (manifest && manifest.manifest_version) {
+        if (manifest && typeof manifest === 'object' && 'manifest_version' in manifest) {
           manifestVersion = manifest.manifest_version;
           return manifestVersion;
         }
@@ -220,21 +232,30 @@ const BrowserDetect = (function () {
       break;
 
     case FEATURES.MATCH_MEDIA:
-      isSupported = typeof window.matchMedia !== 'undefined';
+      isSupported =
+          typeof window === 'object' && window !== null && typeof window.matchMedia === 'function';
       break;
 
     case FEATURES.WEB_REQUEST:
-      isSupported = !!(chrome && chrome.webRequest);
+      isSupported =
+          typeof chrome === 'object' &&
+          chrome !== null &&
+          typeof chrome.webRequest === 'object' &&
+          chrome.webRequest !== null;
       break;
 
     case FEATURES.LOCAL_STORAGE:
       try {
-        isSupported = typeof localStorage !== 'undefined';
+        isSupported =
+            typeof window === 'object' &&
+            window !== null &&
+            typeof window.localStorage === 'object' &&
+            window.localStorage !== null;
 
-        // Test if localStorage is actually available
+        // Test if localStorage is actually available by attempting to use it
         if (isSupported) {
-          localStorage.setItem('__test', '__test');
-          localStorage.removeItem('__test');
+          window.localStorage.setItem('__test', '__test');
+          window.localStorage.removeItem('__test');
         }
       } catch (/* eslint-disable-line no-unused-vars */ _e) {
         isSupported = false;
@@ -242,11 +263,18 @@ const BrowserDetect = (function () {
       break;
 
     case FEATURES.SERVICE_WORKER:
-      isSupported = typeof navigator.serviceWorker !== 'undefined';
+      isSupported =
+          typeof navigator === 'object' &&
+          navigator !== null &&
+          typeof navigator.serviceWorker === 'object' &&
+          navigator.serviceWorker !== null;
       break;
 
     case FEATURES.SHADOW_DOM:
-      isSupported = typeof Element.prototype.attachShadow !== 'undefined';
+      isSupported =
+          typeof Element === 'function' &&
+          Element.prototype &&
+          typeof Element.prototype.attachShadow === 'function';
       break;
 
     default:
@@ -260,11 +288,32 @@ const BrowserDetect = (function () {
 
   /**
    * Checks if the browser API uses promises (Firefox) or callbacks (Chrome)
+   * Uses feature detection as the primary approach, with browser detection as fallback
    *
    * @private
    * @returns {boolean} Whether the browser uses promises for extension APIs
    */
   function usesPromises() {
+    // First try to detect using feature detection
+    if (typeof browser === 'object' && browser !== null) {
+      // Check if browser.runtime.openOptionsPage returns a Promise
+      if (
+        typeof browser.runtime === 'object' &&
+        browser.runtime !== null &&
+        typeof browser.runtime.openOptionsPage === 'function'
+      ) {
+        // If openOptionsPage() returns a Promise, it's a promise-based API
+        const result = browser.runtime.openOptionsPage();
+        const isPromise = result && typeof result.then === 'function';
+
+        // If we have a definitive answer, use it
+        if (isPromise) {
+          return true;
+        }
+      }
+    }
+
+    // Fallback to browser detection if feature detection is inconclusive
     return detectBrowser() === BROWSERS.FIREFOX;
   }
 
