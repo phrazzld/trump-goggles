@@ -3,14 +3,12 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { createMockMutation, createTestDOM } from '../helpers/test-utils';
+import { createMockMutation } from '../helpers/test-utils';
 
 describe('MutationObserver Module', () => {
   let document;
-  let mockObserver;
   let mockDisconnect;
   let mockObserve;
-  let mockDomProcessor;
 
   // Create an object that holds all the mutation handler functions and state
   const MutationHandler = {
@@ -163,10 +161,10 @@ describe('MutationObserver Module', () => {
   describe('Observer Setup', () => {
     it('should set up a mutation observer for the document body', () => {
       // Setup observer
-      const observer = MutationHandler.setupMutationObserver(document.body);
+      const setupResult = MutationHandler.setupMutationObserver(document.body);
 
       // Verify observer was created and initialized
-      expect(observer).toBeDefined();
+      expect(setupResult).toBeDefined();
       expect(mockObserve).toHaveBeenCalledWith(
         document.body,
         expect.objectContaining({
@@ -180,7 +178,7 @@ describe('MutationObserver Module', () => {
 
     it('should disconnect the observer when requested', () => {
       // Setup observer
-      const observer = MutationHandler.setupMutationObserver(document.body);
+      MutationHandler.setupMutationObserver(document.body);
 
       // Disconnect
       MutationHandler.disconnectObserver();
@@ -192,7 +190,7 @@ describe('MutationObserver Module', () => {
 
     it('should reconnect the observer when requested', () => {
       // Setup observer
-      const observer = MutationHandler.setupMutationObserver(document.body);
+      MutationHandler.setupMutationObserver(document.body);
 
       // Disconnect
       MutationHandler.disconnectObserver();
@@ -314,7 +312,7 @@ describe('MutationObserver Module', () => {
         processMutations: vi.fn().mockImplementation(() => {
           throw new Error('Test error');
         }),
-        mutationHandler: vi.fn((mutations, observer) => {
+        mutationHandler: vi.fn((mutations, _observer) => {
           try {
             errorHandler.processMutations(mutations);
           } catch (error) {

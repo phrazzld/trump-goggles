@@ -65,7 +65,7 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
   };
 
   const getStorageItem = vi.fn((keys) => Promise.resolve({ [keys]: 'mockValue' }));
-  const setStorageItem = vi.fn((items) => Promise.resolve());
+  const setStorageItem = vi.fn((_items) => Promise.resolve());
 
   const sendMessageToTab = vi.fn((tabId, message) =>
     Promise.resolve({ response: 'mockResponse', tabId, message })

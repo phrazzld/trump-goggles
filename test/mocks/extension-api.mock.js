@@ -481,7 +481,7 @@ const createExtensionApiMock = (options = {}) => {
       // Clear all event listeners
       Object.values(mockApi).forEach((api) => {
         if (api) {
-          Object.entries(api).forEach(([key, value]) => {
+          Object.entries(api).forEach(([_, value]) => {
             if (value && typeof value.clearListeners === 'function') {
               value.clearListeners();
             }
@@ -497,7 +497,7 @@ const createExtensionApiMock = (options = {}) => {
     },
 
     // Helper to switch between Chrome and Firefox behavior
-    _setBrowserType: (type) => {
+    _setBrowserType: (_type) => {
       // This would need to redefine all functions to switch promise vs. callback behavior
       console.warn(
         'Browser type switching is not fully implemented at runtime. Create a new mock instead.'

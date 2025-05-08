@@ -42,8 +42,8 @@ const createMockModules = () => {
       return keywords.some((keyword) => lowerText.includes(keyword));
     }),
 
-    getCachedResult: vi.fn((text) => null),
-    setCachedResult: vi.fn((text, result) => {}),
+    getCachedResult: vi.fn((_text) => null),
+    setCachedResult: vi.fn((_text, _result) => {}),
     getMetrics: vi.fn(() => ({
       processedNodes: 0,
       totalReplacements: 0,
@@ -184,7 +184,7 @@ const createMockModules = () => {
         } else {
           node._trumpProcessed = true;
         }
-      } catch (e) {
+      } catch (_) {
         // Fallback for nodes that don't support dataset
         node._trumpProcessed = true;
       }

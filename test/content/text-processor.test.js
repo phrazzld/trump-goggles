@@ -41,8 +41,8 @@ const createTextProcessor = () => {
     }),
 
     // Cache management
-    getCachedResult: vi.fn((text) => null), // Initially empty cache
-    setCachedResult: vi.fn((text, result) => {}),
+    getCachedResult: vi.fn((_text) => null), // Initially empty cache
+    setCachedResult: vi.fn((_text, _result) => {}),
     clearCache: vi.fn(),
 
     // Performance metrics
