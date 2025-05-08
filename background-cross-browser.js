@@ -139,11 +139,11 @@ function setupErrorHandler() {
   BackgroundLogger.debug('Setting up error handler');
 
   // We can't use BrowserAdapter for this since it's a special case
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    chrome.runtime.onError = function (message, source, lineno, colno, error) {
-      BackgroundLogger.error('Runtime error', { message, source, lineno, colno, error });
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onError) {
+    chrome.runtime.onError.addListener(function (error) {
+      BackgroundLogger.error('Runtime error', error);
       return true; // Prevents the error from being displayed in the console
-    };
+    });
   }
 }
 
@@ -192,16 +192,12 @@ function setupDirectAPIHandlers() {
 
   // Direct Chrome API usage for error handling
   try {
-    chrome.runtime.onError = function (message, source, lineno, colno, error) {
-      BackgroundLogger.error('Runtime error (direct API)', {
-        message,
-        source,
-        lineno,
-        colno,
-        error,
+    if (chrome.runtime.onError) {
+      chrome.runtime.onError.addListener(function (error) {
+        BackgroundLogger.error('Runtime error (direct API)', error);
+        return true;
       });
-      return true;
-    };
+    }
   } catch (error) {
     BackgroundLogger.error('Error setting up direct error handler', error);
   }

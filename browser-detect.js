@@ -62,8 +62,8 @@ const BrowserDetect = (function () {
       return detectedBrowser;
     }
 
-    // Check for Firefox-specific properties
-    if (typeof InstallTrigger !== 'undefined') {
+    // Check for Firefox using user agent
+    if (navigator.userAgent.indexOf('Firefox') !== -1) {
       detectedBrowser = BROWSERS.FIREFOX;
       return detectedBrowser;
     }

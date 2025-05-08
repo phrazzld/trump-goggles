@@ -684,13 +684,20 @@ const TrumpGoggles = (function () {
    *
    * @public
    * @param {Object} options - Processing options
-   * @param {Node} options.root - Root node to process (defaults to document.body)
-   * @param {boolean} options.skipInteractiveElements - Whether to skip interactive elements
-   * @param {number} options.chunkSize - Number of nodes to process per chunk
-   * @param {number} options.processingDelay - Delay between processing chunks in ms
+   * @param {Node} [options.root=document.body] - Root node to process (defaults to document.body)
+   * @param {boolean} [options.skipInteractiveElements=true] - Whether to skip interactive elements
+   * @param {number} [options.chunkSize=DEFAULT_CHUNK_SIZE] - Number of nodes to process per chunk
+   * @param {number} [options.processingDelay=TIME_SLICE_MS] - Delay between processing chunks in ms
    * @returns {Promise<number>} - Promise resolving to the number of replacements made
    */
-  async function process(options = {}) {
+  async function process(
+    options = {
+      root: document.body,
+      skipInteractiveElements: true,
+      chunkSize: DEFAULT_CHUNK_SIZE,
+      processingDelay: TIME_SLICE_MS,
+    }
+  ) {
     // Use the Logger.protectAsync to wrap the entire function
     return await window.Logger.protectAsync(
       async () => {
