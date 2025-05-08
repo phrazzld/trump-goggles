@@ -17,7 +17,7 @@ describe('MutationObserver Module', () => {
     trumpMap: { trump: { regex: /Trump/g, nick: 'Agent Orange' } },
     mapKeys: ['trump'],
 
-    // Mock DOM processor
+    // Mock DOM processor - prefixed with _ to indicate intentionally unused in some tests
     domProcessor: {
       processDOM: vi.fn(),
       isEditableNode: vi.fn().mockReturnValue(false),
@@ -104,7 +104,7 @@ describe('MutationObserver Module', () => {
     }),
 
     // Mock handler function
-    mutationHandler: vi.fn((mutations, observer) => {
+    mutationHandler: vi.fn((mutations, _observer) => {
       try {
         MutationHandler.processMutations(mutations);
       } catch (error) {
@@ -325,8 +325,9 @@ describe('MutationObserver Module', () => {
       const textNode = document.createTextNode('Donald Trump announced a new policy');
       const mutation = createMockMutation('characterData', textNode, [], [], 'Previous text');
 
-      // Call the handler
-      errorHandler.mutationHandler([mutation], { disconnect: vi.fn() });
+      // Call the handler with mock observer (unused, hence prefixed with _)
+      const mockObserver = { disconnect: vi.fn() };
+      errorHandler.mutationHandler([mutation], mockObserver);
 
       // Verify error was caught
       expect(errorHandler.processMutations).toHaveBeenCalled();

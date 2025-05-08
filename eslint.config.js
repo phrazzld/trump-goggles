@@ -4,12 +4,12 @@ import jestDomPlugin from 'eslint-plugin-jest-dom';
 export default [
   {
     ignores: [
-      'node_modules/**', 
+      'node_modules/**',
       'coverage/**',
       '.vitest/**',
       // Temporarily ignore existing files while we focus on testing
       'content.js',
-      'background.js'
+      'background.js',
     ],
   },
   {
@@ -28,11 +28,11 @@ export default [
       'jest-dom': jestDomPlugin,
     },
     rules: {
-      'indent': ['error', 2],
+      indent: ['error', 2],
       'linebreak-style': ['error', 'unix'],
-      'quotes': ['error', 'single', { 'avoidEscape': true }],
-      'semi': ['error', 'always'],
-      'no-unused-vars': ['warn'],
+      quotes: ['error', 'single', { avoidEscape: true }],
+      semi: ['error', 'always'],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'vitest/expect-expect': 'error',
       'vitest/no-disabled-tests': 'warn',
     },

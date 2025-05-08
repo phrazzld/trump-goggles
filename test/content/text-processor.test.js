@@ -42,7 +42,7 @@ const createTextProcessor = () => {
 
     // Cache management
     getCachedResult: vi.fn((_text) => null), // Initially empty cache
-    setCachedResult: vi.fn((_text, _result) => {}),
+    setCachedResult: vi.fn((_text, _result) => {}), // Using underscore prefix for intentionally unused params
     clearCache: vi.fn(),
 
     // Performance metrics
