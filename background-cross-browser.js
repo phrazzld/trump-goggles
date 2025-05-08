@@ -142,7 +142,8 @@ function setupErrorHandler() {
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onError) {
     chrome.runtime.onError.addListener(function (error) {
       BackgroundLogger.error('Runtime error', error);
-      return true; // Prevents the error from being displayed in the console
+      // Chrome expects this handler not to return anything (void)
+      // The "return true" was incorrect as it's not needed for runtime.onError
     });
   }
 }
@@ -195,7 +196,8 @@ function setupDirectAPIHandlers() {
     if (chrome.runtime.onError) {
       chrome.runtime.onError.addListener(function (error) {
         BackgroundLogger.error('Runtime error (direct API)', error);
-        return true;
+        // Chrome expects this handler not to return anything (void)
+        // The "return true" was incorrect as it's not needed for runtime.onError
       });
     }
   } catch (error) {

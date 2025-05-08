@@ -190,10 +190,60 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
   - [x] Document extension behavior and limitations
   - [x] Add contributing guidelines for future developers
 
+## CI Failure Resolution Tasks
+
+#### CI-01: Fix Variable Redeclaration Errors
+- **Priority**: Critical
+- **Dependencies**: None
+- **Description**: Resolve variable redeclaration errors causing TypeScript build failures
+- **Steps**:
+  - [~] Fix `observerConfig` redeclaration between `content.js:22` and `content-fixed.js:22`
+  - [~] Fix `BackgroundLogger` redeclaration between `background.js:12` and `background-cross-browser.js:12`
+  - [~] Review all duplicate files to determine which ones should be kept and which should be removed
+
+#### CI-02: Resolve Type Compatibility Issues ✓
+- **Priority**: Critical
+- **Dependencies**: None
+- **Description**: Fix type compatibility errors across multiple files
+- **Steps**:
+  - [x] Fix invalid configuration object in `content-consolidated.js:693` (add missing properties: root, skipInteractiveElements, chunkSize, processingDelay)
+  - [x] Correct type mismatch for error handler in `background.js:102`
+  - [x] Correct type mismatch for error handler in `background-cross-browser.js:143` and `background-cross-browser.js:195`
+  - [x] Add proper type definitions for all function interfaces
+
+#### CI-03: Fix Browser Detection Type Errors
+- **Priority**: High
+- **Dependencies**: None
+- **Description**: Address reference errors in browser detection code
+- **Steps**:
+  - [ ] Fix 'InstallTrigger' reference error in `browser-detect.js:66`
+  - [ ] Implement proper type guards for browser-specific features
+  - [ ] Consider refactoring to use feature detection instead of browser detection
+
+#### CI-04: Clean Up Test Files
+- **Priority**: Medium
+- **Dependencies**: None
+- **Description**: Address unused variable warnings in test files
+- **Steps**:
+  - [ ] Fix unused variables `result` and `text` in `test/content/text-processor.test.js`
+  - [ ] Fix unused variable `observer` in multiple locations in `test/content/mutation-observer.test.js`
+  - [ ] Fix unused variables `mockDomProcessor`, `mockObserver`, and `createTestDOM` in `test/content/mutation-observer.test.js`
+  - [ ] Run ESLint locally to verify all warnings are addressed
+
+#### CI-05: Implement Local CI Verification Process
+- **Priority**: High
+- **Dependencies**: None
+- **Description**: Establish process to catch CI issues before pushing
+- **Steps**:
+  - [ ] Create pre-commit hook to run TypeScript checks
+  - [ ] Add script to run full CI verification locally
+  - [ ] Document CI verification process in CONTRIBUTING.md
+
 ## Implementation Prioritization
 
 1. **Critical Fixes**: R-01 (Fix current crashes)
 2. **Architecture Overhaul**: R-02, R-03 (Consolidate scripts, reorganize code)
 3. **Core Improvements**: R-04, R-05, R-06 (DOM processing, MutationObserver, text replacement)
 4. **Reliability Enhancements**: R-07, R-08 (Error handling, cross-browser compatibility)
-5. **Testing & Documentation**: TEST-02, TEST-03, TEST-04, DOC-02
+5. **CI Failure Resolution**: CI-01, CI-02, CI-03, CI-04, CI-05 (Fix build failures)
+6. **Testing & Documentation**: TEST-02, TEST-03, TEST-04, DOC-02

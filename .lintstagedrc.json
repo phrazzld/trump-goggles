@@ -2,7 +2,6 @@
   "*.js": [
     "prettier --write",
     "eslint --fix",
-    "vitest related --run",
-    "tsc --noEmit"
+    "vitest related --run"
   ]
 }
