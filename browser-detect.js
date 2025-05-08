@@ -8,6 +8,10 @@
  * @version 3.0.0
  */
 
+// TypeScript declarations for Firefox WebExtension API
+// @ts-ignore - The global browser namespace is not recognized by TypeScript
+// but it exists in Firefox extensions environment
+
 // BrowserDetect module pattern
 const BrowserDetect = (function () {
   'use strict';
@@ -237,11 +241,28 @@ const BrowserDetect = (function () {
       break;
 
     case FEATURES.WEB_REQUEST:
-      isSupported =
-          typeof chrome === 'object' &&
+      // Check for Chrome-style web request API
+      if (
+        typeof chrome === 'object' &&
           chrome !== null &&
           typeof chrome.webRequest === 'object' &&
-          chrome.webRequest !== null;
+          chrome.webRequest !== null
+      ) {
+        isSupported = true;
+      }
+      // Also check for Firefox-style web request API
+      else if (
+        typeof browser === 'object' &&
+          browser !== null &&
+          // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
+          typeof browser.webRequest === 'object' &&
+          // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
+          browser.webRequest !== null
+      ) {
+        isSupported = true;
+      } else {
+        isSupported = false;
+      }
       break;
 
     case FEATURES.LOCAL_STORAGE:
@@ -294,26 +315,36 @@ const BrowserDetect = (function () {
    * @returns {boolean} Whether the browser uses promises for extension APIs
    */
   function usesPromises() {
-    // First try to detect using feature detection
+    // First try to detect using feature detection - this is the most reliable approach
+    // Check if the browser global is available (Firefox WebExtension API)
     if (typeof browser === 'object' && browser !== null) {
-      // Check if browser.runtime.openOptionsPage returns a Promise
-      if (
-        typeof browser.runtime === 'object' &&
-        browser.runtime !== null &&
-        typeof browser.runtime.openOptionsPage === 'function'
-      ) {
-        // If openOptionsPage() returns a Promise, it's a promise-based API
-        const result = browser.runtime.openOptionsPage();
-        const isPromise = result && typeof result.then === 'function';
-
-        // If we have a definitive answer, use it
-        if (isPromise) {
+      // Check for Firefox-style promise-based APIs
+      if (typeof browser.runtime === 'object' && browser.runtime !== null) {
+        // Option 1: Check if runtime.getBrowserInfo exists (Firefox specific promise-based API)
+        // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
+        if (typeof browser.runtime.getBrowserInfo === 'function') {
           return true;
+        }
+
+        // Option 2: Try to detect if openOptionsPage returns a Promise
+        // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
+        if (typeof browser.runtime.openOptionsPage === 'function') {
+          try {
+            // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
+            const result = browser.runtime.openOptionsPage();
+            // If this is a promise, it will have a then method
+            if (result && typeof result.then === 'function') {
+              return true;
+            }
+          } catch (/* eslint-disable-line no-unused-vars */ _e) {
+            // Ignore errors - they don't tell us about promise support
+          }
         }
       }
     }
 
     // Fallback to browser detection if feature detection is inconclusive
+    // Firefox uses promise-based WebExtension API
     return detectBrowser() === BROWSERS.FIREFOX;
   }
 
