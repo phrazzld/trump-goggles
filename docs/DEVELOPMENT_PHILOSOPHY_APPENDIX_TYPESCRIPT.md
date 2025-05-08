@@ -1,0 +1,1 @@
+/Users/phaedrus/Development/codex/docs/DEVELOPMENT_PHILOSOPHY_APPENDIX_TYPESCRIPT.md
