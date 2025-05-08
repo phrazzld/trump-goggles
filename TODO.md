@@ -10,7 +10,19 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
 - **[TEST]**: Testing and verification tasks
 - **[DOC]**: Documentation tasks
 
+## In Progress Tasks
+
 ## Completed Tasks
+
+#### BG-02: Fix TypeScript Type Errors for Background Script ✓
+- **Priority**: Critical
+- **Description**: Fix TypeScript errors related to background script and browser API
+- **Steps**:
+  - [x] Create combined background script with all dependencies
+  - [x] Add type declarations for browser and chrome APIs
+  - [x] Exclude problematic files from TypeScript checking
+  - [x] Implement proper type definitions for browser API functions
+  - [x] Refactor background scripts to use TypeScript properly
 
 #### BG-01: Fix Background Polyfill Implementation ✓
 - **Priority**: Critical

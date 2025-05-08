@@ -35,6 +35,20 @@ const TextProcessor = (function () {
     'rubio',
     'jeb',
     'bush',
+    'nancy',
+    'pelosi',
+    'schumer',
+    'chuck',
+    'mitch',
+    'mcconnell',
+    'desantis',
+    'ron',
+    'haley',
+    'nikki',
+    'schiff',
+    'adam',
+    'bernie',
+    'sanders',
     'cnn',
     'fox',
     'msnbc',
@@ -49,6 +63,29 @@ const TextProcessor = (function () {
     'pandemic',
     'covid',
     'coronavirus',
+  ];
+
+  // Common nickname checks for faster detection
+  const COMMON_NICKNAMES = [
+    'crooked',
+    'lyin',
+    'little',
+    'low energy',
+    'crazy',
+    'sleepy',
+    'mini',
+    'sloppy',
+    'rocket man',
+    'fake news',
+    'failing',
+    'animal',
+    'pocahontas',
+    'goofy',
+    'birdbrain',
+    'old crow',
+    'shifty',
+    'cryin',
+    'deranged',
   ];
 
   // ===== CACHE IMPLEMENTATION =====
@@ -219,8 +256,17 @@ const TextProcessor = (function () {
       return false;
     }
 
-    // Quick check for common political words - these are likely to be in our patterns
+    // Convert to lowercase for case-insensitive checks
     const lowerText = text.toLowerCase();
+
+    // Check for any of the common nicknames - if present, definitely process this text
+    const hasNickname = COMMON_NICKNAMES.some((nickname) => lowerText.includes(nickname));
+
+    if (hasNickname) {
+      return true;
+    }
+
+    // Quick check for common political words - these are likely to be in our patterns
     const hasCommonWord = COMMON_POLITICAL_WORDS.some((word) => lowerText.includes(word));
 
     if (!hasCommonWord) {

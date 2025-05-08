@@ -175,7 +175,7 @@ const TrumpGoggles = (function () {
           // Process the text node
           const processed = window.TextProcessor.processTextNode(textNode, trumpMap, mapKeys, {
             useCache: true,
-            earlyBailout: true,
+            earlyBailout: false, // Disable early bailout to ensure all text is processed
             onProcessed: () => {
               // Increment operation counter when a replacement actually happens
               operationCount++;

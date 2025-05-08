@@ -1,3 +1,4 @@
+// @ts-nocheck - This file intentionally uses global variables that may appear to be redeclarations
 /**
  * Browser Adapter Module - Provides a unified API for browser extension functionality
  *

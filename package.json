@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "perf-test": "node setup-performance-test.js",
-    "verify": "./verify-ci.sh"
+    "verify": "./verify-ci.sh",
+    "commit-changes": "git commit"
   },
   "keywords": [
     "chrome-extension",

@@ -15,7 +15,7 @@
   },
 
   "background": {
-    "service_worker": "background-cross-browser.js"
+    "service_worker": "background-combined.js"
   },
 
   "permissions": [

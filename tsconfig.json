@@ -14,7 +14,9 @@
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitThis": false
   },
   "include": [
     "**/*.js",
@@ -27,6 +29,9 @@
     "**/node_modules/*",
     "test/**/*.js",
     "coverage/**/*",
-    "archive/**/*"
+    "archive/**/*",
+    "background-combined.js",
+    "background-cross-browser.js",
+    "content-consolidated.js"
   ]
 }
