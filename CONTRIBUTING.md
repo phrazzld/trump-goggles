@@ -153,6 +153,9 @@ pnpm typecheck
 
 # Typecheck in watch mode
 pnpm typecheck:watch
+
+# Run full CI verification
+pnpm verify
 ```
 
 ## Code Style and Standards
@@ -190,7 +193,11 @@ If any of these steps fail, the commit will be aborted.
 Before pushing your changes, it's recommended to run the local CI verification script to ensure your changes will pass the CI pipeline:
 
 ```bash
+# Either run the script directly
 ./verify-ci.sh
+
+# Or use the npm script
+pnpm verify
 ```
 
 This script will:
@@ -200,7 +207,27 @@ This script will:
 3. Run all tests
 4. Run test coverage
 
-Using this script helps you catch CI failures before pushing to the remote repository, saving time and reducing the number of failed CI runs.
+#### Pre-commit TypeScript Checks
+
+The pre-commit hook has been configured to run TypeScript checks automatically before each commit. This helps catch type errors early in the development process. The hook will:
+
+1. Format code with Prettier
+2. Fix ESLint issues where possible
+3. Run relevant tests for modified files
+4. Perform TypeScript type checking
+
+If any of these steps fail, the commit will be aborted, allowing you to fix the issues before committing.
+
+#### When to Run CI Verification
+
+Run the full CI verification in these scenarios:
+
+1. Before creating a pull request
+2. After making significant changes to the codebase
+3. Before deploying to production
+4. When troubleshooting CI pipeline failures
+
+Using this verification process helps you catch CI failures before pushing to the remote repository, saving time and reducing the number of failed CI runs.
 
 ## Testing Guidelines
 
