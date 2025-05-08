@@ -181,8 +181,26 @@ A pre-commit hook is configured to run on each commit:
 1. Prettier will format your code
 2. ESLint will check for issues
 3. Vitest will run relevant tests
+4. TypeScript type checking will be performed
 
 If any of these steps fail, the commit will be aborted.
+
+### CI Verification Process
+
+Before pushing your changes, it's recommended to run the local CI verification script to ensure your changes will pass the CI pipeline:
+
+```bash
+./verify-ci.sh
+```
+
+This script will:
+
+1. Run ESLint checks
+2. Run TypeScript type checking
+3. Run all tests
+4. Run test coverage
+
+Using this script helps you catch CI failures before pushing to the remote repository, saving time and reducing the number of failed CI runs.
 
 ## Testing Guidelines
 
@@ -290,8 +308,9 @@ const element = document.getElementById('my-element');
 ## Pull Request Process
 
 1. **Create a pull request** from your branch to the main repository
-2. **Ensure all checks pass** (tests, linting, type checking)
-3. **Update documentation** if necessary
+2. **Run the CI verification script** before submitting: `./verify-ci.sh`
+3. **Ensure all checks pass** (tests, linting, type checking)
+4. **Update documentation** if necessary
 4. **Update version numbers** following [semantic versioning](https://semver.org/)
 5. **Request a review** from a maintainer
 6. **Address review feedback** by making additional commits to your branch
@@ -319,6 +338,7 @@ When creating a pull request, include the following information:
 
 ## Checklist
 - [ ] I have tested my changes
+- [ ] I have run the CI verification script (`./verify-ci.sh`)
 - [ ] I have updated the documentation
 - [ ] I have added tests that prove my fix/feature works
 - [ ] All new and existing tests pass
