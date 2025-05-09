@@ -174,7 +174,7 @@ This project uses ESLint and Prettier to enforce code style. Before committing, 
 - 2 spaces for indentation
 - Single quotes for strings
 - Semicolons are required
-- No trailing commas
+- Trailing commas where valid in ES5 (objects, arrays, etc.)
 - Maximum line length of 100 characters
 
 ### Pre-commit Hooks
