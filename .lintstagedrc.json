@@ -3,5 +3,10 @@
     "prettier --write",
     "eslint --fix",
     "vitest related --run"
-  ]
+  ],
+  "*.ts": [
+    "prettier --write",
+    "eslint --fix"
+  ],
+  "*.{js,ts}": "pnpm typecheck"
 }

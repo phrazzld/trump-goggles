@@ -176,7 +176,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
 
 ### Tooling & CI
 
-- [ ] **CI-06 · P2: Update Pre-commit Hooks and CI for Type Checking**
+- [x] **CI-06 · P2: Update Pre-commit Hooks and CI for Type Checking**
     - **Context:** REMEDIATION_PLAN.md - Section 5: Potential Challenges (Pre-commit hooks), General CI/CD Standards
     - **Code Area:** `.pre-commit-config.yaml` (or similar), CI configuration files (e.g., `.github/workflows/main.yml`)
     - **Action:**
