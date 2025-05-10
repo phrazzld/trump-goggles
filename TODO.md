@@ -190,7 +190,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         2. Push a commit to trigger CI; verify the type checking step executes and passes (assuming code is correct).
     - **Depends‑on:** [TS-02, TS-05, TS-08]
 
-- [ ] **CI-07 · P2: Update CI for Test Coverage Reporting**
+- [x] **CI-07 · P2: Update CI for Test Coverage Reporting**
     - **Context:** REMEDIATION_PLAN.md - Section 3: Testing Strategy, General CI/CD Standards
     - **Code Area:** CI configuration files
     - **Action:**

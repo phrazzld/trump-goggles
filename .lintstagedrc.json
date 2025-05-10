@@ -7,6 +7,5 @@
   "*.ts": [
     "prettier --write",
     "eslint --fix"
-  ],
-  "*.{js,ts}": "pnpm typecheck"
+  ]
 }
