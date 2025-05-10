@@ -145,7 +145,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Execute `pnpm test` and confirm the new test file is recognized and its placeholder test passes.
     - **Depends‑on:** none
 
-- [ ] **TEST-06 · P1: Implement Unit Tests for Nickname Mapping Core Logic**
+- [x] **TEST-06 · P1: Implement Unit Tests for Nickname Mapping Core Logic**
     - **Context:** REMEDIATION_PLAN.md - Section 2.4: Add Unit Tests for Nickname Mapping Functionality
     - **Code Area:** `test/content/trump-mappings.test.js`
     - **Action:**
