@@ -9,3 +9,14 @@ These tasks are out of scope for the current implementation but should be consid
 - [ ] **FUT-03**: Implement a module bundler (Webpack/Rollup) to replace global function sharing
 - [ ] **FUT-04**: Refine and expand type definitions in `types.d.ts`
 - [ ] **FUT-05**: Adopt `webextension-polyfill` library for cross-browser compatibility
+
+## Development Improvements
+
+Items identified in code review for future implementation:
+
+- [ ] **DEV-01**: Add explicit TypeScript checking to pre-commit hooks for more robust validation
+- [ ] **DEV-02**: Include test files in TypeScript checking by removing them from exclude in tsconfig.json
+- [ ] **DEV-03**: Improve immutability in the mapping objects using Object.freeze()
+- [ ] **DEV-04**: Refine the console warning mechanism to avoid monkey-patching
+- [ ] **DEV-05**: Add newlines to the end of all text files for consistent formatting
+- [ ] **DEV-06**: Replace placeholder team/user names in CODEOWNERS with actual GitHub handles
