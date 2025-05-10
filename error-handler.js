@@ -31,11 +31,14 @@ const ErrorHandler = (function () {
 
   // Module state
   let errorCount = 0;
+  /** @type {Array<{message: string, name: string, timestamp: string, stack: string[]|null, [key: string]: any}>} */
   let errorHistory = [];
   let isInitialized = false;
 
   // Original handlers (to restore when disabled)
+  /** @type {OnErrorEventHandler|null} */
   let originalOnError = null;
+  /** @type {((this: Window, ev: PromiseRejectionEvent) => any)|null} */
   let originalOnUnhandledRejection = null;
 
   // ===== PRIVATE METHODS =====
@@ -45,10 +48,11 @@ const ErrorHandler = (function () {
    *
    * @private
    * @param {Error} error - The error to format
-   * @returns {Object} Formatted error object
+   * @returns {{message: string, name: string, timestamp: string, stack: string[]|null, [key: string]: any}} Formatted error object
    */
   function formatError(error) {
     // Basic error info
+    /** @type {{message: string, name: string, timestamp: string, stack: string[]|null, [key: string]: any}} */
     const formattedError = {
       message: error.message || 'Unknown error',
       name: error.name || 'Error',
@@ -117,6 +121,7 @@ const ErrorHandler = (function () {
    * Handles global window errors
    *
    * @private
+   * @this {Window}
    * @param {string} message - Error message
    * @param {string} source - File where the error occurred
    * @param {number} lineno - Line number where the error occurred
@@ -128,8 +133,11 @@ const ErrorHandler = (function () {
     // Create an error object if one wasn't provided
     if (!error) {
       error = new Error(message);
+      // @ts-ignore - Custom properties on Error
       error.fileName = source;
+      // @ts-ignore - Custom properties on Error
       error.lineNumber = lineno;
+      // @ts-ignore - Custom properties on Error
       error.columnNumber = colno;
     }
 
@@ -138,7 +146,7 @@ const ErrorHandler = (function () {
 
     // Call the original handler if it exists
     if (typeof originalOnError === 'function') {
-      return originalOnError(message, source, lineno, colno, error);
+      return originalOnError.call(this, message, source, lineno, colno, error);
     }
 
     // Return true to prevent the error from showing in the console
@@ -150,6 +158,7 @@ const ErrorHandler = (function () {
    * Handles unhandled promise rejections
    *
    * @private
+   * @this {Window}
    * @param {PromiseRejectionEvent} event - The rejection event
    * @returns {void}
    */
@@ -163,6 +172,7 @@ const ErrorHandler = (function () {
       error = reason;
     } else {
       error = new Error('Unhandled promise rejection');
+      // @ts-ignore - Custom property on Error
       error.reason = reason;
     }
 
@@ -171,7 +181,7 @@ const ErrorHandler = (function () {
 
     // Call the original handler if it exists
     if (typeof originalOnUnhandledRejection === 'function') {
-      originalOnUnhandledRejection(event);
+      originalOnUnhandledRejection.call(this, event);
     }
   }
 
@@ -220,11 +230,12 @@ const ErrorHandler = (function () {
 
       // Set up global error handlers if enabled
       if (config.captureGlobalErrors) {
-        window.onerror = handleGlobalError;
+        window.onerror = /** @type {OnErrorEventHandler} */ (handleGlobalError);
       }
 
       // Set up unhandled promise rejection handler if enabled
       if (config.captureRejections) {
+        // @ts-ignore - TypeScript has issues with the Window/WindowEventHandlers types
         window.onunhandledrejection = handleUnhandledRejection;
       }
 
@@ -262,6 +273,8 @@ const ErrorHandler = (function () {
 
     // Restore original handlers
     window.onerror = originalOnError;
+    // Restore the original handler
+    // @ts-ignore - TypeScript has issues with the Window/WindowEventHandlers types
     window.onunhandledrejection = originalOnUnhandledRejection;
 
     // Update config and state
@@ -294,7 +307,7 @@ const ErrorHandler = (function () {
    * Get error history
    *
    * @public
-   * @returns {Array} Array of recorded errors
+   * @returns {Array<{message: string, name: string, timestamp: string, stack: string[]|null, [key: string]: any}>} Array of recorded errors
    */
   function getErrorHistory() {
     return [...errorHistory];

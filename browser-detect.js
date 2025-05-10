@@ -48,9 +48,13 @@ const BrowserDetect = (function () {
   // ===== MODULE INTERNAL STATE =====
 
   // Cache detection results
+  /** @type {string|null} */
   let detectedBrowser = null;
+  /** @type {number|null} */
   let detectedVersion = null;
+  /** @type {number|null} */
   let manifestVersion = null;
+  /** @type {Record<string, boolean>} */
   let featureSupport = {};
 
   // ===== PRIVATE METHODS =====
@@ -198,8 +202,8 @@ const BrowserDetect = (function () {
 
     // Chrome 88+ and Edge (Chromium-based) should be MV3 capable
     if (
-      (browser === BROWSERS.CHROME && version >= 88) ||
-      (browser === BROWSERS.EDGE && version >= 88)
+      (browser === BROWSERS.CHROME && version !== null && version >= 88) ||
+      (browser === BROWSERS.EDGE && version !== null && version >= 88)
     ) {
       manifestVersion = MANIFEST.V3;
       return manifestVersion;
@@ -219,7 +223,7 @@ const BrowserDetect = (function () {
    */
   function isFeatureSupported(featureName) {
     // Return cached result if we have one
-    if (featureSupport[featureName] !== undefined) {
+    if (Object.prototype.hasOwnProperty.call(featureSupport, featureName)) {
       return featureSupport[featureName];
     }
 
@@ -303,7 +307,7 @@ const BrowserDetect = (function () {
     }
 
     // Cache the result
-    featureSupport[featureName] = isSupported;
+    featureSupport = { ...featureSupport, [featureName]: isSupported };
     return isSupported;
   }
 

@@ -55,7 +55,7 @@ const DOMProcessor = (function () {
 
     // For elements, check for the data attribute
     if (node.nodeType === 1) {
-      return node.hasAttribute && node.hasAttribute(PROCESSED_ATTR);
+      return !!node.hasAttribute && node.hasAttribute(PROCESSED_ATTR);
     }
 
     // Default for other node types
@@ -134,8 +134,11 @@ const DOMProcessor = (function () {
   function isEditableNode(node) {
     // Check if it's a text node
     if (node.nodeType === 3) {
-      // For text nodes, check the parent
-      return isEditableNode(node.parentNode);
+      // For text nodes, check the parent - make sure parent exists
+      if (node.parentNode) {
+        return isEditableNode(node.parentNode);
+      }
+      return false;
     }
 
     // Handle non-element nodes
@@ -371,9 +374,12 @@ const DOMProcessor = (function () {
     // Use traverseDOM but with a callback that clears the processed state
     traverseDOM(
       rootNode,
+      /**
+       * @param {Node} node - The node to process
+       */
       (node) => {
         // For text nodes
-        if (node._trumpProcessed) {
+        if (node.nodeType === 3 && node._trumpProcessed) {
           delete node._trumpProcessed;
         }
       },
