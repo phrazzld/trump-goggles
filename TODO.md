@@ -79,7 +79,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Run `pnpm typecheck`; command must complete successfully.
     - **Depends‑on:** [TS-02, TS-04]
 
-- [ ] **TS-06 · P1: Define Types for Chrome/Browser API Interactions**
+- [x] **TS-06 · P1: Define Types for Chrome/Browser API Interactions**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Chrome/Browser API Types
     - **Code Area:** `/types.d.ts` (or project's global type definition file)
     - **Action:**
@@ -90,7 +90,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Review the global type definition file for the new API type definitions.
     - **Depends‑on:** none
 
-- [ ] **TS-07 · P1: Update Browser API Declarations to Use Specific Types**
+- [x] **TS-07 · P1: Update Browser API Declarations to Use Specific Types**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Chrome/Browser API Types
     - **Code Area:** `/types.d.ts` (or project's ambient/global type definition files for `chrome`/`browser` objects)
     - **Action:**
