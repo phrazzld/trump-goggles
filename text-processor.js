@@ -6,6 +6,15 @@
  * pre-compilation, incremental processing, improved caching, and smart early bailout.
  *
  * @version 4.0.0
+ *
+ * @typedef {Object} TextProcessorConfig
+ * @property {number} LARGE_TEXT_THRESHOLD - Text length threshold for incremental processing
+ * @property {number} CHUNK_SIZE - Size of text chunks for incremental processing
+ * @property {number} PROCESSING_DELAY_MS - Delay between processing chunks
+ * @property {number} MAX_CACHE_SIZE - Maximum number of cache entries
+ *
+ * @typedef {Object} TimerInterface
+ * @property {Function} stop - Stops the timer and returns elapsed time
  */
 
 // TextProcessor module pattern
@@ -92,6 +101,16 @@ const TextProcessor = (function () {
 
   /**
    * LRU Cache implementation for text processing results
+   * @type {{
+   *  entries: Map<string, string>,
+   *  hits: number,
+   *  misses: number,
+   *  get: (key: string) => string|null,
+   *  set: (key: string, value: string) => void,
+   *  clear: () => void,
+   *  trim: () => void,
+   *  getStats: () => CacheStats
+   * }}
    */
   const cache = {
     // Cache data
@@ -163,7 +182,7 @@ const TextProcessor = (function () {
     /**
      * Get cache statistics
      *
-     * @returns {Object} Cache statistics
+     * @returns {CacheStats} Cache statistics
      */
     getStats() {
       const total = this.hits + this.misses;
@@ -181,14 +200,15 @@ const TextProcessor = (function () {
   /**
    * Precompiles and optimizes regex patterns for better performance
    *
-   * @param {Object} replacementMap - Original replacement map
-   * @returns {Object} Optimized replacement map
+   * @param {ReplacementMap} replacementMap - Original replacement map
+   * @returns {ReplacementMap} Optimized replacement map
    */
   function precompilePatterns(replacementMap) {
+    /** @type {ReplacementMap} */
     const optimized = {};
 
     for (const key in replacementMap) {
-      if (!Object.hasOwnProperty.call(replacementMap, key)) continue;
+      if (!Object.prototype.hasOwnProperty.call(replacementMap, key)) continue;
 
       // Create a copy of the original entry
       optimized[key] = { ...replacementMap[key] };
@@ -246,7 +266,7 @@ const TextProcessor = (function () {
    *
    * @private
    * @param {string} text - The text to check
-   * @param {Object} replacementMap - The map of patterns to check against
+   * @param {ReplacementMap} replacementMap - The map of patterns to check against
    * @param {string[]} mapKeys - The keys from the replacement map
    * @returns {boolean} - Whether the text likely contains matches
    */
@@ -308,7 +328,7 @@ const TextProcessor = (function () {
    *
    * @private
    * @param {string} text - Text to process
-   * @param {Object} patternEntry - Pattern entry with regex and nickname
+   * @param {TrumpMapping} patternEntry - Pattern entry with regex and nickname
    * @returns {string} - Processed text
    */
   function applySingleReplacement(text, patternEntry) {
@@ -345,12 +365,9 @@ const TextProcessor = (function () {
    *
    * @public
    * @param {string} text - The text to process
-   * @param {Object} replacementMap - Map of regex patterns to replacements
+   * @param {ReplacementMap} replacementMap - Map of regex patterns to replacements
    * @param {string[]} mapKeys - Keys for the replacement map
-   * @param {Object} options - Additional configuration options
-   * @param {boolean} options.useCache - Whether to use the text cache
-   * @param {boolean} options.earlyBailout - Whether to use early bailout optimization
-   * @param {boolean} options.precompilePatterns - Whether to precompile patterns
+   * @param {ProcessOptions} [options] - Additional configuration options
    * @returns {string} - The processed text with replacements applied
    */
   function processText(
@@ -420,12 +437,13 @@ const TextProcessor = (function () {
    *
    * @private
    * @param {string} text - Text to process
-   * @param {Object} replacementMap - Map of regex patterns to replacements
+   * @param {ReplacementMap} replacementMap - Map of regex patterns to replacements
    * @param {string[]} mapKeys - Keys for the replacement map
    * @returns {string} - Processed text
    */
   function processLargeText(text, replacementMap, mapKeys) {
     // Split text into chunks to avoid UI freezing
+    /** @type {string[]} */
     const chunks = [];
     for (let i = 0; i < text.length; i += CHUNK_SIZE) {
       chunks.push(text.substring(i, i + CHUNK_SIZE));
@@ -453,9 +471,9 @@ const TextProcessor = (function () {
    *
    * @public
    * @param {string} text - Text to process
-   * @param {Object} replacementMap - Map of regex patterns to replacements
+   * @param {ReplacementMap} replacementMap - Map of regex patterns to replacements
    * @param {string[]} mapKeys - Keys for the replacement map
-   * @param {Object} options - Processing options
+   * @param {ProcessOptions} [options] - Processing options
    * @returns {Promise<string>} - Promise resolving to processed text
    */
   function processTextAsync(text, replacementMap, mapKeys, options = {}) {
@@ -467,6 +485,7 @@ const TextProcessor = (function () {
       }
 
       // For large texts, split into chunks and process incrementally
+      /** @type {string[]} */
       const chunks = [];
       for (let i = 0; i < text.length; i += CHUNK_SIZE) {
         chunks.push(text.substring(i, i + CHUNK_SIZE));
@@ -514,14 +533,9 @@ const TextProcessor = (function () {
    *
    * @public
    * @param {Text} textNode - The text node to process
-   * @param {Object} replacementMap - Map of regex patterns to replacements
+   * @param {ReplacementMap} replacementMap - Map of regex patterns to replacements
    * @param {string[]} mapKeys - Keys for the replacement map
-   * @param {Object} options - Configuration options
-   * @param {boolean} options.useCache - Whether to use text caching
-   * @param {boolean} options.earlyBailout - Whether to use early optimization
-   * @param {boolean} options.precompilePatterns - Whether to precompile patterns
-   * @param {boolean} options.async - Whether to process asynchronously
-   * @param {Function} options.onProcessed - Optional callback when processing is complete
+   * @param {ProcessOptions} [options] - Configuration options
    * @returns {boolean|Promise<boolean>} - Whether any replacements were made (or Promise resolving to this value if async)
    */
   function processTextNode(
@@ -597,6 +611,7 @@ const TextProcessor = (function () {
 
   // ===== PUBLIC API =====
 
+  /** @type {TextProcessorInterface} */
   return {
     // Core text processing methods
     processText: processText,

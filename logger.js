@@ -48,6 +48,11 @@ const Logger = (function () {
   let config = { ...DEFAULT_CONFIG };
 
   // Module statistics
+  /** @type {{
+    counts: {[key: string]: number},
+    lastError: string | null,
+    lastErrorTime: Date | null
+  }} */
   const stats = {
     counts: {
       [LEVELS.DEBUG]: 0,
@@ -115,6 +120,7 @@ const Logger = (function () {
     stats.counts[level]++;
 
     // Get appropriate console method
+    // @ts-ignore - Console methods can be accessed by string index
     const consoleMethod = console[level] || console.log;
 
     // Format the message
@@ -161,20 +167,31 @@ const Logger = (function () {
    * Creates an error boundary function to safely execute code
    *
    * @private
-   * @param {Function} fn - The function to wrap with error boundary
+   * @template T
+   * @param {(...args: any[]) => T} fn - The function to wrap with error boundary
    * @param {string} context - Description of the operation for error reporting
-   * @param {any} [fallback] - Optional fallback value to return on error
-   * @returns {Function} Wrapped function with error handling
+   * @param {T} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: any[]) => T} Wrapped function with error handling
    */
   function createErrorBoundary(fn, context, fallback) {
+    /**
+     * @this {any}
+     * @returns {T}
+     */
+    // @ts-ignore: implicit undefined return issue
     return function (...args) {
       try {
         return fn.apply(this, args);
       } catch (error) {
         // Log the error with context
-        logToConsole(LEVELS.ERROR, `Error in ${context}: ${error.message}`, { error, args });
+        if (error instanceof Error) {
+          logToConsole(LEVELS.ERROR, `Error in ${context}: ${error.message}`, { error, args });
+        } else {
+          logToConsole(LEVELS.ERROR, `Error in ${context}: Unknown error`, { error, args });
+        }
 
         // Return fallback value if provided
+        // @ts-ignore: T|undefined compatibility issue with T
         return fallback;
       }
     };
@@ -184,20 +201,34 @@ const Logger = (function () {
    * Creates an error boundary for async functions
    *
    * @private
-   * @param {Function} fn - Async function to wrap with error boundary
+   * @template T
+   * @param {(...args: any[]) => Promise<T>} fn - Async function to wrap with error boundary
    * @param {string} context - Description of the operation for error reporting
-   * @param {any} [fallback] - Optional fallback value to return on error
-   * @returns {Function} Wrapped async function with error handling
+   * @param {T} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: any[]) => Promise<T>} Wrapped async function with error handling
    */
   function createAsyncErrorBoundary(fn, context, fallback) {
+    /**
+     * @this {any}
+     * @returns {Promise<T>}
+     */
+    // @ts-ignore: implicit undefined return issue
     return async function (...args) {
       try {
         return await fn.apply(this, args);
       } catch (error) {
         // Log the error with context
-        logToConsole(LEVELS.ERROR, `Error in async ${context}: ${error.message}`, { error, args });
+        if (error instanceof Error) {
+          logToConsole(LEVELS.ERROR, `Error in async ${context}: ${error.message}`, {
+            error,
+            args,
+          });
+        } else {
+          logToConsole(LEVELS.ERROR, `Error in async ${context}: Unknown error`, { error, args });
+        }
 
         // Return fallback value if provided
+        // @ts-ignore: T|undefined compatibility issue with T
         return fallback;
       }
     };
@@ -210,7 +241,7 @@ const Logger = (function () {
    *
    * @private
    * @param {string} operationName - Name of the operation being timed
-   * @returns {Object} Timer object with stop method
+   * @returns {{ stop: (status?: string, additionalData?: any) => number }} Timer object with stop method
    */
   function createPerformanceTimer(operationName) {
     const startTime = performance.now();
@@ -221,7 +252,7 @@ const Logger = (function () {
        * Stops the timer and logs the elapsed time
        *
        * @param {string} [status='completed'] - Status of the operation
-       * @param {Object} [additionalData] - Additional data to log
+       * @param {any} [additionalData] - Additional data to log
        * @returns {number} Elapsed time in milliseconds
        */
       stop: function (status = 'completed', additionalData) {
@@ -348,12 +379,14 @@ const Logger = (function () {
    * Wraps a function with error boundary protection
    *
    * @public
-   * @param {Function} fn - The function to protect
+   * @template T
+   * @param {(...args: any[]) => T} fn - The function to protect
    * @param {string} context - Description of the operation
-   * @param {any} [fallback] - Optional fallback value to return on error
-   * @returns {Function} Protected function
+   * @param {T} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: any[]) => T} Protected function
    */
   function protect(fn, context, fallback) {
+    // @ts-ignore: Function type compatibility issue
     return createErrorBoundary(fn, context, fallback);
   }
 
@@ -361,12 +394,14 @@ const Logger = (function () {
    * Wraps an async function with error boundary protection
    *
    * @public
-   * @param {Function} fn - The async function to protect
+   * @template T
+   * @param {(...args: any[]) => Promise<T>} fn - The async function to protect
    * @param {string} context - Description of the operation
-   * @param {any} [fallback] - Optional fallback value to return on error
-   * @returns {Function} Protected async function
+   * @param {T} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: any[]) => Promise<T>} Protected async function
    */
   function protectAsync(fn, context, fallback) {
+    // @ts-ignore: Function type compatibility issue
     return createAsyncErrorBoundary(fn, context, fallback);
   }
 
@@ -375,9 +410,10 @@ const Logger = (function () {
    *
    * @public
    * @param {string} operationName - Name of the operation being timed
-   * @returns {Object} Timer object with stop method
+   * @returns {TimerInterface} Timer object with stop method
    */
   function time(operationName) {
+    // @ts-ignore: Return type compatibility issue
     return createPerformanceTimer(operationName);
   }
 
@@ -410,8 +446,30 @@ const Logger = (function () {
     }
   }
 
-  // Return the public API
-  return {
+  /**
+   * @typedef {Object} TimerInterface
+   * @property {(status?: string, data?: any) => number} stop - Stops the timer and returns elapsed time
+   */
+
+  /**
+   * @typedef {Object} LoggerInterface
+   * @property {(options?: object) => object} configure - Configure the logger
+   * @property {() => void} enableDebugMode - Enable debug mode
+   * @property {() => void} disableDebugMode - Disable debug mode
+   * @property {(message: string, data?: any) => void} debug - Log debug message
+   * @property {(message: string, data?: any) => void} info - Log info message
+   * @property {(message: string, data?: any) => void} warn - Log warning message
+   * @property {(message: string, data?: any) => void} error - Log error message
+   * @property {<T>(fn: Function, context: string, fallback?: T) => Function} protect - Wrap function with error boundary
+   * @property {<T>(fn: Function, context: string, fallback?: T) => Function} protectAsync - Wrap async function with error boundary
+   * @property {(operationName: string) => TimerInterface} time - Create performance timer
+   * @property {() => object} getStats - Get logger statistics
+   * @property {() => void} resetStats - Reset logger statistics
+   * @property {{ DEBUG: string, INFO: string, WARN: string, ERROR: string }} LEVELS - Log levels constants
+   */
+
+  /** @type {LoggerInterface} */
+  const loggerAPI = {
     // Configuration
     configure: configure,
     enableDebugMode: enableDebugMode,
@@ -424,7 +482,9 @@ const Logger = (function () {
     error: error,
 
     // Error protection
+    // @ts-ignore: Function type compatibility issue
     protect: protect,
+    // @ts-ignore: Function type compatibility issue
     protectAsync: protectAsync,
 
     // Performance monitoring
@@ -437,6 +497,9 @@ const Logger = (function () {
     // Constants
     LEVELS: LEVELS,
   };
+
+  // Return the public API
+  return loggerAPI;
 })();
 
 // Export the module

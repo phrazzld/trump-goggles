@@ -5,6 +5,16 @@
  * clear lifecycle management, and protection against infinite mutation loops.
  *
  * @version 3.0.0
+ *
+ * @typedef {Object} MutationObserverOptions
+ * @property {Function} callback - Callback function for processing mutations
+ * @property {number} [batchSize=20] - Number of mutations to process in a batch
+ * @property {number} [debounceMs=50] - Debounce time for mutation processing
+ * @property {number} [throttleMs=100] - Throttle time for mutation processing in rapid changes
+ * @property {number} [maxBufferSize=100] - Maximum size of the mutation buffer
+ * @property {Function|null} [processFilter=null] - Function to filter mutations to process
+ * @property {string} [killSwitchId='trump-goggles-kill-switch'] - ID of element to avoid processing
+ * @property {boolean} [debug=false] - Enable debug logging
  */
 
 // MutationObserverManager module pattern
@@ -37,35 +47,49 @@ const MutationObserverManager = (function () {
   // ===== MODULE INTERNAL STATE =====
 
   // The MutationObserver instance
+  /** @type {MutationObserver|null} */
   let observer = null;
 
   // Observer state
+  /** @type {string} */
   let state = STATES.INACTIVE;
 
   // Target to observe
+  /** @type {Node|null} */
   let observationTarget = null;
 
   // Current observation configuration
+  /** @type {MutationObserverInit} */
   let observationConfig = DEFAULT_CONFIG;
 
   // Mutation buffers
+  /** @type {MutationRecord[]} */
   let mutationBuffer = [];
+  /** @type {MutationRecord[]} */
   let processingBuffer = [];
 
   // Processing flags
+  /** @type {boolean} */
   let processingInProgress = false;
+  /** @type {boolean} */
   let processingScheduled = false;
 
   // Debounce and throttle handlers
+  /** @type {number|null} */
   let debounceTimer = null;
+  /** @type {number|null} */
   let throttleTimer = null;
+  /** @type {number} */
   let lastProcessingTime = 0;
 
   // Callback for mutation processing
+  /** @type {((mutations: MutationRecord[]) => void)|null} */
   let mutationCallback = null;
 
   // User-provided options
+  /** @type {MutationObserverOptions} */
   let options = {
+    callback: () => {},
     batchSize: DEFAULT_BATCH_SIZE,
     debounceMs: DEFAULT_DEBOUNCE_MS,
     throttleMs: DEFAULT_THROTTLE_MS,
@@ -108,7 +132,8 @@ const MutationObserverManager = (function () {
     mutationBuffer = mutationBuffer.concat(mutations);
 
     // If buffer exceeds max size, process immediately
-    if (mutationBuffer.length > options.maxBufferSize) {
+    const maxSize = options.maxBufferSize || DEFAULT_MAX_BUFFER_SIZE;
+    if (mutationBuffer.length > maxSize) {
       debugLog(`Buffer size ${mutationBuffer.length} exceeds max size, processing immediately`);
       processMutationsImmediately();
       return;
@@ -140,19 +165,25 @@ const MutationObserverManager = (function () {
     // Check if we should throttle
     const now = Date.now();
     const timeSinceLastProcessing = now - lastProcessingTime;
+    const throttleMs = options.throttleMs || DEFAULT_THROTTLE_MS;
 
-    if (timeSinceLastProcessing < options.throttleMs) {
+    if (timeSinceLastProcessing < throttleMs) {
       // We've processed recently, apply throttling
-      const throttleDelay = options.throttleMs - timeSinceLastProcessing;
+      const throttleDelay = throttleMs - timeSinceLastProcessing;
       debugLog(`Throttling mutation processing for ${throttleDelay}ms`);
 
+      // @ts-ignore - setTimeout returns number in Node.js but Timeout in browser
       throttleTimer = setTimeout(() => {
-        debounceTimer = setTimeout(processMutationBatch, options.debounceMs);
+        const debounceMs = options.debounceMs || DEFAULT_DEBOUNCE_MS;
+        // @ts-ignore - setTimeout returns number in Node.js but Timeout in browser
+        debounceTimer = setTimeout(processMutationBatch, debounceMs);
       }, throttleDelay);
     } else {
       // No need to throttle, just apply debounce
-      debugLog(`Scheduling mutation processing with ${options.debounceMs}ms debounce`);
-      debounceTimer = setTimeout(processMutationBatch, options.debounceMs);
+      const debounceMs = options.debounceMs || DEFAULT_DEBOUNCE_MS;
+      debugLog(`Scheduling mutation processing with ${debounceMs}ms debounce`);
+      // @ts-ignore - setTimeout returns number in Node.js but Timeout in browser
+      debounceTimer = setTimeout(processMutationBatch, debounceMs);
     }
   }
 
@@ -214,6 +245,7 @@ const MutationObserverManager = (function () {
       // Filter the mutations if a filter is provided
       let mutationsToProcess = processingBuffer;
       if (typeof options.processFilter === 'function') {
+        // @ts-ignore - Function type compatibility issue with filter predicate
         mutationsToProcess = processingBuffer.filter(options.processFilter);
         debugLog(`Filtered to ${mutationsToProcess.length} mutations`);
       }
@@ -292,15 +324,7 @@ const MutationObserverManager = (function () {
    * Initializes the MutationObserver with custom options
    *
    * @public
-   * @param {Object} customOptions - Custom configuration options
-   * @param {Function} customOptions.callback - Callback function for processing mutations
-   * @param {number} [customOptions.batchSize] - Number of mutations to process in a batch
-   * @param {number} [customOptions.debounceMs] - Debounce time for mutation processing
-   * @param {number} [customOptions.throttleMs] - Throttle time for mutation processing in rapid changes
-   * @param {number} [customOptions.maxBufferSize] - Maximum size of the mutation buffer
-   * @param {Function} [customOptions.processFilter] - Function to filter mutations to process
-   * @param {string} [customOptions.killSwitchId] - ID of element to avoid processing
-   * @param {boolean} [customOptions.debug] - Enable debug logging
+   * @param {MutationObserverOptions} [customOptions] - Custom configuration options
    * @returns {boolean} Whether initialization was successful
    */
   function initialize(customOptions = { callback: () => {} }) {
@@ -312,6 +336,7 @@ const MutationObserverManager = (function () {
 
     // Set the mutation callback
     if (typeof customOptions.callback === 'function') {
+      // @ts-ignore - Function type compatibility issue
       mutationCallback = customOptions.callback;
     }
 
@@ -361,6 +386,7 @@ const MutationObserverManager = (function () {
       observationConfig = { ...DEFAULT_CONFIG, ...config };
 
       // Start observing
+      // @ts-ignore: TS doesn't properly recognize that observer can't be null here
       observer.observe(target, observationConfig);
 
       // Update state
@@ -381,31 +407,32 @@ const MutationObserverManager = (function () {
    * @returns {void}
    */
   function stop() {
-    if (observer) {
-      debugLog('Stopping observer');
+    debugLog('Stopping observer');
 
-      // Disconnect the observer
+    // Disconnect the observer
+    if (observer !== null) {
+      // @ts-ignore: TS doesn't properly recognize this null check
       observer.disconnect();
-
-      // Clear any pending timers
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-        debounceTimer = null;
-      }
-      if (throttleTimer) {
-        clearTimeout(throttleTimer);
-        throttleTimer = null;
-      }
-
-      // Reset state
-      state = STATES.INACTIVE;
-      processingScheduled = false;
-      processingInProgress = false;
-
-      // Clear buffers
-      mutationBuffer = [];
-      processingBuffer = [];
     }
+
+    // Clear any pending timers
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
+    if (throttleTimer) {
+      clearTimeout(throttleTimer);
+      throttleTimer = null;
+    }
+
+    // Reset state
+    state = STATES.INACTIVE;
+    processingScheduled = false;
+    processingInProgress = false;
+
+    // Clear buffers
+    mutationBuffer = [];
+    processingBuffer = [];
   }
 
   /**
@@ -517,8 +544,8 @@ const MutationObserverManager = (function () {
    * Updates the option configuration
    *
    * @public
-   * @param {Object} newOptions - New options to apply
-   * @returns {Object} The updated options
+   * @param {Partial<MutationObserverOptions>} newOptions - New options to apply
+   * @returns {MutationObserverOptions} The updated options
    */
   function updateOptions(newOptions) {
     if (!newOptions || typeof newOptions !== 'object') {
@@ -531,6 +558,7 @@ const MutationObserverManager = (function () {
   }
 
   // Return the public API
+  /** @type {MutationObserverManagerInterface} */
   return {
     initialize: initialize,
     start: start,

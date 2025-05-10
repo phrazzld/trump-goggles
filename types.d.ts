@@ -892,6 +892,84 @@ interface TrumpMappingsInterface {
   getKeys: () => string[];
 }
 
+/**
+ * TextProcessor interface for the TextProcessor module
+ */
+interface TextProcessorInterface {
+  // Core text processing methods
+  processText: (text: string, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => string;
+  processTextAsync: (text: string, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => Promise<string>;
+  processTextNode: (textNode: Text, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => boolean|Promise<boolean>;
+  
+  // Pattern optimization
+  precompilePatterns: (replacementMap: ReplacementMap) => ReplacementMap;
+  
+  // Cache management
+  clearCache: () => void;
+  getCacheStats: () => CacheStats;
+  
+  // Optimization helpers
+  isLikelyToContainMatches: (text: string, replacementMap: ReplacementMap, mapKeys: string[]) => boolean;
+  
+  // Configuration
+  config: {
+    LARGE_TEXT_THRESHOLD: number;
+    CHUNK_SIZE: number;
+    PROCESSING_DELAY_MS: number;
+    MAX_CACHE_SIZE: number;
+  };
+}
+
+/**
+ * MutationObserverManager interface for the MutationObserver module
+ */
+interface MutationObserverManagerInterface {
+  initialize: (customOptions?: any) => boolean;
+  start: (target: Node, config?: MutationObserverInit) => boolean;
+  stop: () => void;
+  pause: () => boolean;
+  resume: () => boolean;
+  flush: () => boolean;
+  isActive: () => boolean;
+  getState: () => string;
+  getPendingCount: () => number;
+  updateOptions: (newOptions: any) => any;
+  STATES: {
+    INACTIVE: string;
+    ACTIVE: string;
+    PAUSED: string;
+    PROCESSING: string;
+  };
+}
+
+/**
+ * Process options for text processing
+ */
+interface ProcessOptions {
+  useCache?: boolean;
+  earlyBailout?: boolean;
+  precompilePatterns?: boolean;
+  async?: boolean;
+  onProcessed?: (textNode: Text, originalText: string, processedText: string) => void;
+}
+
+/**
+ * Cache statistics interface
+ */
+interface CacheStats {
+  size: number;
+  hits: number;
+  misses: number;
+  hitRate: number;
+}
+
+/**
+ * Replacement map for text processing
+ */
+interface ReplacementMap {
+  [key: string]: TrumpMapping;
+}
+
 // Window extensions
 interface Window {
   trumpVersion?: string;
@@ -907,8 +985,8 @@ interface Window {
   BrowserAdapter?: BrowserAdapterInterface;
   TrumpMappings?: TrumpMappingsInterface;
   DOMProcessor?: any;
-  TextProcessor?: any;
-  MutationObserverManager?: any;
+  TextProcessor?: TextProcessorInterface;
+  MutationObserverManager?: MutationObserverManagerInterface;
   TrumpGoggles?: any;
   
   // Legacy functions
@@ -928,6 +1006,8 @@ interface Performance {
 interface TrumpMapping {
   regex: RegExp;
   nick: string;
+  keyTerms?: string[];
+  matchesPartialWords?: boolean;
 }
 
 // Define TrumpMappingObject type

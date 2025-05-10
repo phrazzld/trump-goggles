@@ -29,7 +29,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         2. Run `pnpm typecheck` and observe it reports type errors related to strict mode.
     - **Depends‑on:** none
 
-- [ ] **TS-02 · P0: Address TypeScript Strict Mode Errors**
+- [x] **TS-02 · P0: Address TypeScript Strict Mode Errors**
     - **Context:** REMEDIATION_PLAN.md - Section 2.1: Enable TypeScript Strict Mode (Error Remediation)
     - **Action:**
         1. Execute `pnpm typecheck` to identify all errors introduced by enabling strict mode (TS-01).

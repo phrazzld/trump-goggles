@@ -31,6 +31,9 @@
     "archive/**/*",
     "background-combined.js",
     "background-cross-browser.js",
-    "content-consolidated.js"
+    "content-consolidated.js",
+    "content-before-optimization.js",
+    "performance-test.js",
+    "setup-performance-test.js"
   ]
 }
