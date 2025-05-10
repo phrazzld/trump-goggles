@@ -103,7 +103,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Inspect the ambient `chrome`/`browser` type declarations.
     - **Depends‑on:** [TS-06]
 
-- [ ] **TS-08 · P1: Refactor Codebase for Typed Browser API Interactions**
+- [x] **TS-08 · P1: Refactor Codebase for Typed Browser API Interactions**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Chrome/Browser API Types (Codebase Impact)
     - **Code Area:** Project-wide (where Chrome/Browser APIs are used)
     - **Action:**
