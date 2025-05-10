@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "strict": true,
     "allowJs": true,
@@ -10,7 +10,7 @@
     "noEmit": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "lib": ["DOM", "ESNext"],
+    "lib": ["DOM", "ES2022", "ESNext"],
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,

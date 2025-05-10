@@ -246,7 +246,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Review the documentation to ensure it's clear and actionable.
     - **Depends‑on:** [CI-11]
 
-- [ ] **CI-13 · P0: Fix Node.js 20.9.0 Compatibility Issue**
+- [x] **CI-13 · P0: Fix Node.js 20.9.0 Compatibility Issue**
     - **Context:** GitHub Actions CI build failing on Node.js 20.9.0 but passing on 18.18.0
     - **Code Area:** Project code with Node.js version compatibility issues
     - **Action:**
