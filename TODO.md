@@ -159,7 +159,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         2. Run `pnpm test:coverage` and review the coverage report for `trump-mappings.js`.
     - **Depends‑on:** [TEST-05]
 
-- [ ] **TEST-07 · P2: Implement Unit Tests for Nickname Mapping Legacy Support**
+- [x] **TEST-07 · P2: Implement Unit Tests for Nickname Mapping Legacy Support**
     - **Context:** REMEDIATION_PLAN.md - Section 2.4: Add Unit Tests for Nickname Mapping Functionality (Legacy Support)
     - **Code Area:** `test/content/trump-mappings.test.js`
     - **Action:**

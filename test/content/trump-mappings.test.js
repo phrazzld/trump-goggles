@@ -440,6 +440,20 @@ describe('Enhanced Trump Mappings Module', () => {
       // Check a few specific mappings to ensure they're the same
       expect(fromGetReplacementMap.hillary.nick).toEqual(fromBuildTrumpMap.hillary.nick);
       expect(fromGetReplacementMap.cnn.nick).toEqual(fromBuildTrumpMap.cnn.nick);
+
+      // Deep verification of object equality
+      Object.keys(fromGetReplacementMap).forEach((key) => {
+        // Verify each mapping object has the same structure and values
+        expect(fromBuildTrumpMap[key]).toBeDefined();
+        expect(fromBuildTrumpMap[key].nick).toEqual(fromGetReplacementMap[key].nick);
+
+        // Verify RegExp objects have the same pattern and flags
+        const getMapRegex = fromGetReplacementMap[key].regex;
+        const buildMapRegex = fromBuildTrumpMap[key].regex;
+
+        expect(buildMapRegex.source).toEqual(getMapRegex.source);
+        expect(buildMapRegex.flags).toEqual(getMapRegex.flags);
+      });
     });
 
     it('should log a deprecation warning when using buildTrumpMap', () => {
@@ -451,6 +465,57 @@ describe('Enhanced Trump Mappings Module', () => {
 
       // Verify the warning was called with the correct message
       expect(console.warn).toHaveBeenCalled();
+      expect(console.warn.mock.calls[0][0]).toBe('TRUMP_MAPPINGS_DEPRECATION_WARNING');
+
+      // Verify it's only called once per invocation
+      expect(console.warn).toHaveBeenCalledTimes(1);
+    });
+
+    it('should maintain correct structure of returned objects in buildTrumpMap', () => {
+      // Get the result from the deprecated function
+      const trumpMap = window.buildTrumpMap();
+
+      // Verify the structure of the returned object
+      expect(trumpMap).toBeInstanceOf(Object);
+      expect(Object.keys(trumpMap).length).toBeGreaterThan(10); // Should have multiple mappings
+
+      // Check the structure of a few specific mappings
+      const expectedCategories = ['hillary', 'cnn', 'covid', 'coffee'];
+      expectedCategories.forEach((category) => {
+        expect(trumpMap).toHaveProperty(category);
+        expect(trumpMap[category]).toHaveProperty('regex');
+        expect(trumpMap[category]).toHaveProperty('nick');
+        expect(trumpMap[category].regex).toBeInstanceOf(RegExp);
+        expect(typeof trumpMap[category].nick).toBe('string');
+      });
+    });
+
+    it('should provide the correct regex patterns when using buildTrumpMap', () => {
+      // Get the result from the deprecated function
+      const trumpMap = window.buildTrumpMap();
+
+      // Test specific regex patterns for accuracy
+      const patternTests = [
+        // Category, test string, should match
+        ['cnn', 'CNN reported breaking news', true],
+        ['cnn', 'CNNLive is a program', false], // Should not match due to word boundary
+        ['nbcnews', 'NBC News reported', true],
+        ['nbc', 'NBC News reported', false], // Should not match due to negative lookahead
+        ['covid', 'COVID-19 cases are rising', true],
+        ['coffee', 'I drink coffee every morning', true],
+        ['coffee', 'coffeetable', false], // Should not match due to word boundary
+      ];
+
+      patternTests.forEach(([category, testString, shouldMatch]) => {
+        if (trumpMap[category]) {
+          // Reset regex state
+          trumpMap[category].regex.lastIndex = 0;
+
+          // Test if the pattern matches as expected
+          const matches = trumpMap[category].regex.test(testString);
+          expect(matches).toBe(shouldMatch);
+        }
+      });
     });
   });
 
