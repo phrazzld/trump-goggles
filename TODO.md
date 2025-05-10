@@ -132,7 +132,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
 
 ### Testing
 
-- [ ] **TEST-05 · P1: Create Test File and Structure for Nickname Mappings**
+- [x] **TEST-05 · P1: Create Test File and Structure for Nickname Mappings**
     - **Context:** REMEDIATION_PLAN.md - Section 2.4: Add Unit Tests for Nickname Mapping Functionality
     - **Code Area:** `test/content/trump-mappings.test.js` (or `.ts` if project convention)
     - **Action:**
