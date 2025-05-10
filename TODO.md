@@ -204,6 +204,48 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         2. Check the CI build results for the coverage report or link to it.
     - **Depends‑on:** [TEST-06, TEST-07]
 
+- [x] **CI-10 · P0: Update GitHub Actions Upload Artifact Action**
+    - **Context:** CI-FAILURE-ANALYSIS.md - Current CI failure due to outdated action
+    - **Code Area:** `.github/workflows/ci.yml`
+    - **Action:**
+        1. Update the `actions/upload-artifact` action from v3 to v4 in the workflow file.
+        2. Review the updated action's documentation to ensure parameters are still valid.
+    - **Done‑when:**
+        1. The workflow file is updated to use `actions/upload-artifact@v4`.
+        2. Parameters (name, path, retention-days) are confirmed to be compatible with v4.
+    - **Verification:**
+        1. Push the changes and verify the CI build no longer fails at the setup stage.
+    - **Depends‑on:** none
+
+- [x] **CI-11 · P1: Update Other GitHub Actions to Latest Versions**
+    - **Context:** CI-RESOLUTION-PLAN.md - Proactive updates to prevent similar issues
+    - **Code Area:** `.github/workflows/ci.yml`
+    - **Action:**
+        1. Update `actions/checkout@v3` to `actions/checkout@v4` if available.
+        2. Update `actions/setup-node@v3` to `actions/setup-node@v4` if available.
+        3. Update `actions/cache@v3` to `actions/cache@v4` if available.
+        4. Review each action's documentation for parameter compatibility.
+    - **Done‑when:**
+        1. All actions in the workflow file are updated to their latest stable versions.
+        2. Parameters for each action are adjusted for compatibility if needed.
+    - **Verification:**
+        1. Push the changes and verify the CI build completes successfully.
+    - **Depends‑on:** [CI-10]
+
+- [ ] **CI-12 · P2: Document GitHub Actions Versioning Strategy**
+    - **Context:** CI-RESOLUTION-PLAN.md - Long-term recommendations
+    - **Code Area:** Project documentation
+    - **Action:**
+        1. Create or update documentation about the project's GitHub Actions versioning strategy.
+        2. Document the current versions used and when they should be updated.
+        3. Add a note about periodic review of GitHub Actions versions.
+    - **Done‑when:**
+        1. Documentation is updated with GitHub Actions versioning guidelines.
+        2. A maintenance task for quarterly review is added to the project backlog.
+    - **Verification:**
+        1. Review the documentation to ensure it's clear and actionable.
+    - **Depends‑on:** [CI-11]
+
 ### Final Verification
 
 - [x] **TEST-08 · P0: Execute Full Verification Suite**
