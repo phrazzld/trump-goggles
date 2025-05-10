@@ -66,7 +66,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Inspect the `Window` interface to confirm `any` types are replaced.
     - **Depends‑on:** [TS-03]
 
-- [ ] **TS-05 · P1: Refactor Codebase for Typed Window Module Exports**
+- [x] **TS-05 · P1: Refactor Codebase for Typed Window Module Exports**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Window Module Exports (Codebase Impact)
     - **Code Area:** Project-wide (where `window.Logger`, `window.ErrorHandler`, etc. are used)
     - **Action:**
