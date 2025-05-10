@@ -232,7 +232,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Push the changes and verify the CI build completes successfully.
     - **Depends‑on:** [CI-10]
 
-- [ ] **CI-12 · P2: Document GitHub Actions Versioning Strategy**
+- [x] **CI-12 · P2: Document GitHub Actions Versioning Strategy**
     - **Context:** CI-RESOLUTION-PLAN.md - Long-term recommendations
     - **Code Area:** Project documentation
     - **Action:**

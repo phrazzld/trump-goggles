@@ -20,3 +20,12 @@ Items identified in code review for future implementation:
 - [ ] **DEV-04**: Refine the console warning mechanism to avoid monkey-patching
 - [ ] **DEV-05**: Add newlines to the end of all text files for consistent formatting
 - [ ] **DEV-06**: Replace placeholder team/user names in CODEOWNERS with actual GitHub handles
+
+## Maintenance Tasks
+
+Periodic maintenance tasks to ensure project health:
+
+- [ ] **MAINT-01**: Quarterly review of GitHub Actions versions (see CI-VERSIONING.md)
+  - First scheduled review: August 2025
+  - Review all actions in use against latest available versions
+  - Update documentation after completing review

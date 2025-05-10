@@ -218,6 +218,10 @@ The pre-commit hook has been configured to run TypeScript checks automatically b
 
 If any of these steps fail, the commit will be aborted, allowing you to fix the issues before committing.
 
+#### GitHub Actions Versioning
+
+All GitHub Actions used in CI workflows follow a specific versioning strategy. For details on how we manage GitHub Actions versions, when to update them, and the review process, see [CI-VERSIONING.md](./CI-VERSIONING.md).
+
 #### When to Run CI Verification
 
 Run the full CI verification in these scenarios:
