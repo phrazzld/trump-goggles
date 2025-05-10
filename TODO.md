@@ -42,7 +42,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
 
 ### Type Definitions
 
-- [ ] **TS-03 · P1: Define Interface for Window Module Exports**
+- [x] **TS-03 · P1: Define Interface for Window Module Exports**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Window Module Exports
     - **Code Area:** `/types.d.ts` (or project's global type definition file)
     - **Action:**
@@ -53,7 +53,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Review the global type definition file for the new interface definitions and their completeness.
     - **Depends‑on:** none
 
-- [ ] **TS-04 · P1: Update Window Interface to Use Specific Module Interfaces**
+- [x] **TS-04 · P1: Update Window Interface to Use Specific Module Interfaces**
     - **Context:** REMEDIATION_PLAN.md - Section 2.2: Replace `any` Types - Window Module Exports
     - **Code Area:** `/types.d.ts` (or project's global type definition file)
     - **Action:**
