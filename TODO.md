@@ -359,7 +359,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Confirm all GitHub Actions files are analyzed.
     - **Depends‑on:** none
 
-- [ ] **CI-18 · P1: Update GitHub Actions for artifact upload**
+- [x] **CI-18 · P1: Update GitHub Actions for artifact upload**
     - **Context:** CI-RESOLUTION-PLAN.md - Phase 3: Fix Artifact Upload Conflict
     - **Code Area:** `.github/workflows/`
     - **Action:**
