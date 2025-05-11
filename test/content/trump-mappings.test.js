@@ -571,24 +571,34 @@ describe('Enhanced Trump Mappings Module', () => {
     it('should handle word boundaries correctly in edge cases', () => {
       const mappings = window.TrumpMappings.getReplacementMap();
 
-      // Create a specific test case for word boundaries
-      const wordBoundaryText = 'The trumpeter played a beautiful solo';
+      // Use the imported EDGE_CASES fixture for more comprehensive edge case testing
+      // These include words containing "trump" that shouldn't be replaced
+      const edgeCaseResults = EDGE_CASES.filter(
+        (text) =>
+          text.includes('trumpeter') || text.includes('triumphant') || text.includes('outtrumps')
+      ).map((text) => {
+        // If our mock doesn't have a trump mapping, add it for testing
+        if (!mappings.trump) {
+          mappings.trump = {
+            regex: new RegExp('\\b(Donald\\s+Trump|Trump|President\\s+Trump)\\b', 'gi'),
+            nick: 'SHOULD_NOT_MATCH',
+          };
+        }
 
-      // If our mock doesn't have a trump mapping, add it for testing
-      if (!mappings.trump) {
-        mappings.trump = {
-          regex: new RegExp('\\b(Donald\\s+Trump|Trump|President\\s+Trump)\\b', 'gi'),
-          nick: 'SHOULD_NOT_MATCH',
-        };
-      }
-
-      // Test that word boundaries work correctly
-      mappings.trump.regex.lastIndex = 0;
-      const result = wordBoundaryText.replace(mappings.trump.regex, mappings.trump.nick);
+        // Test that word boundaries work correctly
+        mappings.trump.regex.lastIndex = 0;
+        return text.replace(mappings.trump.regex, mappings.trump.nick);
+      });
 
       // Words like "trumpeter" should not be replaced
-      expect(result).toContain('trumpeter');
-      expect(result).not.toContain('SHOULD_NOT_MATCH');
+      edgeCaseResults.forEach((result) => {
+        expect(result).not.toContain('SHOULD_NOT_MATCH');
+      });
+
+      // At least one result should contain "trumpeter"
+      const trumpeterResult = edgeCaseResults.find((result) => result.includes('trumpeter'));
+      expect(trumpeterResult).toBeDefined();
+      expect(trumpeterResult).toContain('trumpeter');
     });
   });
 
@@ -619,22 +629,43 @@ describe('Enhanced Trump Mappings Module', () => {
       // Just making sure it doesn't take an unreasonable amount of time
       expect(processingTime).toBeLessThan(1000); // Less than 1 second
     });
+
+    it('should efficiently process realistic article-length text', () => {
+      const mappings = window.TrumpMappings.getReplacementMap();
+
+      // Use the imported LONG_TEXT fixture which represents an article-length text
+      // with multiple Trump references in various contexts
+
+      // Count Trump references before replacement
+      const trumpRegex = /Trump/gi;
+      const originalCount = (LONG_TEXT.match(trumpRegex) || []).length;
+      expect(originalCount).toBeGreaterThan(10); // Sanity check that fixture has references
+
+      // Apply all mappings
+      let result = LONG_TEXT;
+      Object.values(mappings).forEach((mapping) => {
+        mapping.regex.lastIndex = 0;
+        result = result.replace(mapping.regex, mapping.nick);
+      });
+
+      // Verify replacements were made
+      if (mappings.trump) {
+        const nickRegex = new RegExp(mappings.trump.nick, 'g');
+        const replacementCount = (result.match(nickRegex) || []).length;
+        expect(replacementCount).toBeGreaterThan(0);
+      } else {
+        // If no trump mapping exists, at least verify other replacements
+        expect(result).not.toBe(LONG_TEXT);
+      }
+    });
   });
 
   describe('Integration with Fixtures', () => {
     it('should correctly process nickname test cases', () => {
       const mappings = window.TrumpMappings.getReplacementMap();
 
-      // Process selected test cases
-      const testCases = [
-        'Hillary Clinton announced her new book',
-        'Ted Cruz debated policy issues',
-        'Kim Jong-un attended the summit',
-        'COVID-19 cases continue to decline',
-        'I enjoy drinking coffee in the morning',
-      ];
-
-      const results = testCases.map((text) => {
+      // Use the imported NICKNAME_TEST_CASES fixture instead of inline array
+      const results = NICKNAME_TEST_CASES.map((text) => {
         let result = text;
 
         // Apply all mappings

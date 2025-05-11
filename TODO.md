@@ -308,7 +308,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Run `pnpm lint` locally and verify no warnings for this file.
     - **Depends‑on:** none
 
-- [ ] **CI-15 · P0: Fix unused imports in trump-mappings.test.js**
+- [x] **CI-15 · P0: Fix unused imports in trump-mappings.test.js**
     - **Context:** CI-RESOLUTION-PLAN.md - Phase 1: Fix ESLint Warnings in Test Files
     - **Code Area:** `test/content/trump-mappings.test.js`
     - **Action:**
