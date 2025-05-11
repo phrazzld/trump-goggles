@@ -275,7 +275,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         2. Manual review of coverage report confirms adequate testing.
     - **Depends‑on:** [TS-02, TS-05, TS-08, DOC-03, TEST-06, TEST-07]
 
-- [ ] **TEST-09 · P1: Manual Browser Testing of Extension**
+- [x] **TEST-09 · P1: Manual Browser Testing of Extension**
     - **Context:** REMEDIATION_PLAN.md - Section 3: Testing Strategy (End-to-end verification)
     - **Code Area:** Project as browser extension
     - **Action:**
@@ -289,21 +289,167 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Manual testing confirms the extension behavior matches specifications.
     - **Depends‑on:** [TEST-08]
 
-## Clarifications & Assumptions
-
-- [ ] **Issue:** Are all usages of `any` exclusively in `types.d.ts` and browser API types, or do any application modules or test files use `any` that must also be refactored?
-    - **Context:** 2.2 Replace `any` Types with Specific Types or `unknown` (REMEDIATION_PLAN.md)
-    - **Blocking?:** no
-
-- [ ] **Issue:** Is `trump-mappings.js` written in TypeScript or JavaScript, and should tests for it be in TypeScript if possible?
-    - **Context:** 2.4 Add Unit Tests for Nickname Mapping Functionality (REMEDIATION_PLAN.md)
-    - **Blocking?:** no
-
-- [ ] **Issue:** Should Prettier config and its enforcement (e.g., pre-commit hooks) be updated if `"trailingComma"` is not already set to `"es5"`?
-    - **Context:** 2.3 Align Trailing Comma Documentation with Prettier Config (REMEDIATION_PLAN.md)
-    - **Blocking?:** no
-
 ## In Progress Tasks
+
+### CI Failure Resolution Tasks
+
+- [x] **CI-14 · P0: Fix unused variable in content-integration.test.js**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 1: Fix ESLint Warnings in Test Files
+    - **Code Area:** `test/integration/content-integration.test.js`
+    - **Action:**
+        1. Open test/integration/content-integration.test.js
+        2. Locate the unused `_` variable in the catch block on line 187
+        3. Either utilize the variable for error logging or rename it to explicitly indicate it's intentionally unused (`_error`)
+        4. If renaming, add a comment explaining why the error is being ignored
+    - **Done‑when:**
+        1. No ESLint warnings for unused variables in this file.
+        2. Tests continue to pass.
+    - **Verification:**
+        1. Run `pnpm lint` locally and verify no warnings for this file.
+    - **Depends‑on:** none
+
+- [ ] **CI-15 · P0: Fix unused imports in trump-mappings.test.js**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 1: Fix ESLint Warnings in Test Files
+    - **Code Area:** `test/content/trump-mappings.test.js`
+    - **Action:**
+        1. Open test/content/trump-mappings.test.js
+        2. Identify the unused imports:
+           - `NICKNAME_TEST_CASES` (line 10)
+           - `EDGE_CASES` (line 11)
+           - `LONG_TEXT` (line 14)
+        3. For each import:
+           - If not needed for any tests, remove the import
+           - If needed for future/planned tests, add a comment explaining its purpose
+           - Alternatively, implement tests that use these fixtures
+    - **Done‑when:**
+        1. No ESLint warnings for unused imports in this file.
+        2. Tests continue to pass.
+    - **Verification:**
+        1. Run `pnpm lint` locally and verify no warnings for this file.
+    - **Depends‑on:** none
+
+- [ ] **CI-16 · P0: Fix unused error variables in background-combined.js**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 2: Fix ESLint Warnings in Background Script
+    - **Code Area:** `background-combined.js`
+    - **Action:**
+        1. Open background-combined.js
+        2. Locate catch blocks with unused `e` variables at lines 190, 342, and 385
+        3. For each catch block:
+           - Use `BackgroundLogger.error()` to log the error with context, or
+           - Rename to `_e` and add a comment explaining why error is intentionally ignored
+    - **Done‑when:**
+        1. No ESLint warnings for unused error variables in this file.
+        2. Error handling continues to function correctly.
+    - **Verification:**
+        1. Run `pnpm lint` locally and verify no warnings for this file.
+    - **Depends‑on:** none
+
+- [ ] **CI-17 · P1: Investigate GitHub Actions workflow configuration**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 3: Fix Artifact Upload Conflict
+    - **Code Area:** `.github/workflows/`
+    - **Action:**
+        1. Locate the GitHub Actions workflow file(s)
+        2. Identify all uses of `actions/upload-artifact`
+        3. Check the version being used and how artifact names are configured
+        4. Document findings for Task CI-18
+    - **Done‑when:**
+        1. All instances of artifact uploads in workflows are identified.
+        2. CI artifact conflict issue is understood.
+    - **Verification:**
+        1. Confirm all GitHub Actions files are analyzed.
+    - **Depends‑on:** none
+
+- [ ] **CI-18 · P1: Update GitHub Actions for artifact upload**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 3: Fix Artifact Upload Conflict
+    - **Code Area:** `.github/workflows/`
+    - **Action:**
+        1. Update all instances of `actions/upload-artifact@v3` to `@v4`
+        2. Modify artifact names to include unique identifiers (e.g., `${{ github.run_id }}`)
+        3. Update other outdated GitHub Actions:
+           - `actions/checkout@v3` → `@v4`
+           - `actions/setup-node@v3` → `@v4`
+    - **Done‑when:**
+        1. All GitHub Actions are updated to latest versions.
+        2. Artifact names include unique identifiers.
+    - **Verification:**
+        1. Push changes to GitHub and verify that CI passes and artifacts upload successfully.
+    - **Depends‑on:** [CI-17]
+
+- [ ] **CI-19 · P2: Diagnose Node.js 20.9.0 compatibility issues**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Investigate Node.js 20.9.0 Compatibility
+    - **Code Area:** Project-wide
+    - **Action:**
+        1. Review CI logs for Node.js 20.9.0 job to identify specific errors
+        2. Set up local environment with Node.js 20.9.0 (using nvm or similar)
+        3. Attempt to reproduce the failures locally
+        4. Document specific incompatibilities found
+    - **Done‑when:**
+        1. Node.js 20.9.0 compatibility issue is isolated and understood.
+    - **Verification:**
+        1. Successfully reproduce the issue locally on Node.js 20.9.0.
+    - **Depends‑on:** none
+
+- [ ] **CI-20 · P2: Fix Node.js 20.9.0 compatibility**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Investigate Node.js 20.9.0 Compatibility
+    - **Code Area:** Based on findings from CI-19
+    - **Action:**
+        1. Implement required fixes based on CI-19 findings:
+           - Update code for Node.js 20.9.0 compatibility
+           - Update vitest.config.js if needed
+           - Update dependencies if they're the source of issues
+        2. Test fixes in both Node.js 18.18.0 and 20.9.0
+    - **Done‑when:**
+        1. Tests pass locally on both Node.js 18.18.0 and 20.9.0.
+    - **Verification:**
+        1. Push changes to GitHub and verify CI passes on both Node.js versions.
+    - **Depends‑on:** [CI-19]
+
+- [ ] **CI-21 · P2: Strengthen pre-commit hooks**
+    - **Context:** CI-RESOLUTION-PLAN.md - Preventative Measures
+    - **Code Area:** `.husky/` and package scripts
+    - **Action:**
+        1. Review current pre-commit hook configuration
+        2. Update hooks to run:
+           - `pnpm lint` with the same flags as CI
+           - `pnpm typecheck` to catch type issues
+        3. Test hooks by attempting to commit code with an ESLint warning
+    - **Done‑when:**
+        1. Pre-commit hooks block commits with ESLint warnings and TypeScript errors.
+    - **Verification:**
+        1. Try to commit code with known lint warning and verify commit is blocked.
+    - **Depends‑on:** [CI-14, CI-15, CI-16]
+
+- [ ] **CI-22 · P3: Document CI workflow maintenance process**
+    - **Context:** CI-RESOLUTION-PLAN.md - Preventative Measures
+    - **Code Area:** Project documentation
+    - **Action:**
+        1. Create or update CI documentation with:
+           - Guidelines for GitHub Actions versioning
+           - Artifact naming standards
+           - Schedule for reviewing and updating Actions
+        2. Add section to CONTRIBUTING.md about CI standards
+    - **Done‑when:**
+        1. Documentation is clear and accessible to all contributors.
+    - **Verification:**
+        1. Review documentation for clarity and completeness.
+    - **Depends‑on:** [CI-18]
+
+- [ ] **CI-23 · P1: Comprehensive CI verification**
+    - **Context:** CI-RESOLUTION-PLAN.md - Final Verification
+    - **Code Area:** Project-wide
+    - **Action:**
+        1. Run all local checks:
+           - `pnpm lint`
+           - `pnpm typecheck`
+           - `pnpm test`
+        2. Push all changes to GitHub and monitor CI run
+        3. Verify all jobs complete successfully
+    - **Done‑when:**
+        1. All CI checks pass without warnings or errors.
+        2. Artifact uploads complete successfully.
+    - **Verification:**
+        1. CI build passes completely with all jobs succeeding.
+    - **Depends‑on:** [CI-14, CI-15, CI-16, CI-18, CI-20]
 
 ## Completed Tasks
 

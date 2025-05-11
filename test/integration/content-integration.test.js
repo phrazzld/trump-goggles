@@ -184,8 +184,10 @@ const createMockModules = () => {
         } else {
           node._trumpProcessed = true;
         }
-      } catch (_) {
-        // Fallback for nodes that don't support dataset
+        // eslint-disable-next-line no-unused-vars
+      } catch (_error) {
+        // Fallback for nodes that don't support dataset or throw errors
+        // Common with certain node types or in test environments
         node._trumpProcessed = true;
       }
     }),
