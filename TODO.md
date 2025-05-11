@@ -328,7 +328,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Run `pnpm lint` locally and verify no warnings for this file.
     - **Depends‑on:** none
 
-- [ ] **CI-16 · P0: Fix unused error variables in background-combined.js**
+- [x] **CI-16 · P0: Fix unused error variables in background-combined.js**
     - **Context:** CI-RESOLUTION-PLAN.md - Phase 2: Fix ESLint Warnings in Background Script
     - **Code Area:** `background-combined.js`
     - **Action:**

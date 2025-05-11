@@ -187,8 +187,12 @@ const BrowserDetect = (function () {
           return true;
         }
       }
-    } catch (e) {
-      // Ignore errors during feature detection
+    } catch (error) {
+      // Ignore errors during feature detection - this is expected in some browser environments
+      // This is a non-critical detection path, so we log at debug level
+      if (self.BackgroundLogger) {
+        BackgroundLogger.debug('Error during promise API detection (non-critical)', error);
+      }
     }
 
     return false;
@@ -339,7 +343,11 @@ const BrowserAdapter = (function () {
       // Fallback detection for when BrowserDetect isn't available
       try {
         browserApi = typeof browser !== 'undefined' ? browser : chrome;
-      } catch (e) {
+      } catch (error) {
+        // Error during browser detection fallback - defaulting to Chrome
+        if (self.BackgroundLogger) {
+          BackgroundLogger.debug('Error during browser API detection, defaulting to Chrome', error);
+        }
         browserApi = chrome;
       }
     }
@@ -382,8 +390,11 @@ const BrowserAdapter = (function () {
           return apiType;
         }
       }
-    } catch (e) {
-      // Ignore errors during detection
+    } catch (error) {
+      // Ignore errors during API type detection - this is expected in some environments
+      if (self.BackgroundLogger) {
+        BackgroundLogger.debug('Error during API type detection (non-critical)', error);
+      }
     }
 
     // Default to callback API
