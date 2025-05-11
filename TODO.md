@@ -344,7 +344,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Run `pnpm lint` locally and verify no warnings for this file.
     - **Depends‑on:** none
 
-- [ ] **CI-17 · P1: Investigate GitHub Actions workflow configuration**
+- [x] **CI-17 · P1: Investigate GitHub Actions workflow configuration**
     - **Context:** CI-RESOLUTION-PLAN.md - Phase 3: Fix Artifact Upload Conflict
     - **Code Area:** `.github/workflows/`
     - **Action:**
