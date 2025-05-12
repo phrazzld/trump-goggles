@@ -26,14 +26,15 @@ Thank you for considering contributing to Trump Goggles! This document outlines 
 ### Initial Setup
 
 1. **Fork the repository** on GitHub
-   
 2. **Clone your fork**
+
    ```bash
    git clone https://github.com/your-username/trump-goggles.git
    cd trump-goggles
    ```
 
 3. **Add the original repository as an upstream remote**
+
    ```bash
    git remote add upstream https://github.com/original-owner/trump-goggles.git
    ```
@@ -46,12 +47,14 @@ Thank you for considering contributing to Trump Goggles! This document outlines 
 ### Installing the Extension for Testing
 
 #### Chrome
+
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable "Developer mode" in the top-right corner
 3. Click "Load unpacked" and select the root directory of the project
 4. The extension should now be installed and active
 
 #### Firefox
+
 1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
 2. Click "Load Temporary Add-on"
 3. Select the `manifest.json` file in the root directory of the project
@@ -61,7 +64,7 @@ Thank you for considering contributing to Trump Goggles! This document outlines 
 
 ```
 trump-goggles/
-├── .github/                # GitHub configuration 
+├── .github/                # GitHub configuration
 ├── docs/                   # Documentation
 │   ├── architecture.md     # Architecture overview
 │   └── behavior.md         # Extension behavior documentation
@@ -88,11 +91,13 @@ trump-goggles/
 ### Branch Strategy
 
 1. **Create a new branch** for your contribution
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
-   
+
    Use the following prefixes for branches:
+
    - `feature/` - For new features
    - `fix/` - For bug fixes
    - `docs/` - For documentation changes
@@ -100,12 +105,14 @@ trump-goggles/
    - `test/` - For adding or modifying tests
 
 2. **Make your changes** and commit them
+
    ```bash
    git add .
    git commit -m "feat: add your feature description"
    ```
-   
+
    Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages:
+
    - `feat:` - A new feature
    - `fix:` - A bug fix
    - `docs:` - Documentation changes
@@ -115,12 +122,14 @@ trump-goggles/
    - `chore:` - Maintenance tasks, build changes, etc.
 
 3. **Keep your branch updated** with the upstream repository
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 4. **Push your changes** to your fork
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -218,9 +227,16 @@ The pre-commit hook has been configured to run TypeScript checks automatically b
 
 If any of these steps fail, the commit will be aborted, allowing you to fix the issues before committing.
 
-#### GitHub Actions Versioning
+#### CI Workflow Maintenance
 
-All GitHub Actions used in CI workflows follow a specific versioning strategy. For details on how we manage GitHub Actions versions, when to update them, and the review process, see [CI-VERSIONING.md](./CI-VERSIONING.md).
+All GitHub Actions used in CI workflows follow a specific versioning strategy and maintenance schedule. For details on:
+
+- How we manage GitHub Actions versions and when to update them
+- Artifact naming standards and best practices
+- Quarterly maintenance schedule and responsibilities
+- Common CI issues and their solutions
+
+See [CI-MAINTENANCE.md](./docs/CI-MAINTENANCE.md).
 
 #### When to Run CI Verification
 
@@ -244,13 +260,13 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('Module Name', () => {
   // Setup code
-  
+
   describe('Function Name', () => {
     it('should behave in a certain way', () => {
       // Test code
       expect(result).toBe(expectedValue);
     });
-    
+
     it('should handle edge cases', () => {
       // Test code
       expect(result).toBe(expectedValue);
@@ -342,11 +358,11 @@ const element = document.getElementById('my-element');
 2. **Run the CI verification script** before submitting: `./verify-ci.sh`
 3. **Ensure all checks pass** (tests, linting, type checking)
 4. **Update documentation** if necessary
-4. **Update version numbers** following [semantic versioning](https://semver.org/)
-5. **Request a review** from a maintainer
-6. **Address review feedback** by making additional commits to your branch
-7. **Squash commits** if requested by the maintainer
-8. **PR will be merged** once it passes all checks and receives approval
+5. **Update version numbers** following [semantic versioning](https://semver.org/)
+6. **Request a review** from a maintainer
+7. **Address review feedback** by making additional commits to your branch
+8. **Squash commits** if requested by the maintainer
+9. **PR will be merged** once it passes all checks and receives approval
 
 ### PR Template
 
@@ -354,12 +370,15 @@ When creating a pull request, include the following information:
 
 ```markdown
 ## Description
+
 [Describe the changes you've made]
 
 ## Related Issue
+
 [Link to the related issue, if applicable]
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
@@ -368,6 +387,7 @@ When creating a pull request, include the following information:
 - [ ] Performance improvement
 
 ## Checklist
+
 - [ ] I have tested my changes
 - [ ] I have run the CI verification script (`./verify-ci.sh`)
 - [ ] I have updated the documentation
@@ -392,9 +412,11 @@ Releases are managed by the maintainers using the following process:
 ### Common Issues
 
 1. **Pre-commit hooks not working**
+
    - Ensure husky is installed correctly: `pnpm prepare`
 
 2. **TypeScript errors despite correct code**
+
    - Check types.d.ts for missing type definitions
    - Use `// @ts-ignore` with explanatory comment as a last resort
 
