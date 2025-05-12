@@ -18,12 +18,5 @@ export default defineConfig({
         url: 'https://example.org/',
       },
     },
-    // Ensure compatibility with Node.js 20.9.0
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
   },
 });

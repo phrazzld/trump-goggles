@@ -375,33 +375,31 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Push changes to GitHub and verify that CI passes and artifacts upload successfully.
     - **Depends‑on:** [CI-17]
 
-- [ ] **CI-19 · P2: Diagnose Node.js 20.9.0 compatibility issues**
-    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Investigate Node.js 20.9.0 Compatibility
+- [x] **CI-19 · P2: Simplify Node.js version configuration**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Addressing Node.js Compatibility
     - **Code Area:** Project-wide
     - **Action:**
-        1. Review CI logs for Node.js 20.9.0 job to identify specific errors
-        2. Set up local environment with Node.js 20.9.0 (using nvm or similar)
-        3. Attempt to reproduce the failures locally
-        4. Document specific incompatibilities found
+        1. Re-evaluate multiple Node.js version approach for browser extension
+        2. Consolidate to a single modern Node.js version (v22.15.0)
+        3. Update package.json engines field
+        4. Remove matrix configuration from CI workflow
     - **Done‑when:**
-        1. Node.js 20.9.0 compatibility issue is isolated and understood.
+        1. Project configuration is simplified to use a single Node.js version.
     - **Verification:**
-        1. Successfully reproduce the issue locally on Node.js 20.9.0.
+        1. CI configuration runs on a single Node.js version.
     - **Depends‑on:** none
 
-- [ ] **CI-20 · P2: Fix Node.js 20.9.0 compatibility**
-    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Investigate Node.js 20.9.0 Compatibility
+- [x] **CI-20 · P2: Update CI workflow for simplified Node.js configuration**
+    - **Context:** CI-RESOLUTION-PLAN.md - Phase 4: Addressing Node.js Compatibility
     - **Code Area:** Based on findings from CI-19
     - **Action:**
-        1. Implement required fixes based on CI-19 findings:
-           - Update code for Node.js 20.9.0 compatibility
-           - Update vitest.config.js if needed
-           - Update dependencies if they're the source of issues
-        2. Test fixes in both Node.js 18.18.0 and 20.9.0
+        1. Update CI workflow to use Node.js v22.15.0 exclusively
+        2. Simplify artifact naming (no need for Node.js version in name)
+        3. Remove special Node.js version handling in vitest.config.js
     - **Done‑when:**
-        1. Tests pass locally on both Node.js 18.18.0 and 20.9.0.
+        1. CI workflow is updated to use Node.js v22.15.0 exclusively.
     - **Verification:**
-        1. Push changes to GitHub and verify CI passes on both Node.js versions.
+        1. Push changes to GitHub and verify CI passes.
     - **Depends‑on:** [CI-19]
 
 - [ ] **CI-21 · P2: Strengthen pre-commit hooks**
@@ -417,7 +415,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Pre-commit hooks block commits with ESLint warnings and TypeScript errors.
     - **Verification:**
         1. Try to commit code with known lint warning and verify commit is blocked.
-    - **Depends‑on:** [CI-14, CI-15, CI-16]
+    - **Depends‑on:** none
 
 - [ ] **CI-22 · P3: Document CI workflow maintenance process**
     - **Context:** CI-RESOLUTION-PLAN.md - Preventative Measures
