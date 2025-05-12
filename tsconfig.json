@@ -17,12 +17,7 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "**/*.js",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.jsx"
-  ],
+  "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx"],
   "exclude": [
     "node_modules",
     "**/node_modules/*",

@@ -30,29 +30,32 @@ Trump Goggles is a browser extension that automatically replaces references to D
 ## Installation
 
 ### Chrome Web Store
+
 Download the extension for Google Chrome [here](https://chrome.google.com/webstore/detail/trump-goggles/jffbimfdmgbfannficjejaffmnggoigd).
 
 ### Firefox Add-ons (Coming Soon)
+
 Firefox Add-ons store link will be added soon.
 
 ### Manual Installation (Development)
+
 See the [Development](#development) section below for instructions on installing the development version.
 
 ## Examples
 
 Trump Goggles transforms your browsing experience with replacements like:
 
-| Original | Replacement |
-|----------|-------------|
-| Donald Trump | Agent Orange |
-| Trump | The Orange One |
-| ISIS | Evil Losers |
-| Hillary Clinton | Crooked Hillary |
-| New York Times | FAKE NEWS |
-| CNN | Very Fake News |
-| Covid-19 | China Virus |
-| Coronavirus | The Invisible Enemy |
-| *and many more!* | |
+| Original         | Replacement         |
+| ---------------- | ------------------- |
+| Donald Trump     | Agent Orange        |
+| Trump            | The Orange One      |
+| ISIS             | Evil Losers         |
+| Hillary Clinton  | Crooked Hillary     |
+| New York Times   | FAKE NEWS           |
+| CNN              | Very Fake News      |
+| Covid-19         | China Virus         |
+| Coronavirus      | The Invisible Enemy |
+| _and many more!_ |                     |
 
 ## How It Works
 
@@ -68,10 +71,12 @@ For more details on the extension's behavior, see [docs/behavior.md](docs/behavi
 ## Development
 
 ### Prerequisites
+
 - Node.js (v18.18.0 or higher)
 - pnpm (v7.0.0 or higher)
 
 ### Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/trump-goggles.git
@@ -82,18 +87,22 @@ pnpm install
 ```
 
 ### Loading the Extension
+
 #### Chrome
+
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable "Developer mode" in the top-right corner
 3. Click "Load unpacked" and select the project directory
 4. The extension should now be installed and active
 
 #### Firefox
+
 1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
 2. Click "Load Temporary Add-on..."
 3. Select the `manifest.json` file in the project directory
 
 ### Development Commands
+
 ```bash
 # Run tests
 pnpm test

@@ -162,9 +162,27 @@ declare namespace browser {
      * Event fired when a message is sent to the extension
      */
     const onMessage: {
-      addListener(callback: (message: any, sender: MessageSender, sendResponse: (response?: any) => void) => boolean | void): void;
-      removeListener(callback: (message: any, sender: MessageSender, sendResponse: (response?: any) => void) => boolean | void): void;
-      hasListener(callback: (message: any, sender: MessageSender, sendResponse: (response?: any) => void) => boolean | void): boolean;
+      addListener(
+        callback: (
+          message: any,
+          sender: MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): void;
+      removeListener(
+        callback: (
+          message: any,
+          sender: MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): void;
+      hasListener(
+        callback: (
+          message: any,
+          sender: MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): boolean;
     };
 
     /**
@@ -188,7 +206,9 @@ declare namespace browser {
       /**
        * Gets one or more items from storage
        */
-      get<T = { [key: string]: any }>(keys?: string | string[] | { [key: string]: any } | null): Promise<T>;
+      get<T = { [key: string]: any }>(
+        keys?: string | string[] | { [key: string]: any } | null
+      ): Promise<T>;
 
       /**
        * Sets multiple items in storage
@@ -262,15 +282,18 @@ declare namespace browser {
     /**
      * Updates the specified tab
      */
-    function update(tabId: number, updateProperties: {
-      active?: boolean;
-      autoDiscardable?: boolean;
-      highlighted?: boolean;
-      muted?: boolean;
-      openerTabId?: number;
-      pinned?: boolean;
-      url?: string;
-    }): Promise<Tab>;
+    function update(
+      tabId: number,
+      updateProperties: {
+        active?: boolean;
+        autoDiscardable?: boolean;
+        highlighted?: boolean;
+        muted?: boolean;
+        openerTabId?: number;
+        pinned?: boolean;
+        url?: string;
+      }
+    ): Promise<Tab>;
   }
 
   /**
@@ -297,12 +320,19 @@ declare namespace browser {
      */
     const onBeforeRequest: {
       addListener(
-        callback: (details: WebRequestDetails & { requestBody?: { raw?: {bytes: ArrayBuffer}[], formData?: {[key: string]: string[]} } }) => void | {cancel: boolean},
+        callback: (
+          details: WebRequestDetails & {
+            requestBody?: {
+              raw?: { bytes: ArrayBuffer }[];
+              formData?: { [key: string]: string[] };
+            };
+          }
+        ) => void | { cancel: boolean },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {cancel: boolean}): void;
-      hasListener(callback: (details: any) => void | {cancel: boolean}): boolean;
+      removeListener(callback: (details: any) => void | { cancel: boolean }): void;
+      hasListener(callback: (details: any) => void | { cancel: boolean }): boolean;
     };
 
     /**
@@ -310,12 +340,18 @@ declare namespace browser {
      */
     const onBeforeSendHeaders: {
       addListener(
-        callback: (details: WebRequestDetails & { requestHeaders?: {name: string, value: string}[] }) => void | {requestHeaders?: {name: string, value: string}[]},
+        callback: (
+          details: WebRequestDetails & { requestHeaders?: { name: string; value: string }[] }
+        ) => void | { requestHeaders?: { name: string; value: string }[] },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {requestHeaders?: {name: string, value: string}[]}): void;
-      hasListener(callback: (details: any) => void | {requestHeaders?: {name: string, value: string}[]}): boolean;
+      removeListener(
+        callback: (details: any) => void | { requestHeaders?: { name: string; value: string }[] }
+      ): void;
+      hasListener(
+        callback: (details: any) => void | { requestHeaders?: { name: string; value: string }[] }
+      ): boolean;
     };
 
     /**
@@ -323,12 +359,22 @@ declare namespace browser {
      */
     const onHeadersReceived: {
       addListener(
-        callback: (details: WebRequestDetails & { responseHeaders?: {name: string, value: string}[], statusCode: number, statusLine: string }) => void | {responseHeaders?: {name: string, value: string}[]},
+        callback: (
+          details: WebRequestDetails & {
+            responseHeaders?: { name: string; value: string }[];
+            statusCode: number;
+            statusLine: string;
+          }
+        ) => void | { responseHeaders?: { name: string; value: string }[] },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {responseHeaders?: {name: string, value: string}[]}): void;
-      hasListener(callback: (details: any) => void | {responseHeaders?: {name: string, value: string}[]}): boolean;
+      removeListener(
+        callback: (details: any) => void | { responseHeaders?: { name: string; value: string }[] }
+      ): void;
+      hasListener(
+        callback: (details: any) => void | { responseHeaders?: { name: string; value: string }[] }
+      ): boolean;
     };
 
     /**
@@ -336,7 +382,15 @@ declare namespace browser {
      */
     const onCompleted: {
       addListener(
-        callback: (details: WebRequestDetails & { responseHeaders?: {name: string, value: string}[], statusCode: number, statusLine: string, fromCache: boolean, ip?: string }) => void,
+        callback: (
+          details: WebRequestDetails & {
+            responseHeaders?: { name: string; value: string }[];
+            statusCode: number;
+            statusLine: string;
+            fromCache: boolean;
+            ip?: string;
+          }
+        ) => void,
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
@@ -368,34 +422,34 @@ interface Chrome {
      * Opens the extension's options page
      */
     openOptionsPage(callback?: () => void): void;
-    
+
     /**
      * Gets the manifest for the extension
      */
     getManifest(): chrome.runtime.Manifest;
-    
+
     /**
      * Gets platform information
      */
     getPlatformInfo(callback: (platformInfo: browser.PlatformInfo) => void): void;
-    
+
     /**
      * Sends a message to the extension
      */
     sendMessage<T = any>(message: T, callback?: (response: any) => void): void;
-    
+
     /**
      * Sends a message to a specific extension
      */
     sendMessage<T = any>(extensionId: string, message: T, callback?: (response: any) => void): void;
-    
+
     /**
      * Last error that occurred
      */
     lastError?: {
       message?: string;
     };
-    
+
     /**
      * Event fired when the extension is installed or updated
      */
@@ -404,16 +458,34 @@ interface Chrome {
       removeListener(callback: (details: browser.InstalledDetails) => void): void;
       hasListener(callback: (details: browser.InstalledDetails) => void): boolean;
     };
-    
+
     /**
      * Event fired when a message is sent to the extension
      */
     onMessage?: {
-      addListener(callback: (message: any, sender: browser.MessageSender, sendResponse: (response?: any) => void) => boolean | void): void;
-      removeListener(callback: (message: any, sender: browser.MessageSender, sendResponse: (response?: any) => void) => boolean | void): void;
-      hasListener(callback: (message: any, sender: browser.MessageSender, sendResponse: (response?: any) => void) => boolean | void): boolean;
+      addListener(
+        callback: (
+          message: any,
+          sender: browser.MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): void;
+      removeListener(
+        callback: (
+          message: any,
+          sender: browser.MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): void;
+      hasListener(
+        callback: (
+          message: any,
+          sender: browser.MessageSender,
+          sendResponse: (response?: any) => void
+        ) => boolean | void
+      ): boolean;
     };
-    
+
     /**
      * Event fired when an error occurs
      */
@@ -423,7 +495,7 @@ interface Chrome {
       hasListener(callback: (error: Error) => void): boolean;
     };
   };
-  
+
   /**
    * Browser action API (for Manifest V2)
    */
@@ -437,7 +509,7 @@ interface Chrome {
       hasListener(callback: (tab?: browser.tabs.Tab) => void): boolean;
     };
   };
-  
+
   /**
    * Action API (for Manifest V3)
    */
@@ -451,7 +523,7 @@ interface Chrome {
       hasListener(callback: (tab?: browser.tabs.Tab) => void): boolean;
     };
   };
-  
+
   /**
    * Tabs API
    */
@@ -459,48 +531,55 @@ interface Chrome {
     /**
      * Queries for tabs that match the specified criteria
      */
-    query(queryInfo: {
-      active?: boolean;
-      audible?: boolean;
-      autoDiscardable?: boolean;
-      currentWindow?: boolean;
-      discarded?: boolean;
-      highlighted?: boolean;
-      index?: number;
-      muted?: boolean;
-      lastFocusedWindow?: boolean;
-      pinned?: boolean;
-      status?: string;
-      title?: string;
-      url?: string | string[];
-      windowId?: number;
-      windowType?: string;
-    }, callback: (tabs: browser.tabs.Tab[]) => void): void;
-    
+    query(
+      queryInfo: {
+        active?: boolean;
+        audible?: boolean;
+        autoDiscardable?: boolean;
+        currentWindow?: boolean;
+        discarded?: boolean;
+        highlighted?: boolean;
+        index?: number;
+        muted?: boolean;
+        lastFocusedWindow?: boolean;
+        pinned?: boolean;
+        status?: string;
+        title?: string;
+        url?: string | string[];
+        windowId?: number;
+        windowType?: string;
+      },
+      callback: (tabs: browser.tabs.Tab[]) => void
+    ): void;
+
     /**
      * Gets the tab with the specified ID
      */
     get(tabId: number, callback: (tab: browser.tabs.Tab) => void): void;
-    
+
     /**
      * Sends a message to a specific tab
      */
     sendMessage<T = any>(tabId: number, message: T, callback?: (response: any) => void): void;
-    
+
     /**
      * Updates the specified tab
      */
-    update(tabId: number, updateProperties: {
-      active?: boolean;
-      autoDiscardable?: boolean;
-      highlighted?: boolean;
-      muted?: boolean;
-      openerTabId?: number;
-      pinned?: boolean;
-      url?: string;
-    }, callback?: (tab?: browser.tabs.Tab) => void): void;
+    update(
+      tabId: number,
+      updateProperties: {
+        active?: boolean;
+        autoDiscardable?: boolean;
+        highlighted?: boolean;
+        muted?: boolean;
+        openerTabId?: number;
+        pinned?: boolean;
+        url?: string;
+      },
+      callback?: (tab?: browser.tabs.Tab) => void
+    ): void;
   };
-  
+
   /**
    * Storage API
    */
@@ -512,24 +591,27 @@ interface Chrome {
       /**
        * Gets one or more items from storage
        */
-      get<T = { [key: string]: any }>(keys: string | string[] | { [key: string]: any } | null, callback: (items: T) => void): void;
-      
+      get<T = { [key: string]: any }>(
+        keys: string | string[] | { [key: string]: any } | null,
+        callback: (items: T) => void
+      ): void;
+
       /**
        * Sets multiple items in storage
        */
       set(items: { [key: string]: any }, callback?: () => void): void;
-      
+
       /**
        * Removes one or more items from storage
        */
       remove(keys: string | string[], callback?: () => void): void;
-      
+
       /**
        * Removes all items from storage
        */
       clear(callback?: () => void): void;
     };
-    
+
     /**
      * Local storage area - persistent but local to the device
      */
@@ -537,25 +619,28 @@ interface Chrome {
       /**
        * Gets one or more items from storage
        */
-      get<T = { [key: string]: any }>(keys: string | string[] | { [key: string]: any } | null, callback: (items: T) => void): void;
-      
+      get<T = { [key: string]: any }>(
+        keys: string | string[] | { [key: string]: any } | null,
+        callback: (items: T) => void
+      ): void;
+
       /**
        * Sets multiple items in storage
        */
       set(items: { [key: string]: any }, callback?: () => void): void;
-      
+
       /**
        * Removes one or more items from storage
        */
       remove(keys: string | string[], callback?: () => void): void;
-      
+
       /**
        * Removes all items from storage
        */
       clear(callback?: () => void): void;
     };
   };
-  
+
   /**
    * Web Request API
    */
@@ -565,53 +650,86 @@ interface Chrome {
      */
     onBeforeRequest: {
       addListener(
-        callback: (details: browser.webRequest.WebRequestDetails & { requestBody?: { raw?: {bytes: ArrayBuffer}[], formData?: {[key: string]: string[]} } }) => void | {cancel: boolean},
+        callback: (
+          details: browser.webRequest.WebRequestDetails & {
+            requestBody?: {
+              raw?: { bytes: ArrayBuffer }[];
+              formData?: { [key: string]: string[] };
+            };
+          }
+        ) => void | { cancel: boolean },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {cancel: boolean}): void;
-      hasListener(callback: (details: any) => void | {cancel: boolean}): boolean;
+      removeListener(callback: (details: any) => void | { cancel: boolean }): void;
+      hasListener(callback: (details: any) => void | { cancel: boolean }): boolean;
     };
-    
+
     /**
      * Event fired before sending headers for a request
      */
     onBeforeSendHeaders: {
       addListener(
-        callback: (details: browser.webRequest.WebRequestDetails & { requestHeaders?: {name: string, value: string}[] }) => void | {requestHeaders?: {name: string, value: string}[]},
+        callback: (
+          details: browser.webRequest.WebRequestDetails & {
+            requestHeaders?: { name: string; value: string }[];
+          }
+        ) => void | { requestHeaders?: { name: string; value: string }[] },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {requestHeaders?: {name: string, value: string}[]}): void;
-      hasListener(callback: (details: any) => void | {requestHeaders?: {name: string, value: string}[]}): boolean;
+      removeListener(
+        callback: (details: any) => void | { requestHeaders?: { name: string; value: string }[] }
+      ): void;
+      hasListener(
+        callback: (details: any) => void | { requestHeaders?: { name: string; value: string }[] }
+      ): boolean;
     };
-    
+
     /**
      * Event fired when headers are received
      */
     onHeadersReceived: {
       addListener(
-        callback: (details: browser.webRequest.WebRequestDetails & { responseHeaders?: {name: string, value: string}[], statusCode: number, statusLine: string }) => void | {responseHeaders?: {name: string, value: string}[]},
+        callback: (
+          details: browser.webRequest.WebRequestDetails & {
+            responseHeaders?: { name: string; value: string }[];
+            statusCode: number;
+            statusLine: string;
+          }
+        ) => void | { responseHeaders?: { name: string; value: string }[] },
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
-      removeListener(callback: (details: any) => void | {responseHeaders?: {name: string, value: string}[]}): void;
-      hasListener(callback: (details: any) => void | {responseHeaders?: {name: string, value: string}[]}): boolean;
+      removeListener(
+        callback: (details: any) => void | { responseHeaders?: { name: string; value: string }[] }
+      ): void;
+      hasListener(
+        callback: (details: any) => void | { responseHeaders?: { name: string; value: string }[] }
+      ): boolean;
     };
-    
+
     /**
      * Event fired when a request is completed
      */
     onCompleted: {
       addListener(
-        callback: (details: browser.webRequest.WebRequestDetails & { responseHeaders?: {name: string, value: string}[], statusCode: number, statusLine: string, fromCache: boolean, ip?: string }) => void,
+        callback: (
+          details: browser.webRequest.WebRequestDetails & {
+            responseHeaders?: { name: string; value: string }[];
+            statusCode: number;
+            statusLine: string;
+            fromCache: boolean;
+            ip?: string;
+          }
+        ) => void,
         filter: { urls: string[] },
         extraInfoSpec?: string[]
       ): void;
       removeListener(callback: (details: any) => void): void;
       hasListener(callback: (details: any) => void): boolean;
     };
-    
+
     /**
      * Event fired when a request errors
      */
@@ -683,10 +801,12 @@ declare namespace chrome.runtime {
       include_globs?: string[];
       exclude_globs?: string[];
     }>;
-    content_security_policy?: {
-      extension_pages?: string;
-      sandbox?: string;
-    } | string;
+    content_security_policy?:
+      | {
+          extension_pages?: string;
+          sandbox?: string;
+        }
+      | string;
     description?: string;
     devtools_page?: string;
     host_permissions?: string[];
@@ -711,10 +831,12 @@ declare namespace chrome.runtime {
     };
     update_url?: string;
     version_name?: string;
-    web_accessible_resources?: Array<{
-      resources: string[];
-      matches: string[];
-    }> | string[];
+    web_accessible_resources?:
+      | Array<{
+          resources: string[];
+          matches: string[];
+        }>
+      | string[];
   }
 }
 
@@ -759,13 +881,21 @@ interface LoggerInterface {
 
   // Error protection
   protect: <T, R>(fn: (...args: T[]) => R, context: string, fallback?: R) => (...args: T[]) => R;
-  protectAsync: <T, R>(fn: (...args: T[]) => Promise<R>, context: string, fallback?: R) => (...args: T[]) => Promise<R>;
+  protectAsync: <T, R>(
+    fn: (...args: T[]) => Promise<R>,
+    context: string,
+    fallback?: R
+  ) => (...args: T[]) => Promise<R>;
 
   // Performance monitoring
   time: (operationName: string) => { stop: (status?: string, additionalData?: object) => number };
 
   // Statistics
-  getStats: () => { counts: { [level: string]: number }, lastError: string | null, lastErrorTime: Date | null };
+  getStats: () => {
+    counts: { [level: string]: number };
+    lastError: string | null;
+    lastErrorTime: Date | null;
+  };
   resetStats: () => void;
 
   // Constants
@@ -866,7 +996,9 @@ interface BrowserAdapterInterface {
   setStorageItem: (items: { [key: string]: any }) => Promise<void>;
   sendMessageToTab: <T>(tabId: number, message: any) => Promise<T>;
   sendMessage: <T>(message: any) => Promise<T>;
-  addMessageListener: (callback: (message: any, sender: any, sendResponse: Function) => void) => boolean;
+  addMessageListener: (
+    callback: (message: any, sender: any, sendResponse: Function) => void
+  ) => boolean;
   addInstallListener: (callback: (details: any) => void) => boolean;
   getDebugInfo: () => {
     browser: string;
@@ -897,20 +1029,39 @@ interface TrumpMappingsInterface {
  */
 interface TextProcessorInterface {
   // Core text processing methods
-  processText: (text: string, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => string;
-  processTextAsync: (text: string, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => Promise<string>;
-  processTextNode: (textNode: Text, replacementMap: ReplacementMap, mapKeys: string[], options?: ProcessOptions) => boolean|Promise<boolean>;
-  
+  processText: (
+    text: string,
+    replacementMap: ReplacementMap,
+    mapKeys: string[],
+    options?: ProcessOptions
+  ) => string;
+  processTextAsync: (
+    text: string,
+    replacementMap: ReplacementMap,
+    mapKeys: string[],
+    options?: ProcessOptions
+  ) => Promise<string>;
+  processTextNode: (
+    textNode: Text,
+    replacementMap: ReplacementMap,
+    mapKeys: string[],
+    options?: ProcessOptions
+  ) => boolean | Promise<boolean>;
+
   // Pattern optimization
   precompilePatterns: (replacementMap: ReplacementMap) => ReplacementMap;
-  
+
   // Cache management
   clearCache: () => void;
   getCacheStats: () => CacheStats;
-  
+
   // Optimization helpers
-  isLikelyToContainMatches: (text: string, replacementMap: ReplacementMap, mapKeys: string[]) => boolean;
-  
+  isLikelyToContainMatches: (
+    text: string,
+    replacementMap: ReplacementMap,
+    mapKeys: string[]
+  ) => boolean;
+
   // Configuration
   config: {
     LARGE_TEXT_THRESHOLD: number;
@@ -977,7 +1128,7 @@ interface Window {
   trumpProcessedNodes?: WeakSet<Node>;
   trumpObserver?: MutationObserver;
   errorHandlerInitialized?: boolean;
-  
+
   // Module exports
   Logger?: LoggerInterface;
   ErrorHandler?: ErrorHandlerInterface;
@@ -988,7 +1139,7 @@ interface Window {
   TextProcessor?: TextProcessorInterface;
   MutationObserverManager?: MutationObserverManagerInterface;
   TrumpGoggles?: any;
-  
+
   // Legacy functions
   buildTrumpMap?: (() => TrumpMappingObject) & (() => { [key: string]: TrumpMapping });
 }

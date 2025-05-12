@@ -17,12 +17,6 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "browser-detect.js",
-    "error-handler.js",
-    "dom-processor.js"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["browser-detect.js", "error-handler.js", "dom-processor.js"],
+  "exclude": ["node_modules"]
 }

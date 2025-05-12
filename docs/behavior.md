@@ -10,18 +10,18 @@ Trump Goggles is a browser extension that automatically replaces references to D
 
 The extension uses regular expressions to identify Trump-related terms and replace them with alternative phrases:
 
-| Original Term | Replacement |
-|---------------|-------------|
-| Donald Trump | Agent Orange |
-| Trump | The Orange One |
-| President Trump | Commandant Bone Spurs |
-| Hillary Clinton | Crooked Hillary |
-| ISIS | Evil Losers |
-| New York Times | FAKE NEWS |
-| CNN | Very Fake News |
-| Covid-19 | China Virus |
-| Coronavirus | The Invisible Enemy |
-| *And many more...* | |
+| Original Term      | Replacement           |
+| ------------------ | --------------------- |
+| Donald Trump       | Agent Orange          |
+| Trump              | The Orange One        |
+| President Trump    | Commandant Bone Spurs |
+| Hillary Clinton    | Crooked Hillary       |
+| ISIS               | Evil Losers           |
+| New York Times     | FAKE NEWS             |
+| CNN                | Very Fake News        |
+| Covid-19           | China Virus           |
+| Coronavirus        | The Invisible Enemy   |
+| _And many more..._ |                       |
 
 ### Activation
 
@@ -50,7 +50,7 @@ Currently, the extension does not have configurable options. Clicking the extens
 - Text in browser UI elements
 - Text in images (the extension cannot process image content)
 - Code blocks and pre-formatted text
-- Secure or private browsing pages (https://chrome.google.com/webstore/*, chrome://* URLs, etc.)
+- Secure or private browsing pages (https://chrome.google.com/webstore/_, chrome://_ URLs, etc.)
 
 ## Performance Impact
 
@@ -87,11 +87,13 @@ On most websites, you should not notice any performance degradation. However, on
 ### Common Issues
 
 1. **Extension Not Working on Some Sites**
+
    - Some websites use security measures that prevent content scripts from running
    - Websites loaded in iframes might not be processed
    - Check if you're using private/incognito browsing, which might disable extensions
 
 2. **Inconsistent Replacements**
+
    - Ensure the extension is enabled and up to date
    - Try refreshing the page to reprocess all content
    - Some dynamic content might load outside the extension's processing scope
@@ -103,6 +105,7 @@ On most websites, you should not notice any performance degradation. However, on
 ### Reporting Issues
 
 If you encounter problems or have suggestions for improvement:
+
 - Visit the GitHub repository: [Trump Goggles on GitHub](https://github.com/yourusername/trump-goggles)
 - Submit an issue with detailed information about the problem
 - Include your browser information and steps to reproduce the issue
@@ -116,6 +119,7 @@ If you need to temporarily disable Trump Goggles:
 3. Refresh the page to see content without replacements
 
 To completely uninstall:
+
 - Open your browser's extension management page
 - Find Trump Goggles and select "Remove" or "Uninstall"
 - Confirm when prompted
@@ -123,6 +127,7 @@ To completely uninstall:
 ## Privacy & Data Collection
 
 Trump Goggles respects your privacy:
+
 - No user data is collected or transmitted
 - All processing happens locally in your browser
 - No analytics or tracking is implemented
@@ -131,6 +136,7 @@ Trump Goggles respects your privacy:
 ## Compatibility
 
 The extension is compatible with:
+
 - Google Chrome (version 88+)
 - Mozilla Firefox (version 78+)
 - Microsoft Edge (version 88+)

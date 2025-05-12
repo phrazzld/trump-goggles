@@ -4,28 +4,30 @@ This comprehensive plan addresses the critical issues identified in the code rev
 
 ## 1. Prioritized Action Items
 
-| Priority | Issue | File Path(s) | Effort | 
-|----------|-------|--------------|--------|
-| 1 | Enable TypeScript Strict Mode | `/tsconfig.json` | Low |
-| 2 | Replace `any` Types with Specific Types or `unknown` | `/types.d.ts` (multiple locations) | Medium-High |
-| 3 | Align Trailing Comma Documentation with Prettier Config | `/CONTRIBUTING.md` | Low |
-| 4 | Add Unit Tests for Nickname Mapping Functionality | Create new test files | Medium |
+| Priority | Issue                                                   | File Path(s)                       | Effort      |
+| -------- | ------------------------------------------------------- | ---------------------------------- | ----------- |
+| 1        | Enable TypeScript Strict Mode                           | `/tsconfig.json`                   | Low         |
+| 2        | Replace `any` Types with Specific Types or `unknown`    | `/types.d.ts` (multiple locations) | Medium-High |
+| 3        | Align Trailing Comma Documentation with Prettier Config | `/CONTRIBUTING.md`                 | Low         |
+| 4        | Add Unit Tests for Nickname Mapping Functionality       | Create new test files              | Medium      |
 
 ## 2. Implementation Strategy
 
 ### 2.1 Enable TypeScript Strict Mode
 
 **Approach:**
+
 - Update `tsconfig.json` to set `"strict": true`, which enables all strict type-checking options
 - Remove redundant strict-related options that are already covered by `strict: true`
 
 **Code Changes:**
+
 ```json
 // tsconfig.json
 {
   "compilerOptions": {
     // ... other options
-    "strict": true, // Changed from false to true
+    "strict": true // Changed from false to true
     // Remove "noImplicitThis": false as it's redundant with strict mode
     // ... other options remain unchanged
   }
@@ -33,6 +35,7 @@ This comprehensive plan addresses the critical issues identified in the code rev
 ```
 
 **Steps:**
+
 1. Update `tsconfig.json` as shown above
 2. Run `pnpm typecheck` to identify errors that result from enabling strict mode
 3. Address these errors incrementally, starting with core modules
@@ -40,6 +43,7 @@ This comprehensive plan addresses the critical issues identified in the code rev
 ### 2.2 Replace `any` Types with Specific Types or `unknown`
 
 **Approach:**
+
 - Search for all instances of `any` in `types.d.ts` and the codebase
 - Replace with specific interfaces where possible or `unknown` with type guards when needed
 - Focus on module exports in the Window interface first, then browser API definitions
@@ -47,6 +51,7 @@ This comprehensive plan addresses the critical issues identified in the code rev
 **Code Examples:**
 
 **Window Module Exports:**
+
 ```typescript
 // Before
 interface Window {
@@ -104,6 +109,7 @@ interface Window {
 ```
 
 **Chrome/Browser API Types:**
+
 ```typescript
 // Before
 getManifest?(): any;
@@ -144,6 +150,7 @@ webRequest?: Record<string, unknown>; // Or create a more specific interface if 
 ```
 
 **Steps:**
+
 1. Define all necessary interfaces for module exports
 2. Define interfaces for browser API types
 3. Update the Window interface and other declarations to use these interfaces
@@ -152,11 +159,14 @@ webRequest?: Record<string, unknown>; // Or create a more specific interface if 
 ### 2.3 Align Trailing Comma Documentation with Prettier Config
 
 **Approach:**
+
 - Update `CONTRIBUTING.md` to match the Prettier configuration's `"trailingComma": "es5"` setting
 
 **Change:**
+
 ```markdown
 <!-- CONTRIBUTING.md -->
+
 ### Formatting and Linting
 
 - 2 spaces for indentation
@@ -167,6 +177,7 @@ webRequest?: Record<string, unknown>; // Or create a more specific interface if 
 ```
 
 **Steps:**
+
 1. Locate the "Formatting and Linting" section in `CONTRIBUTING.md`
 2. Update the bullet point about trailing commas
 3. Commit the documentation change
@@ -174,11 +185,13 @@ webRequest?: Record<string, unknown>; // Or create a more specific interface if 
 ### 2.4 Add Unit Tests for Nickname Mapping Functionality
 
 **Approach:**
+
 - Create unit tests for the nickname mapping logic in `trump-mappings.js`
 - Focus on testing regex patterns, replacement logic, and edge cases
 - Use Vitest as the testing framework per project conventions
 
 **Test File Example:**
+
 ```javascript
 // test/content/trump-mappings.test.js
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -191,70 +204,70 @@ import '../../trump-mappings.js';
 
 describe('TrumpMappings', () => {
   let trumpMappings;
-  
+
   beforeEach(() => {
     trumpMappings = window.TrumpMappings;
   });
-  
+
   describe('Module Structure', () => {
     it('should export the TrumpMappings object to window', () => {
       expect(window.TrumpMappings).toBeDefined();
     });
-    
+
     it('should provide getReplacementMap and getKeys methods', () => {
       expect(typeof trumpMappings.getReplacementMap).toBe('function');
       expect(typeof trumpMappings.getKeys).toBe('function');
     });
-    
+
     it('should maintain backward compatibility with buildTrumpMap', () => {
       expect(typeof window.buildTrumpMap).toBe('function');
     });
   });
-  
+
   describe('Nickname Mappings', () => {
     it('should contain mappings for key politicians', () => {
       const map = trumpMappings.getReplacementMap();
-      
+
       // Test presence of key mappings
       expect(map.biden).toBeDefined();
       expect(map.pelosi).toBeDefined();
       expect(map.schumer).toBeDefined();
     });
-    
+
     it('should handle regex patterns correctly', () => {
       const map = trumpMappings.getReplacementMap();
-      
+
       // Test regex patterns match expected strings
       expect('Joe Biden'.match(map.biden.regex)).not.toBeNull();
       expect('Nancy Pelosi'.match(map.pelosi.regex)).not.toBeNull();
       expect('CNN'.match(map.cnn.regex)).not.toBeNull();
     });
-    
+
     it('should not match partial words', () => {
       const map = trumpMappings.getReplacementMap();
-      
+
       // These should not match (word boundaries)
       expect('JoeBiden'.match(map.biden.regex)).toBeNull();
       expect('CNNInternal'.match(map.cnn.regex)).toBeNull();
     });
   });
-  
+
   describe('Legacy Support', () => {
     it('should show deprecation warning when using buildTrumpMap', () => {
       // Mock console.warn
       const originalWarn = console.warn;
       const mockWarn = vi.fn();
       console.warn = mockWarn;
-      
+
       // Call the legacy function
       window.buildTrumpMap();
-      
+
       // Verify warning was called
       expect(mockWarn).toHaveBeenCalledWith(
         'TRUMP_MAPPINGS_DEPRECATION_WARNING',
         expect.stringContaining('deprecated')
       );
-      
+
       // Restore console.warn
       console.warn = originalWarn;
     });
@@ -263,6 +276,7 @@ describe('TrumpMappings', () => {
 ```
 
 **Steps:**
+
 1. Create test file in the appropriate directory
 2. Implement tests for nickname mappings covering:
    - Core functionality
@@ -276,16 +290,19 @@ describe('TrumpMappings', () => {
 ### Verification for Each Fix:
 
 1. **TypeScript Strict Mode:**
+
    - Run `pnpm typecheck` to identify errors introduced by strict mode
    - Address errors systematically
    - Once fixed, run `pnpm verify` to ensure no regressions
 
 2. **Replacing `any` Types:**
+
    - Run `pnpm typecheck` after each major interface addition
    - Ensure all code referencing these types still compiles correctly
    - Use `tsc --noEmit` to verify type checks are passing
 
 3. **Documentation Alignment:**
+
    - Verify the trailing comma documentation matches the Prettier configuration
    - Run `pnpm format` on a sample file to confirm behavior
 
@@ -295,6 +312,7 @@ describe('TrumpMappings', () => {
    - Manually test the extension in a browser to verify mappings work as expected
 
 ### Testing Tools:
+
 - TypeScript compiler (`tsc --noEmit`)
 - Vitest for unit testing
 - Prettier for formatting verification
@@ -302,28 +320,29 @@ describe('TrumpMappings', () => {
 
 ## 4. Timeline
 
-| Day | Task | Description |
-|-----|------|-------------|
-| 1 | Enable TypeScript Strict Mode | Update `tsconfig.json` and fix initial errors |
-| 1-2 | Fix Configuration Inconsistency | Update `CONTRIBUTING.md` to match Prettier config |
-| 2-3 | Replace `any` Types | Define interfaces and update type references |
-| 3-4 | Add Unit Tests | Create and run tests for nickname mapping logic |
-| 5 | Final Verification | Run full verification suite, fix any remaining issues |
+| Day | Task                            | Description                                           |
+| --- | ------------------------------- | ----------------------------------------------------- |
+| 1   | Enable TypeScript Strict Mode   | Update `tsconfig.json` and fix initial errors         |
+| 1-2 | Fix Configuration Inconsistency | Update `CONTRIBUTING.md` to match Prettier config     |
+| 2-3 | Replace `any` Types             | Define interfaces and update type references          |
+| 3-4 | Add Unit Tests                  | Create and run tests for nickname mapping logic       |
+| 5   | Final Verification              | Run full verification suite, fix any remaining issues |
 
 **Parallel Work:**
+
 - Documentation updates (Item 3) can be done concurrently with coding tasks
 - Test writing (Item 4) can begin while type work is in progress
 - Items 1 and 2 should be completed first as they may impact other tasks
 
 ## 5. Potential Challenges and Mitigation
 
-| Challenge | Mitigation |
-|-----------|------------|
-| Enabling strict mode reveals many type errors | Tackle errors incrementally, focusing on core modules first. Use a phased approach with specific strict flags if needed. |
+| Challenge                                      | Mitigation                                                                                                                               |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Enabling strict mode reveals many type errors  | Tackle errors incrementally, focusing on core modules first. Use a phased approach with specific strict flags if needed.                 |
 | Defining accurate interfaces for external APIs | Reference official Chrome API documentation or `@types/chrome`. Use `unknown` with type guards when precise types are hard to determine. |
-| Tests reveal bugs in nickname mapping logic | Use this as an opportunity to improve the implementation. Fix the underlying issue rather than modifying tests to pass. |
-| Breaking changes from strict TypeScript | Refactor code to be type-safe rather than using type assertions or suppressing errors. Follow the project's development philosophy. |
-| Pre-commit hooks failing | Update the hooks to work with the new strict TypeScript configuration. Make sure test coverage thresholds are appropriate. |
+| Tests reveal bugs in nickname mapping logic    | Use this as an opportunity to improve the implementation. Fix the underlying issue rather than modifying tests to pass.                  |
+| Breaking changes from strict TypeScript        | Refactor code to be type-safe rather than using type assertions or suppressing errors. Follow the project's development philosophy.      |
+| Pre-commit hooks failing                       | Update the hooks to work with the new strict TypeScript configuration. Make sure test coverage thresholds are appropriate.               |
 
 ## Summary
 

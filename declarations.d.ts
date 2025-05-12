@@ -1,6 +1,6 @@
 /**
  * Global type declarations for Trump Goggles extension
- * 
+ *
  * This file contains TypeScript declarations for globals and browser extension APIs
  * used throughout the Trump Goggles codebase.
  */
@@ -38,7 +38,7 @@ declare namespace browser {
     function getManifest(): any;
     function openOptionsPage(): Promise<void>;
   }
-  
+
   namespace storage {
     interface StorageArea {
       get(keys?: string | string[] | Record<string, any>): Promise<Record<string, any>>;
@@ -58,7 +58,7 @@ declare namespace browser {
       addListener: (callback: (tab: any) => void) => void;
     };
   }
-  
+
   const webRequest: {
     onBeforeRequest: any;
     onBeforeSendHeaders: any;
@@ -75,13 +75,18 @@ declare namespace chrome {
     const lastError: Error | undefined;
     function openOptionsPage(callback?: () => void): void;
     const onInstalled: {
-      addListener: (callback: (details: { reason: string, previousVersion?: string }) => void) => void;
+      addListener: (
+        callback: (details: { reason: string; previousVersion?: string }) => void
+      ) => void;
     };
   }
-  
+
   namespace storage {
     interface StorageArea {
-      get(keys: string | string[] | Record<string, any>, callback: (items: Record<string, any>) => void): void;
+      get(
+        keys: string | string[] | Record<string, any>,
+        callback: (items: Record<string, any>) => void
+      ): void;
       set(items: Record<string, any>, callback?: () => void): void;
     }
     const sync: StorageArea;
@@ -98,7 +103,7 @@ declare namespace chrome {
       addListener: (callback: (tab: any) => void) => void;
     };
   }
-  
+
   const webRequest: {
     onBeforeRequest: any;
     onBeforeSendHeaders: any;
@@ -135,7 +140,7 @@ interface BrowserDetectInterface {
 
 // ===== Browser Adapter Module =====
 interface BrowserAdapterInterface {
-  initialize(options?: { debug?: boolean, callbackTimeout?: number }): boolean;
+  initialize(options?: { debug?: boolean; callbackTimeout?: number }): boolean;
   getAPI(): any;
   usesPromises(): boolean;
   promisify(apiFunction: Function, ...args: any[]): Promise<any>;
@@ -151,8 +156,18 @@ interface BrowserAdapterInterface {
 // ===== Text Processor Module =====
 interface TextProcessorInterface {
   processText(text: string, replacementMap: any, mapKeys: string[], options?: any): string;
-  processTextAsync(text: string, replacementMap: any, mapKeys: string[], options?: any): Promise<string>;
-  processTextNode(textNode: Text, replacementMap: any, mapKeys: string[], options?: any): boolean | Promise<boolean>;
+  processTextAsync(
+    text: string,
+    replacementMap: any,
+    mapKeys: string[],
+    options?: any
+  ): Promise<string>;
+  processTextNode(
+    textNode: Text,
+    replacementMap: any,
+    mapKeys: string[],
+    options?: any
+  ): boolean | Promise<boolean>;
   precompilePatterns(replacementMap: any): any;
   clearCache(): void;
   getCacheStats(): any;
@@ -241,7 +256,7 @@ interface TrumpMappingsInterface {
 declare var browser: typeof browser;
 declare var chrome: typeof chrome;
 
-// Declare module globals for type checking but use 'var' to 
+// Declare module globals for type checking but use 'var' to
 // prevent block-scoped redeclaration errors
 declare var BrowserDetect: BrowserDetectInterface;
 declare var BrowserAdapter: BrowserAdapterInterface;
@@ -262,12 +277,12 @@ interface Window {
   DOMProcessor?: DOMProcessorInterface;
   TextProcessor?: TextProcessorInterface;
   MutationObserverManager?: MutationObserverManagerInterface;
-  
+
   // Extension state
   trumpGogglesInitialized?: boolean;
   trumpProcessedNodes?: WeakSet<Node>;
   trumpObserver?: MutationObserver;
-  
+
   // Legacy globals
   buildTrumpMap?: () => any;
 }

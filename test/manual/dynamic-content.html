@@ -1,189 +1,209 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trump Goggles - Dynamic Content Test</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        section {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .highlight {
-            background-color: yellow;
-            padding: 2px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        #loading {
-            display: none;
-            color: #666;
-            font-style: italic;
-        }
-        #dynamic-content, #ajax-content, #interval-content {
-            min-height: 100px;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      .highlight {
+        background-color: yellow;
+        padding: 2px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      #loading {
+        display: none;
+        color: #666;
+        font-style: italic;
+      }
+      #dynamic-content,
+      #ajax-content,
+      #interval-content {
+        min-height: 100px;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Trump Goggles - Dynamic Content Test</h1>
-    
+
     <section id="introduction">
-        <h2>Introduction</h2>
-        <p>This page tests how the Trump Goggles extension handles dynamically added content containing references to Donald Trump and related terms.</p>
-        <p>Use the buttons below to trigger different types of dynamic content changes.</p>
+      <h2>Introduction</h2>
+      <p>
+        This page tests how the Trump Goggles extension handles dynamically added content containing
+        references to Donald Trump and related terms.
+      </p>
+      <p>Use the buttons below to trigger different types of dynamic content changes.</p>
     </section>
 
     <section id="dom-injection">
-        <h2>DOM Injection Test</h2>
-        <p>Test content dynamically added to the DOM:</p>
-        <div>
-            <button id="add-paragraph">Add Paragraph</button>
-            <button id="replace-content">Replace Content</button>
-            <button id="add-nested">Add Nested Content</button>
-        </div>
-        <div id="dynamic-content">
-            <p>Click a button above to add dynamic content about Trump here.</p>
-        </div>
+      <h2>DOM Injection Test</h2>
+      <p>Test content dynamically added to the DOM:</p>
+      <div>
+        <button id="add-paragraph">Add Paragraph</button>
+        <button id="replace-content">Replace Content</button>
+        <button id="add-nested">Add Nested Content</button>
+      </div>
+      <div id="dynamic-content">
+        <p>Click a button above to add dynamic content about Trump here.</p>
+      </div>
     </section>
 
     <section id="ajax-test">
-        <h2>AJAX Content Test</h2>
-        <p>Test content loaded via AJAX:</p>
-        <div>
-            <button id="load-ajax">Load Content</button>
-            <span id="loading">Loading...</span>
-        </div>
-        <div id="ajax-content">
-            <p>Click the button above to load Trump-related content via AJAX.</p>
-        </div>
+      <h2>AJAX Content Test</h2>
+      <p>Test content loaded via AJAX:</p>
+      <div>
+        <button id="load-ajax">Load Content</button>
+        <span id="loading">Loading...</span>
+      </div>
+      <div id="ajax-content">
+        <p>Click the button above to load Trump-related content via AJAX.</p>
+      </div>
     </section>
 
     <section id="interval-test">
-        <h2>Interval Update Test</h2>
-        <p>Test content that updates at regular intervals:</p>
-        <div>
-            <button id="start-interval">Start Updates</button>
-            <button id="stop-interval">Stop Updates</button>
-        </div>
-        <div id="interval-content">
-            <p>Click "Start Updates" to begin interval-based content updates about Trump.</p>
-        </div>
+      <h2>Interval Update Test</h2>
+      <p>Test content that updates at regular intervals:</p>
+      <div>
+        <button id="start-interval">Start Updates</button>
+        <button id="stop-interval">Stop Updates</button>
+      </div>
+      <div id="interval-content">
+        <p>Click "Start Updates" to begin interval-based content updates about Trump.</p>
+      </div>
     </section>
 
     <section id="script-insertion">
-        <h2>Script Insertion Test</h2>
-        <p>Test content added by dynamically inserted scripts:</p>
-        <div>
-            <button id="insert-script">Insert Script</button>
-        </div>
-        <div id="script-content">
-            <p>Click the button to insert a script that will add Trump-related content.</p>
-        </div>
+      <h2>Script Insertion Test</h2>
+      <p>Test content added by dynamically inserted scripts:</p>
+      <div>
+        <button id="insert-script">Insert Script</button>
+      </div>
+      <div id="script-content">
+        <p>Click the button to insert a script that will add Trump-related content.</p>
+      </div>
     </section>
 
     <script>
-        // DOM Injection Tests
-        document.getElementById('add-paragraph').addEventListener('click', function() {
-            const newParagraph = document.createElement('p');
-            newParagraph.textContent = 'Donald Trump announced a new policy today. According to Trump, this policy will "make tremendous changes" to the system. The Trump administration has been working on this for months.';
-            document.getElementById('dynamic-content').appendChild(newParagraph);
-        });
+      // DOM Injection Tests
+      document.getElementById('add-paragraph').addEventListener('click', function () {
+        const newParagraph = document.createElement('p');
+        newParagraph.textContent =
+          'Donald Trump announced a new policy today. According to Trump, this policy will "make tremendous changes" to the system. The Trump administration has been working on this for months.';
+        document.getElementById('dynamic-content').appendChild(newParagraph);
+      });
 
-        document.getElementById('replace-content').addEventListener('click', function() {
-            document.getElementById('dynamic-content').innerHTML = '<p>Breaking News: President Trump has signed a new executive order. Trump described it as "perfect" during the signing ceremony. Critics of Trump argue that the order exceeds presidential authority.</p>';
-        });
+      document.getElementById('replace-content').addEventListener('click', function () {
+        document.getElementById('dynamic-content').innerHTML =
+          '<p>Breaking News: President Trump has signed a new executive order. Trump described it as "perfect" during the signing ceremony. Critics of Trump argue that the order exceeds presidential authority.</p>';
+      });
 
-        document.getElementById('add-nested').addEventListener('click', function() {
-            const container = document.createElement('div');
-            container.innerHTML = '<div><p>Trump supporters rallied in several cities.</p><ul><li>Donald Trump addressed the crowd via video</li><li>Trump\'s speech lasted 45 minutes</li><li>The Trump campaign announced record attendance</li></ul></div>';
-            document.getElementById('dynamic-content').appendChild(container);
-        });
+      document.getElementById('add-nested').addEventListener('click', function () {
+        const container = document.createElement('div');
+        container.innerHTML =
+          "<div><p>Trump supporters rallied in several cities.</p><ul><li>Donald Trump addressed the crowd via video</li><li>Trump's speech lasted 45 minutes</li><li>The Trump campaign announced record attendance</li></ul></div>";
+        document.getElementById('dynamic-content').appendChild(container);
+      });
 
-        // Simulated AJAX test
-        document.getElementById('load-ajax').addEventListener('click', function() {
-            const loadingEl = document.getElementById('loading');
-            const contentEl = document.getElementById('ajax-content');
-            
-            loadingEl.style.display = 'inline';
-            contentEl.innerHTML = '<p>Loading content...</p>';
-            
-            // Simulate AJAX delay
-            setTimeout(function() {
-                contentEl.innerHTML = '<h3>Trump\'s Economic Policy</h3><p>Donald Trump unveiled his economic policy yesterday. According to Trump, the plan will "create millions of jobs." Economic advisors in the Trump administration provided details on implementation.</p><p>Critics of Trump argue that the plan favors certain industries. However, Trump dismissed these concerns as "totally false."</p>';
-                loadingEl.style.display = 'none';
-            }, 1500);
-        });
+      // Simulated AJAX test
+      document.getElementById('load-ajax').addEventListener('click', function () {
+        const loadingEl = document.getElementById('loading');
+        const contentEl = document.getElementById('ajax-content');
 
-        // Interval test
-        let intervalId = null;
-        let updateCount = 0;
-        
-        document.getElementById('start-interval').addEventListener('click', function() {
-            if (intervalId === null) {
-                updateCount = 0;
-                intervalId = setInterval(function() {
-                    updateCount++;
-                    const content = document.getElementById('interval-content');
-                    
-                    // Add different content on each update
-                    switch(updateCount % 3) {
-                        case 1:
-                            content.innerHTML = '<p>Update #' + updateCount + ': Donald Trump visited the manufacturing plant. Trump praised the workers and promised Trump\'s support for the industry.</p>';
-                            break;
-                        case 2:
-                            content.innerHTML = '<p>Update #' + updateCount + ': The latest poll shows Trump\'s approval rating at 42%. Trump called the numbers "rigged" and claimed the real support for Trump is much higher.</p>';
-                            break;
-                        case 0:
-                            content.innerHTML = '<p>Update #' + updateCount + ': President Trump met with foreign leaders today. According to sources, Trump discussed trade deals and Trump emphasized the importance of fair agreements.</p>';
-                            break;
-                    }
-                }, 3000);
+        loadingEl.style.display = 'inline';
+        contentEl.innerHTML = '<p>Loading content...</p>';
+
+        // Simulate AJAX delay
+        setTimeout(function () {
+          contentEl.innerHTML =
+            '<h3>Trump\'s Economic Policy</h3><p>Donald Trump unveiled his economic policy yesterday. According to Trump, the plan will "create millions of jobs." Economic advisors in the Trump administration provided details on implementation.</p><p>Critics of Trump argue that the plan favors certain industries. However, Trump dismissed these concerns as "totally false."</p>';
+          loadingEl.style.display = 'none';
+        }, 1500);
+      });
+
+      // Interval test
+      let intervalId = null;
+      let updateCount = 0;
+
+      document.getElementById('start-interval').addEventListener('click', function () {
+        if (intervalId === null) {
+          updateCount = 0;
+          intervalId = setInterval(function () {
+            updateCount++;
+            const content = document.getElementById('interval-content');
+
+            // Add different content on each update
+            switch (updateCount % 3) {
+              case 1:
+                content.innerHTML =
+                  '<p>Update #' +
+                  updateCount +
+                  ": Donald Trump visited the manufacturing plant. Trump praised the workers and promised Trump's support for the industry.</p>";
+                break;
+              case 2:
+                content.innerHTML =
+                  '<p>Update #' +
+                  updateCount +
+                  ': The latest poll shows Trump\'s approval rating at 42%. Trump called the numbers "rigged" and claimed the real support for Trump is much higher.</p>';
+                break;
+              case 0:
+                content.innerHTML =
+                  '<p>Update #' +
+                  updateCount +
+                  ': President Trump met with foreign leaders today. According to sources, Trump discussed trade deals and Trump emphasized the importance of fair agreements.</p>';
+                break;
             }
-        });
+          }, 3000);
+        }
+      });
 
-        document.getElementById('stop-interval').addEventListener('click', function() {
-            if (intervalId !== null) {
-                clearInterval(intervalId);
-                intervalId = null;
-                document.getElementById('interval-content').innerHTML += '<p>Updates stopped after ' + updateCount + ' iterations.</p>';
-            }
-        });
+      document.getElementById('stop-interval').addEventListener('click', function () {
+        if (intervalId !== null) {
+          clearInterval(intervalId);
+          intervalId = null;
+          document.getElementById('interval-content').innerHTML +=
+            '<p>Updates stopped after ' + updateCount + ' iterations.</p>';
+        }
+      });
 
-        // Script insertion test
-        document.getElementById('insert-script').addEventListener('click', function() {
-            const script = document.createElement('script');
-            script.textContent = `
+      // Script insertion test
+      document.getElementById('insert-script').addEventListener('click', function () {
+        const script = document.createElement('script');
+        script.textContent = `
                 (function() {
                     const contentEl = document.getElementById('script-content');
                     contentEl.innerHTML = '<p>This content was added by a dynamically inserted script:</p><p>Donald Trump announced his campaign strategy. Trump plans to focus on key issues that Trump believes will resonate with voters. The Trump team has prepared a detailed schedule of Trump\'s appearances.</p>';
                 })();
             `;
-            document.body.appendChild(script);
-        });
+        document.body.appendChild(script);
+      });
     </script>
-</body>
+  </body>
 </html>

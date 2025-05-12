@@ -17,14 +17,9 @@
     "service_worker": "background-polyfill.js"
   },
 
-  "permissions": [
-    "storage",
-    "contextMenus"
-  ],
+  "permissions": ["storage", "contextMenus"],
 
-  "host_permissions": [
-    "*://*/*"
-  ],
+  "host_permissions": ["*://*/*"],
 
   "content_scripts": [
     {

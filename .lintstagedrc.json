@@ -1,14 +1,4 @@
 {
-  "*.js": [
-    "prettier --write",
-    "eslint --fix",
-    "eslint", 
-    "vitest related --run"
-  ],
-  "*.ts": [
-    "prettier --write",
-    "eslint --fix",
-    "eslint", 
-    "vitest related --run"
-  ]
+  "*.js": ["prettier --write", "eslint --fix", "eslint", "vitest related --run"],
+  "*.ts": ["prettier --write", "eslint --fix", "eslint", "vitest related --run"]
 }
