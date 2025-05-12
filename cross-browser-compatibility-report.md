@@ -18,8 +18,8 @@ This report documents the compatibility testing of the Trump Goggles extension a
   "action": {
     "default_title": "Trump Goggles",
     "default_icon": {
-      "19": "images/djt.png",
-      "38": "images/djt.png"
+      "19": "images/goggles-02.png",
+      "38": "images/goggles-02.png"
     }
   },
   "background": {
@@ -39,9 +39,9 @@ This report documents the compatibility testing of the Trump Goggles extension a
     "open_in_tab": false
   },
   "icons": {
-    "16": "images/djt.png",
-    "48": "images/djt.png",
-    "128": "images/djt.png"
+    "16": "images/goggles-02.png",
+    "48": "images/goggles-02.png",
+    "128": "images/goggles-02.png"
   }
 }
 ```

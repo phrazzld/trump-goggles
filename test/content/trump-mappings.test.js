@@ -298,7 +298,7 @@ describe('Enhanced Trump Mappings Module', () => {
       },
       kamala: {
         regex: new RegExp('\\bKamala\\s+Harris\\b', 'gi'),
-        nick: "Laffin' Kamala",
+        nick: 'Comrade Kamala',
       },
 
       // Media figures

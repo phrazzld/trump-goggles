@@ -115,7 +115,7 @@ const TrumpMappings = (function () {
     },
     kamala: {
       regex: new RegExp('\\bKamala\\s+Harris\\b', 'gi'),
-      nick: "Laffin' Kamala",
+      nick: 'Comrade Kamala',
     },
     desantis: {
       regex: new RegExp('\\bRon\\s+DeSantis\\b', 'gi'),

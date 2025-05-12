@@ -1,7 +1,7 @@
 # Trump Goggles
 
 <p align="center">
-  <img src="images/djt.png" alt="Trump Goggles Logo" width="128" height="128">
+  <img src="images/goggles-01.png" alt="Trump Goggles Logo" width="128" height="128">
 </p>
 
 <p align="center">

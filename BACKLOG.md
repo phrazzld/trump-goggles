@@ -1,5 +1,8 @@
 # BACKLOG
 
+- show original unconverted text on hover
+- show converted text in an orange box or something -- give it a good but subtle styling
+
 ## Future Improvements
 
 These tasks are out of scope for the current implementation but should be considered for future work:
