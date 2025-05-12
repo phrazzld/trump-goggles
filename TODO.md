@@ -30,7 +30,7 @@
     - **Depends‑on:** [T001]
 
 ## DOMModifier Module
-- [ ] **T003 · Feature · P1: Create DOMModifier module structure and constants**
+- [x] **T003 · Feature · P1: Create DOMModifier module structure and constants**
     - **Context:** Detailed Build Steps #2 (TS-01-plan.md)
     - **Action:**
         1. Create new `dom-modifier.js` file (or refactor from `dom-processor.js` if applicable)
