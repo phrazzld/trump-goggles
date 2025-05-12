@@ -1027,6 +1027,20 @@ interface TrumpMappingsInterface {
 /**
  * TextProcessor interface for the TextProcessor module
  */
+/**
+ * Text segment conversion information for a portion of text that needs to be converted
+ */
+interface TextSegmentConversion {
+  /** The original text before conversion */
+  readonly originalText: string;
+  /** The converted text to display */
+  readonly convertedText: string;
+  /** Starting index within the original text node */
+  readonly startIndex: number;
+  /** Ending index within the original text node */
+  readonly endIndex: number;
+}
+
 interface TextProcessorInterface {
   // Core text processing methods
   processText: (
@@ -1047,6 +1061,21 @@ interface TextProcessorInterface {
     mapKeys: string[],
     options?: ProcessOptions
   ) => boolean | Promise<boolean>;
+
+  /**
+   * Processes a text node content and returns an array of segments that need conversion.
+   * Does NOT modify the DOM.
+   *
+   * @param textNodeContent - The text content to process
+   * @param replacementMap - The map of replacements to apply
+   * @param mapKeys - The keys of the replacement map to use
+   * @returns An array of text segments that need conversion
+   */
+  identifyConversableSegments?: (
+    textNodeContent: string,
+    replacementMap: ReplacementMap,
+    mapKeys: string[]
+  ) => TextSegmentConversion[];
 
   // Pattern optimization
   precompilePatterns: (replacementMap: ReplacementMap) => ReplacementMap;
@@ -1121,6 +1150,86 @@ interface ReplacementMap {
   [key: string]: TrumpMapping;
 }
 
+/**
+ * DOMModifier interface for modifying DOM elements with text conversions
+ */
+interface DOMModifierInterface {
+  /**
+   * Processes a text node, replacing segments based on conversion info.
+   * Wraps converted segments in spans with data attributes.
+   * Returns true if modifications were made, false otherwise.
+   *
+   * @param textNode - The text node to process
+   * @param segments - The segments to convert and wrap
+   * @returns True if modifications were made, false otherwise
+   */
+  processTextNodeAndWrapSegments(textNode: Text, segments: TextSegmentConversion[]): boolean;
+}
+
+/**
+ * TooltipUI interface for managing tooltip DOM element
+ */
+interface TooltipUIInterface {
+  /**
+   * Ensures the tooltip DOM element is created and ready.
+   */
+  ensureCreated(): void;
+
+  /**
+   * Sets the text content of the tooltip. Must use textContent for security.
+   *
+   * @param text - The text to display in the tooltip
+   */
+  setText(text: string): void;
+
+  /**
+   * Calculates and applies the tooltip's position relative to the target element,
+   * avoiding viewport overflow.
+   *
+   * @param targetElement - The element the tooltip should be positioned relative to
+   */
+  updatePosition(targetElement: HTMLElement): void;
+
+  /**
+   * Makes the tooltip visible and updates ARIA attributes.
+   */
+  show(): void;
+
+  /**
+   * Hides the tooltip and updates ARIA attributes.
+   */
+  hide(): void;
+
+  /**
+   * Removes the tooltip element from the DOM.
+   */
+  destroy(): void;
+
+  /**
+   * Returns the ID of the tooltip element for ARIA linking.
+   *
+   * @returns The ID of the tooltip element
+   */
+  getId(): string;
+}
+
+/**
+ * TooltipManager interface for managing tooltip lifecycle and events
+ */
+interface TooltipManagerInterface {
+  /**
+   * Initializes event listeners and dependencies.
+   *
+   * @param tooltipUI - The TooltipUI instance to use
+   */
+  initialize(tooltipUI: TooltipUIInterface): void;
+
+  /**
+   * Cleans up event listeners and resources.
+   */
+  dispose(): void;
+}
+
 // Window extensions
 interface Window {
   trumpVersion?: string;
@@ -1136,8 +1245,11 @@ interface Window {
   BrowserAdapter?: BrowserAdapterInterface;
   TrumpMappings?: TrumpMappingsInterface;
   DOMProcessor?: any;
+  DOMModifier?: DOMModifierInterface;
   TextProcessor?: TextProcessorInterface;
   MutationObserverManager?: MutationObserverManagerInterface;
+  TooltipUI?: TooltipUIInterface;
+  TooltipManager?: TooltipManagerInterface;
   TrumpGoggles?: any;
 
   // Legacy functions
