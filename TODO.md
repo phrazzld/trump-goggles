@@ -15,7 +15,7 @@
     - **Depends‑on:** none
 
 ## TextProcessor Module
-- [ ] **T002 · Refactor · P1: Implement TextProcessor.identifyConversableSegments method**
+- [x] **T002 · Refactor · P1: Implement TextProcessor.identifyConversableSegments method**
     - **Context:** Detailed Build Steps #1 (TS-01-plan.md)
     - **Action:**
         1. Modify `text-processor.js` to implement `identifyConversableSegments(textNodeContent, replacementMap, mapKeys)`

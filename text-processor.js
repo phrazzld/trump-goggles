@@ -321,7 +321,67 @@ const TextProcessor = (function () {
     return false;
   }
 
-  // ===== TEXT REPLACEMENT =====
+  // ===== TEXT ANALYSIS AND REPLACEMENT =====
+
+  /**
+   * Find all conversable segments in a text that match a pattern
+   *
+   * @private
+   * @param {string} text - Text to analyze
+   * @param {TrumpMapping} patternEntry - Pattern entry with regex and nickname
+   * @returns {TextSegmentConversion[]} - Array of identified segments for conversion
+   */
+  function findMatchingSegments(text, patternEntry) {
+    /** @type {TextSegmentConversion[]} */
+    const segments = [];
+
+    try {
+      // Early bailout for unlikely matches
+      if (patternEntry.keyTerms && patternEntry.keyTerms.length > 0) {
+        const lowerText = text.toLowerCase();
+        const hasKeyTerm = patternEntry.keyTerms.some((term) =>
+          lowerText.includes(term.toLowerCase())
+        );
+
+        if (!hasKeyTerm) {
+          return segments;
+        }
+      }
+
+      // Create a copy of the regex with global flag to find all matches
+      const regex = new RegExp(
+        patternEntry.regex.source,
+        patternEntry.regex.global ? patternEntry.regex.flags : patternEntry.regex.flags + 'g'
+      );
+
+      // Find all matches
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        // Create segment info
+        segments.push({
+          originalText: match[0],
+          convertedText: patternEntry.nick,
+          startIndex: match.index,
+          endIndex: match.index + match[0].length,
+        });
+
+        // Prevent infinite loops with zero-width matches
+        if (match.index === regex.lastIndex) {
+          regex.lastIndex++;
+        }
+      }
+
+      // Reset lastIndex
+      if (patternEntry.regex.global) {
+        patternEntry.regex.lastIndex = 0;
+      }
+
+      return segments;
+    } catch (error) {
+      console.error('Trump Goggles: Error finding matching segments', error);
+      return segments;
+    }
+  }
 
   /**
    * Apply a single replacement pattern to text
@@ -609,6 +669,66 @@ const TextProcessor = (function () {
     }
   }
 
+  /**
+   * Identifies text segments that need conversion without modifying the DOM
+   *
+   * @public
+   * @param {string} textNodeContent - The text content to process
+   * @param {ReplacementMap} replacementMap - The map of replacements to apply
+   * @param {string[]} mapKeys - The keys of the replacement map to use
+   * @returns {TextSegmentConversion[]} - Array of text segments that need conversion
+   */
+  function identifyConversableSegments(textNodeContent, replacementMap, mapKeys) {
+    /** @type {TextSegmentConversion[]} */
+    const segments = [];
+
+    // Don't process empty or very short strings
+    if (!textNodeContent || textNodeContent.length < 2) {
+      return segments;
+    }
+
+    // Skip processing with early bailout optimization
+    if (!isLikelyToContainMatches(textNodeContent, replacementMap, mapKeys)) {
+      return segments;
+    }
+
+    // Precompile patterns for better performance
+    const finalMap = precompilePatterns(replacementMap);
+
+    // Find segments for each pattern
+    for (let i = 0; i < mapKeys.length; i++) {
+      const key = mapKeys[i];
+      const patternSegments = findMatchingSegments(textNodeContent, finalMap[key]);
+
+      // Add segments to the result array
+      segments.push(...patternSegments);
+    }
+
+    // Sort segments by startIndex to ensure proper ordering
+    segments.sort((a, b) => a.startIndex - b.startIndex);
+
+    // Handle potential overlapping segments by keeping only non-overlapping ones
+    // This is a simple approach that keeps earlier matches when overlaps occur
+    if (segments.length > 1) {
+      /** @type {TextSegmentConversion[]} */
+      const nonOverlapping = [segments[0]];
+
+      for (let i = 1; i < segments.length; i++) {
+        const current = segments[i];
+        const previous = nonOverlapping[nonOverlapping.length - 1];
+
+        // Only add non-overlapping segments
+        if (current.startIndex >= previous.endIndex) {
+          nonOverlapping.push(current);
+        }
+      }
+
+      return nonOverlapping;
+    }
+
+    return segments;
+  }
+
   // ===== PUBLIC API =====
 
   /** @type {TextProcessorInterface} */
@@ -617,6 +737,9 @@ const TextProcessor = (function () {
     processText: processText,
     processTextAsync: processTextAsync,
     processTextNode: processTextNode,
+
+    // Segment identification method
+    identifyConversableSegments: identifyConversableSegments,
 
     // Pattern optimization
     precompilePatterns: precompilePatterns,
