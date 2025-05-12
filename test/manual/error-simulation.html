@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trump Goggles - Error Simulation Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      .error {
+        color: #d32f2f;
+        background-color: #ffebee;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+      #error-log {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        min-height: 100px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Trump Goggles - Error Simulation Test</h1>
+
+    <section id="introduction">
+      <h2>Introduction</h2>
+      <p>
+        This page is designed to test how the Trump Goggles extension handles various error
+        conditions and edge cases.
+      </p>
+      <p>Use the buttons below to simulate different error scenarios.</p>
+    </section>
+
+    <section id="error-log-section">
+      <h2>Error Log</h2>
+      <p>Messages and errors will be displayed here:</p>
+      <div id="error-log"></div>
+      <button id="clear-log">Clear Log</button>
+    </section>
+
+    <section id="dom-errors">
+      <h2>DOM Manipulation Errors</h2>
+      <div>
+        <button id="create-invalid-dom">Create Invalid DOM</button>
+        <button id="create-deeply-nested">Create Deeply Nested DOM</button>
+        <button id="create-circular">Create Circular References</button>
+      </div>
+      <div id="dom-error-content">
+        <p>
+          This section contains text about Donald Trump that will be manipulated in ways that might
+          cause errors.
+        </p>
+      </div>
+    </section>
+
+    <section id="memory-test">
+      <h2>Memory Stress Test</h2>
+      <div>
+        <button id="create-many-nodes">Create 1000+ Text Nodes</button>
+        <button id="create-large-text">Create Very Large Text Node</button>
+      </div>
+      <div id="memory-content">
+        <p>Click buttons above to stress test the extension with text about Donald Trump.</p>
+      </div>
+    </section>
+
+    <section id="mutation-test">
+      <h2>Mutation Observer Edge Cases</h2>
+      <div>
+        <button id="rapid-mutations">Trigger Rapid Mutations</button>
+        <button id="recursive-mutations">Trigger Recursive Mutations</button>
+      </div>
+      <div id="mutation-content">
+        <p>
+          This section will test how the extension handles complex mutation patterns with
+          Trump-related content.
+        </p>
+      </div>
+    </section>
+
+    <section id="timing-test">
+      <h2>Timing Edge Cases</h2>
+      <div>
+        <button id="delayed-content">Add Delayed Content</button>
+        <button id="race-condition">Simulate Race Condition</button>
+      </div>
+      <div id="timing-content">
+        <p>
+          Tests how the extension handles content about Trump that appears with specific timing
+          patterns.
+        </p>
+      </div>
+    </section>
+
+    <script>
+      // Logging function
+      function log(message, isError = false) {
+        const logElement = document.getElementById('error-log');
+        const entry = document.createElement('div');
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        if (isError) {
+          entry.classList.add('error');
+        }
+        logElement.appendChild(entry);
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      document.getElementById('clear-log').addEventListener('click', function () {
+        document.getElementById('error-log').innerHTML = '';
+      });
+
+      // DOM Manipulation Errors
+      document.getElementById('create-invalid-dom').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('dom-error-content');
+          container.innerHTML = '';
+
+          // Create malformed HTML with unclosed tags containing Trump references
+          container.innerHTML =
+            "<div><p>Donald Trump announced<div>Trump's new policy</p>is controversial</div>";
+
+          log('Created invalid DOM structure with unclosed tags');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      document.getElementById('create-deeply-nested').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('dom-error-content');
+          container.innerHTML = '';
+
+          let content = '<div>';
+          // Create extremely deep nesting (100+ levels) with Trump references
+          for (let i = 0; i < 100; i++) {
+            content += `<div class="level-${i}">`;
+          }
+          content += 'Donald Trump is deeply nested. Trump cannot escape these divs.';
+          for (let i = 0; i < 100; i++) {
+            content += '</div>';
+          }
+          content += '</div>';
+
+          container.innerHTML = content;
+          log('Created deeply nested DOM structure (100+ levels deep)');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      document.getElementById('create-circular').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('dom-error-content');
+          container.innerHTML =
+            "<p>Donald Trump is in a circular reference. Trump's policies are controversial.</p>";
+
+          // Create a circular reference in the DOM
+          const parent = document.createElement('div');
+          const child = document.createElement('div');
+          child.textContent = 'Trump administration announced new plans.';
+
+          parent.appendChild(child);
+          // Create circular reference (this is bad practice, but useful for testing)
+          child._parentRef = parent;
+          parent._childRef = child;
+
+          container.appendChild(parent);
+
+          // Add custom property to DOM node that references another node
+          const textNode = document.createTextNode('President Trump signed an executive order.');
+          container.appendChild(textNode);
+
+          log('Created circular references in DOM nodes with Trump content');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      // Memory Stress Test
+      document.getElementById('create-many-nodes').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('memory-content');
+          container.innerHTML = '';
+
+          log('Creating 1000+ text nodes with Trump references...');
+
+          // Create a large number of text nodes
+          for (let i = 0; i < 1000; i++) {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = `Item #${i + 1}: Donald Trump made an announcement. Trump's statement was about policy #${i + 1}.`;
+            container.appendChild(paragraph);
+          }
+
+          log('Created 1000+ text nodes with Trump references');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      document.getElementById('create-large-text').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('memory-content');
+          container.innerHTML = '';
+
+          log('Creating very large text node with Trump references...');
+
+          // Create a very large text node
+          let largeText = 'Donald Trump ' + ' Trump '.repeat(10000) + ' Donald J. Trump';
+          const paragraph = document.createElement('p');
+          paragraph.textContent = largeText;
+          container.appendChild(paragraph);
+
+          log(`Created text node with ${largeText.length} characters`);
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      // Mutation Observer Edge Cases
+      document.getElementById('rapid-mutations').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('mutation-content');
+          container.innerHTML = '<p>Starting rapid mutations with Trump content...</p>';
+
+          log('Triggering 100 rapid DOM mutations with Trump content...');
+
+          // Create a large number of mutations in rapid succession
+          for (let i = 0; i < 100; i++) {
+            setTimeout(() => {
+              const paragraph = document.createElement('p');
+              paragraph.textContent = `Rapid mutation #${i + 1}: Trump announced a new policy. Donald Trump will implement it soon.`;
+              container.appendChild(paragraph);
+
+              // Also remove nodes
+              if (container.childNodes.length > 10) {
+                container.removeChild(container.childNodes[1]);
+              }
+            }, i * 10); // Add a new node every 10ms
+          }
+
+          log('Triggered 100 rapid mutations');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      document.getElementById('recursive-mutations').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('mutation-content');
+          container.innerHTML = '<p>Starting recursive mutations with Trump content...</p>';
+
+          log('Triggering recursive DOM mutations...');
+
+          // Set up a situation that might cause recursive mutations
+          const paragraph = document.createElement('p');
+          paragraph.textContent = 'Donald Trump initial text';
+          container.appendChild(paragraph);
+
+          // This could trigger recursion in poorly implemented mutation observers
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (
+                mutation.type === 'characterData' &&
+                mutation.target.textContent.includes('Trump')
+              ) {
+                // Change the text again, possibly triggering another mutation
+                mutation.target.textContent = mutation.target.textContent.replace(
+                  'Trump',
+                  'Donald Trump'
+                );
+              }
+            });
+          });
+
+          observer.observe(container, {
+            childList: true,
+            characterData: true,
+            subtree: true,
+          });
+
+          // Trigger the initial change
+          setTimeout(() => {
+            paragraph.textContent = 'Trump made an announcement today.';
+
+            // Disconnect after a short period to prevent infinite loop
+            setTimeout(() => {
+              observer.disconnect();
+              log('Disconnected recursive mutation observer after 3 seconds');
+            }, 3000);
+          }, 500);
+
+          log('Triggered potentially recursive mutations');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      // Timing Edge Cases
+      document.getElementById('delayed-content').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('timing-content');
+          container.innerHTML = '<p>Starting delayed content test...</p>';
+
+          log('Setting up delayed content with Trump references...');
+
+          // Add content with increasing delays
+          for (let i = 1; i <= 10; i++) {
+            setTimeout(() => {
+              const paragraph = document.createElement('p');
+              paragraph.textContent = `Delayed content #${i} (${i}s delay): Donald Trump made an announcement. Trump's statement was well-received.`;
+              container.appendChild(paragraph);
+              log(`Added delayed content #${i} after ${i}s`);
+            }, i * 1000);
+          }
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+
+      document.getElementById('race-condition').addEventListener('click', function () {
+        try {
+          const container = document.getElementById('timing-content');
+          container.innerHTML = '<p>Starting race condition simulation...</p>';
+
+          log('Simulating potential race conditions...');
+
+          // Create a situation that might trigger race conditions
+          // in the extension's processing
+
+          // Rapidly add and remove nodes
+          for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+              const paragraph = document.createElement('p');
+              paragraph.id = `race-p-${i}`;
+              paragraph.textContent = `Race condition test #${i}: Donald Trump announced policy changes. Trump administration officials confirmed the details.`;
+              container.appendChild(paragraph);
+
+              // Remove it very quickly
+              setTimeout(() => {
+                const p = document.getElementById(`race-p-${i}`);
+                if (p && p.parentNode) {
+                  p.parentNode.removeChild(p);
+                }
+              }, 50); // Remove after just 50ms
+            }, i * 100);
+          }
+
+          // Simultaneously modify existing nodes
+          setTimeout(() => {
+            const newP = document.createElement('p');
+            newP.id = 'simultaneous-edit-target';
+            newP.textContent = 'Donald Trump initial text.';
+            container.appendChild(newP);
+
+            // Make rapid simultaneous edits
+            setTimeout(() => {
+              const target = document.getElementById('simultaneous-edit-target');
+              if (target) {
+                // These will happen nearly simultaneously
+                requestAnimationFrame(() => {
+                  target.textContent = 'Donald Trump text version 1.';
+                });
+                requestAnimationFrame(() => {
+                  target.textContent = 'Donald Trump text version 2.';
+                });
+                requestAnimationFrame(() => {
+                  target.textContent = 'Trump text version 3.';
+                });
+              }
+            }, 500);
+          }, 2000);
+
+          log('Triggered potential race conditions');
+        } catch (error) {
+          log(`Error: ${error.message}`, true);
+        }
+      });
+    </script>
+  </body>
+</html>

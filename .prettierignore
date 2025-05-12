@@ -1,0 +1,12 @@
+# Dependency directories
+node_modules/
+coverage/
+.vitest/
+
+# Build outputs
+dist/
+build/
+
+# Misc
+.DS_Store
+*.log

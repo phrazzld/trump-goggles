@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trump Goggles - Manual Test Suite</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      .test-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+      }
+      .test-card h2 {
+        margin-top: 0;
+      }
+      a.test-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4285f4;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+        margin-top: 10px;
+      }
+      a.test-link:hover {
+        background-color: #3367d6;
+      }
+      .checklist {
+        margin-top: 15px;
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .checklist h3 {
+        margin-top: 0;
+      }
+      .checklist ul {
+        padding-left: 20px;
+      }
+      .note {
+        background-color: #fff9c4;
+        padding: 10px;
+        border-left: 4px solid #fbc02d;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Trump Goggles - Manual Test Suite</h1>
+
+    <div class="note">
+      <p>
+        <strong>Note:</strong> This test suite is designed to verify the functionality of the Trump
+        Goggles browser extension. Make sure the extension is installed and active before running
+        these tests.
+      </p>
+    </div>
+
+    <div class="test-card">
+      <h2>Static Content Test</h2>
+      <p>
+        Tests how the extension handles various static text content with references to Donald Trump
+        and related terms.
+      </p>
+      <a href="static-content.html" class="test-link">Run Static Content Test</a>
+
+      <div class="checklist">
+        <h3>Test Checklist:</h3>
+        <ul>
+          <li>All variations of "Donald Trump" should be replaced</li>
+          <li>Standalone "Trump" references should be replaced</li>
+          <li>Text in form fields should NOT be modified</li>
+          <li>Text with HTML entities should be correctly processed</li>
+          <li>Nicknamed references should be handled if configured</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <h2>Dynamic Content Test</h2>
+      <p>
+        Tests how the extension handles content that is dynamically added to the page after initial
+        load.
+      </p>
+      <a href="dynamic-content.html" class="test-link">Run Dynamic Content Test</a>
+
+      <div class="checklist">
+        <h3>Test Checklist:</h3>
+        <ul>
+          <li>Content added via DOM manipulation should be processed</li>
+          <li>Content loaded via AJAX should be processed</li>
+          <li>Content that updates at intervals should be processed</li>
+          <li>Content added by dynamically inserted scripts should be processed</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <h2>Error Simulation Test</h2>
+      <p>Tests how the extension handles various error conditions and edge cases.</p>
+      <a href="error-simulation.html" class="test-link">Run Error Simulation Test</a>
+
+      <div class="checklist">
+        <h3>Test Checklist:</h3>
+        <ul>
+          <li>Extension should not crash with invalid DOM structures</li>
+          <li>Extension should handle deeply nested DOM elements</li>
+          <li>Extension should not cause infinite loops with circular references</li>
+          <li>Extension should process large numbers of text nodes without significant lag</li>
+          <li>Extension should handle rapid mutations without crashes</li>
+          <li>Extension should not enter recursive mutation loops</li>
+          <li>Extension should properly process delayed content</li>
+          <li>Extension should handle race conditions gracefully</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <h2>Browser Compatibility</h2>
+      <p>Run all tests in different browsers to verify cross-browser compatibility.</p>
+
+      <div class="checklist">
+        <h3>Browsers to Test:</h3>
+        <ul>
+          <li>Chrome (latest stable version)</li>
+          <li>Firefox (latest stable version)</li>
+          <li>Edge (if available)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <h2>Test Results</h2>
+      <p>Record test results and observations here:</p>
+      <textarea id="test-notes" rows="10" style="width: 100%; padding: 10px"></textarea>
+      <button id="save-notes" style="margin-top: 10px; padding: 8px 16px">Save Notes</button>
+      <div id="save-status" style="margin-top: 10px"></div>
+    </div>
+
+    <script>
+      // Simple feature to save test notes to localStorage
+      document.getElementById('test-notes').value =
+        localStorage.getItem('trumpGogglesTestNotes') || '';
+
+      document.getElementById('save-notes').addEventListener('click', function () {
+        const notes = document.getElementById('test-notes').value;
+        localStorage.setItem('trumpGogglesTestNotes', notes);
+        document.getElementById('save-status').textContent =
+          'Notes saved at ' + new Date().toLocaleTimeString();
+      });
+    </script>
+  </body>
+</html>

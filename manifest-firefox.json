@@ -1,0 +1,58 @@
+{
+  "manifest_version": 2,
+  "name": "Trump Goggles",
+  "short_name": "trumpgoggles",
+  "description": "See the world like Trump does.",
+  "version": "2.0.0",
+
+  "browser_action": {
+    "default_title": "Trump Goggles",
+    "default_icon": {
+      "19": "images/goggles-02.png",
+      "38": "images/goggles-02.png"
+    }
+  },
+
+  "background": {
+    "scripts": ["browser-detect.js", "browser-adapter.js", "background-cross-browser.js"]
+  },
+
+  "permissions": ["storage", "contextMenus", "*://*/*"],
+
+  "content_scripts": [
+    {
+      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, browser-detect.js detects browser environment, browser-adapter.js provides cross-browser compatibility, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, mutation-observer.js provides the observer functionality, and content-consolidated.js uses all of them.",
+      "js": [
+        "logger.js",
+        "error-handler.js",
+        "browser-detect.js",
+        "browser-adapter.js",
+        "trump-mappings.js",
+        "dom-processor.js",
+        "text-processor.js",
+        "mutation-observer.js",
+        "content-consolidated.js"
+      ],
+      "matches": ["*://*/*"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+
+  "icons": {
+    "16": "images/goggles-02.png",
+    "48": "images/goggles-02.png",
+    "128": "images/goggles-02.png"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "trumpgoggles@example.com",
+      "strict_min_version": "57.0"
+    }
+  }
+}

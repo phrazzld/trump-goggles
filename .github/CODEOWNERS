@@ -1,0 +1,31 @@
+# This file defines the code owners for different parts of the repository
+# Code owners will be automatically requested for review on pull requests
+# that modify code they own
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @project-owner
+
+# Documentation owners
+/docs/ @docs-team
+*.md @docs-team
+
+# Core module owners
+/browser-adapter.js @core-team
+/browser-detect.js @core-team
+/text-processor.js @text-team
+/dom-processor.js @dom-team
+/mutation-observer.js @dom-team
+/trump-mappings.js @content-team
+
+# Test owners
+/test/ @test-team
+
+# Configuration files
+/.github/ @infra-team
+/eslint.config.js @infra-team
+/vitest.config.js @infra-team
+/tsconfig.json @infra-team
+
+# Note: Replace the placeholder team/user names with actual GitHub usernames or team names
+# For example: /docs/ @johndoe @janedoe

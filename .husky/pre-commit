@@ -1,0 +1,10 @@
+# Run lint-staged first - this includes formatting, linting, and tests for staged files
+echo "Running lint-staged..."
+npx lint-staged || exit 1
+
+# Then run full type checking
+echo "Running TypeScript type checking..."
+pnpm typecheck || exit 1
+
+# If we got this far, all checks passed
+echo "✅ Pre-commit checks passed!"
