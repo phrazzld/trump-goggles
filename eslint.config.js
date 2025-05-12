@@ -32,7 +32,7 @@ export default [
       'linebreak-style': ['error', 'unix'],
       quotes: ['error', 'single', { avoidEscape: true }],
       semi: ['error', 'always'],
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'vitest/expect-expect': 'error',
       'vitest/no-disabled-tests': 'warn',
     },

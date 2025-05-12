@@ -402,7 +402,7 @@ This document provides a detailed, actionable task breakdown for the Trump Goggl
         1. Push changes to GitHub and verify CI passes.
     - **Depends‑on:** [CI-19]
 
-- [ ] **CI-21 · P2: Strengthen pre-commit hooks**
+- [x] **CI-21 · P2: Strengthen pre-commit hooks**
     - **Context:** CI-RESOLUTION-PLAN.md - Preventative Measures
     - **Code Area:** `.husky/` and package scripts
     - **Action:**
