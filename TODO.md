@@ -161,7 +161,7 @@
     - **Depends‑on:** [T005]
 
 ## TooltipManager Module
-- [ ] **T011 · Feature · P1: Create TooltipManager module structure**
+- [x] **T011 · Feature · P1: Create TooltipManager module structure**
     - **Context:** Detailed Build Steps #4 (TS-01-plan.md)
     - **Action:**
         1. Create new `tooltip-manager.js` file
@@ -170,7 +170,7 @@
         1. `tooltip-manager.js` exists with proper module structure implementing interface
     - **Depends‑on:** [T001]
 
-- [ ] **T012 · Feature · P1: Implement TooltipManager initialization and disposal**
+- [x] **T012 · Feature · P1: Implement TooltipManager initialization and disposal**
     - **Context:** Detailed Build Steps #4 (TS-01-plan.md)
     - **Action:**
         1. Implement `initialize(tooltipUI)` method:
