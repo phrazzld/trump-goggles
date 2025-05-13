@@ -25,6 +25,24 @@ const TooltipUI = (function () {
    */
   const TOOLTIP_ROLE = 'tooltip';
 
+  /**
+   * Z-index for the tooltip element to ensure it appears above other content
+   * @type {number}
+   */
+  const TOOLTIP_Z_INDEX = 2147483647; // Maximum safe z-index value
+
+  /**
+   * Max width for the tooltip in pixels
+   * @type {number}
+   */
+  const TOOLTIP_MAX_WIDTH = 300;
+
+  /**
+   * Max height for the tooltip in pixels
+   * @type {number}
+   */
+  const TOOLTIP_MAX_HEIGHT = 200;
+
   // ===== MODULE STATE =====
 
   /**
@@ -38,6 +56,81 @@ const TooltipUI = (function () {
    * @type {boolean}
    */
   let isCreated = false;
+
+  // ===== PRIVATE HELPER FUNCTIONS =====
+
+  /**
+   * Applies all necessary styles to the tooltip element
+   *
+   * @private
+   * @param {HTMLElement} element - The tooltip element to style
+   */
+  function applyTooltipStyles(element) {
+    try {
+      // TypeScript has difficulty with direct style property access,
+      // so we'll use @ts-ignore on each line
+
+      // Positioning and visibility
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.position = 'fixed';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.visibility = 'hidden';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.opacity = '0';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.pointerEvents = 'none'; // Prevents tooltip from blocking interactions
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.zIndex = String(TOOLTIP_Z_INDEX); // Convert number to string for TypeScript
+
+      // Size constraints
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.maxWidth = TOOLTIP_MAX_WIDTH + 'px';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.maxHeight = TOOLTIP_MAX_HEIGHT + 'px';
+
+      // Content overflow handling
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.overflow = 'auto';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.overflowWrap = 'break-word';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.whiteSpace = 'pre-wrap'; // Preserves whitespace but wraps text
+
+      // Appearance
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.backgroundColor = 'rgba(40, 40, 40, 0.9)'; // Semi-transparent dark background
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.color = '#ffffff'; // White text for contrast
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.padding = '8px 12px';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.borderRadius = '4px';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
+
+      // Typography
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.fontFamily =
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.fontSize = '14px';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.lineHeight = '1.4';
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.textAlign = 'left';
+
+      // Transitions for smooth appearance/disappearance
+      // @ts-ignore: TypeScript doesn't recognize element.style properly
+      element.style.transition = 'opacity 0.2s ease-in-out';
+    } catch (error) {
+      // Log the error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error applying tooltip styles', { error });
+      } else {
+        console.error('TooltipUI: Error applying tooltip styles', error);
+      }
+    }
+  }
 
   // ===== TOOLTIP CORE METHODS =====
 
@@ -67,15 +160,8 @@ const TooltipUI = (function () {
       tooltipElement.setAttribute('role', TOOLTIP_ROLE);
       tooltipElement.setAttribute('aria-hidden', 'true');
 
-      // Set initial styles - tooltipElement is an HTMLDivElement which definitely has style
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-      tooltipElement.style.visibility = 'hidden';
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-      tooltipElement.style.opacity = '0';
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-      tooltipElement.style.position = 'fixed'; // Ensures initial position
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-      tooltipElement.style.pointerEvents = 'none'; // Prevents tooltip from blocking interactions
+      // Apply all styles to the tooltip element
+      applyTooltipStyles(tooltipElement);
 
       // Append to document body
       document.body.appendChild(tooltipElement);
@@ -229,9 +315,9 @@ const TooltipUI = (function () {
       }
 
       // Apply final position
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
       tooltipElement.style.top = `${Math.max(0, top)}px`;
-      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
       tooltipElement.style.left = `${Math.max(0, left)}px`;
 
       // Log position update if Logger is available
@@ -252,11 +338,11 @@ const TooltipUI = (function () {
 
       // Set fallback position in center of viewport if positioning fails
       if (tooltipElement) {
-        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
         tooltipElement.style.top = '50%';
-        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
         tooltipElement.style.left = '50%';
-        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
         tooltipElement.style.transform = 'translate(-50%, -50%)';
       }
     }

@@ -140,7 +140,7 @@
         2. Test elements near viewport edges
     - **Depends‑on:** [T006]
 
-- [ ] **T010 · Feature · P1: Implement TooltipUI styling**
+- [x] **T010 · Feature · P1: Implement TooltipUI styling**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md)
     - **Action:**
         1. Create and inject CSS for tooltip appearance
