@@ -87,6 +87,9 @@ const TooltipManager = (function () {
       document.body.addEventListener('focusin', handleShowTooltip);
       document.body.addEventListener('focusout', handleHideTooltip);
 
+      // Add keydown event listener for keyboard dismissal (Escape key)
+      document.addEventListener('keydown', handleKeyDown);
+
       // Mark as initialized
       isInitialized = true;
 
@@ -133,6 +136,7 @@ const TooltipManager = (function () {
       document.body.removeEventListener('mouseout', handleHideTooltip);
       document.body.removeEventListener('focusin', handleShowTooltip);
       document.body.removeEventListener('focusout', handleHideTooltip);
+      document.removeEventListener('keydown', handleKeyDown);
 
       // Call tooltipUI.destroy() if available
       if (tooltipUI) {
@@ -334,14 +338,54 @@ const TooltipManager = (function () {
     }
   }
 
-  // The keyboard event handling function will be implemented in T014
-  // This comment is a placeholder for the upcoming implementation
+  /**
+   * Handles keyboard events - dismisses tooltip when Escape key is pressed
+   *
+   * @private
+   * @param {KeyboardEvent} event - The keydown event
+   */
+  function handleKeyDown(event) {
+    try {
+      // Exit early if not initialized
+      if (!isInitialized || !tooltipUI) {
+        return;
+      }
 
-  // To be implemented in T014:
-  // function handleKeyDown(event) {
-  //   // Check for Escape key
-  //   // If pressed and tooltip is visible, hide the tooltip
-  // }
+      // Check for Escape key
+      if (event.key === 'Escape') {
+        // Hide the tooltip
+        tooltipUI.hide();
+
+        // Get tooltip ID for the selector
+        const tooltipId = tooltipUI.getId();
+
+        // Remove any aria-describedby attributes to fully disconnect tooltip
+        if (document && document.querySelectorAll && tooltipId) {
+          const describedElements = document.querySelectorAll(`[aria-describedby="${tooltipId}"]`);
+
+          if (describedElements) {
+            Array.from(describedElements).forEach((element) => {
+              if (element && element.removeAttribute) {
+                element.removeAttribute('aria-describedby');
+              }
+            });
+          }
+        }
+
+        // Log escape key dismissal if debug logging is enabled
+        if (window.Logger && typeof window.Logger.debug === 'function') {
+          window.Logger.debug('TooltipManager: Dismissed tooltip with Escape key');
+        }
+      }
+    } catch (error) {
+      // Log any errors during keyboard handling
+      if (window.Logger) {
+        window.Logger.error('TooltipManager: Error during keyboard dismissal', { error });
+      } else {
+        console.error('TooltipManager: Error during keyboard dismissal', error);
+      }
+    }
+  }
 
   // ===== PUBLIC API =====
 

@@ -214,7 +214,7 @@
         2. Verify aria-describedby attribute changes
     - **Depends‑on:** [T007, T008, T009, T012]
 
-- [ ] **T014 · Feature · P1: Implement TooltipManager keyboard dismissal**
+- [x] **T014 · Feature · P1: Implement TooltipManager keyboard dismissal**
     - **Context:** Detailed Build Steps #4 (TS-01-plan.md)
     - **Action:**
         1. Add keydown event listener to document in initialize()
