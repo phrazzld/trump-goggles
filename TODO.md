@@ -67,7 +67,7 @@
     - **Depends‑on:** [T002, T003]
 
 ## TooltipUI Module
-- [ ] **T005 · Feature · P1: Create TooltipUI module structure**
+- [x] **T005 · Feature · P1: Create TooltipUI module structure**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md)
     - **Action:**
         1. Create new `tooltip-ui.js` file
