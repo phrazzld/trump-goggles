@@ -105,7 +105,7 @@
         1. Test with text containing HTML tags to ensure they're displayed as text, not rendered
     - **Depends‑on:** [T006]
 
-- [ ] **T008 · Feature · P1: Implement TooltipUI visibility methods**
+- [x] **T008 · Feature · P1: Implement TooltipUI visibility methods**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md)
     - **Action:**
         1. Implement `show()` method to:

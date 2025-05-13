@@ -159,14 +159,45 @@ const TooltipUI = (function () {
   }
 
   /**
-   * Makes the tooltip visible and updates ARIA attributes
+   * Makes the tooltip visible and updates ARIA attributes.
+   * Sets visibility and opacity styles and updates the aria-hidden attribute.
    *
    * @public
    */
   function show() {
-    // This is a placeholder implementation that will be completed in T008
-    // For now, we're just setting up the module structure
-    // TODO: Implementation will be added in T008
+    try {
+      // Ensure the tooltip element exists
+      ensureCreated();
+
+      // If tooltip creation failed or the element doesn't exist, exit early
+      if (!tooltipElement) {
+        if (window.Logger && typeof window.Logger.warn === 'function') {
+          window.Logger.warn('TooltipUI: Cannot show tooltip - element does not exist');
+        }
+        return;
+      }
+
+      // Update styles for visibility
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.visibility = 'visible';
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.opacity = '1';
+
+      // Update ARIA attribute for accessibility
+      tooltipElement.setAttribute('aria-hidden', 'false');
+
+      // Log the visibility change if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Tooltip shown');
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error showing tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error showing tooltip', error);
+      }
+    }
   }
 
   /**
@@ -175,9 +206,33 @@ const TooltipUI = (function () {
    * @public
    */
   function hide() {
-    // This is a placeholder implementation that will be completed in T008
-    // For now, we're just setting up the module structure
-    // TODO: Implementation will be added in T008
+    try {
+      // Check if tooltip exists (no need to create if not)
+      if (!tooltipElement) {
+        return;
+      }
+
+      // Update style properties
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.opacity = '0';
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.visibility = 'hidden';
+
+      // Update ARIA attributes for accessibility
+      tooltipElement.setAttribute('aria-hidden', 'true');
+
+      // Log the visibility change if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Tooltip hidden');
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error hiding tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error hiding tooltip', error);
+      }
+    }
   }
 
   /**
