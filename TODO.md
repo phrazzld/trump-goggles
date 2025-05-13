@@ -92,7 +92,7 @@
         1. Inspect DOM after calling methods to verify expected changes
     - **Depends‑on:** [T005]
 
-- [ ] **T007 · Feature · P0: Implement TooltipUI text setting with XSS protection**
+- [x] **T007 · Feature · P0: Implement TooltipUI text setting with XSS protection**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md); Security & Config section
     - **Action:**
         1. Implement `setText(text)` to update tooltip content

@@ -106,13 +106,42 @@ const TooltipUI = (function () {
    * Must use textContent for security to prevent XSS.
    *
    * @public
-   * @param {string} _text - The text to display in the tooltip
+   * @param {string} text - The text to display in the tooltip
    */
-  function setText(_text) {
-    // This is a placeholder implementation that will be completed in T007
-    // For now, we're just setting up the module structure
-    // TODO: Implementation will be added in T007
-    // Will use _text parameter when implemented
+  function setText(text) {
+    try {
+      // Ensure the tooltip element exists
+      ensureCreated();
+
+      // If tooltip creation failed or the element doesn't exist, exit early
+      if (!tooltipElement) {
+        if (window.Logger && typeof window.Logger.warn === 'function') {
+          window.Logger.warn('TooltipUI: Cannot set text - tooltip element does not exist');
+        }
+        return;
+      }
+
+      // Convert to string if not already
+      const safeText = text != null ? String(text) : '';
+
+      // CRITICAL SECURITY: Always use textContent, never innerHTML, to prevent XSS attacks
+      // This ensures any HTML/script tags are rendered as text, not executed
+      tooltipElement.textContent = safeText;
+
+      // Log the text setting if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        // Log only a snippet of the text to avoid cluttering logs
+        const snippet = safeText.length > 30 ? safeText.substring(0, 30) + '...' : safeText;
+        window.Logger.debug('TooltipUI: Set tooltip text', { snippet });
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error setting tooltip text', { error });
+      } else {
+        console.error('TooltipUI: Error setting tooltip text', error);
+      }
+    }
   }
 
   /**
