@@ -188,7 +188,7 @@
         2. Verify event listeners are removed and tooltip is destroyed on disposal
     - **Depends‑on:** [T006, T011]
 
-- [ ] **T013 · Feature · P1: Implement TooltipManager mouse and focus event handling**
+- [x] **T013 · Feature · P1: Implement TooltipManager mouse and focus event handling**
     - **Context:** Detailed Build Steps #4 (TS-01-plan.md)
     - **Action:**
         1. In initialize():
