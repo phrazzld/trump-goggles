@@ -228,7 +228,7 @@
     - **Depends‑on:** [T013]
 
 ## Integration
-- [ ] **T015 · Feature · P1: Integrate tooltip components in content script**
+- [x] **T015 · Feature · P1: Integrate tooltip components in content script**
     - **Context:** Detailed Build Steps #5 (TS-01-plan.md)
     - **Action:**
         1. Import TooltipUI and TooltipManager in content-consolidated.js
@@ -248,7 +248,7 @@
     - **Depends‑on:** [T004, T014]
 
 ## Accessibility
-- [ ] **T016 · A11Y · P0: Verify and enhance accessibility support**
+- [x] **T016 · A11Y · P0: Verify and enhance accessibility support**
     - **Context:** Detailed Build Steps #6 (TS-01-plan.md)
     - **Action:**
         1. Confirm tabindex="0" on wrapper spans allows keyboard focus

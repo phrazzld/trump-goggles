@@ -60,6 +60,58 @@ const TooltipUI = (function () {
   // ===== PRIVATE HELPER FUNCTIONS =====
 
   /**
+   * Adds global CSS for accessibility styling
+   *
+   * @private
+   */
+  function addAccessibilityStyles() {
+    try {
+      // Check if accessibility styles have already been added
+      if (document.getElementById('tg-accessibility-styles')) {
+        return;
+      }
+
+      // Create a style element
+      const styleElement = document.createElement('style');
+      styleElement.id = 'tg-accessibility-styles';
+
+      // Add focus styles for converted text elements
+      styleElement.textContent = `
+        .tg-converted-text:focus {
+          outline: 2px solid #0066cc !important;
+          box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25) !important;
+          border-radius: 2px !important;
+          text-decoration: underline !important;
+          background-color: rgba(255, 239, 213, 0.7) !important;
+        }
+        
+        /* High contrast mode support */
+        @media (forced-colors: active) {
+          .tg-converted-text:focus {
+            outline: 2px solid HighlightText !important;
+            outline-offset: 2px !important;
+          }
+        }
+      `;
+
+      // Append to document head
+      document.head.appendChild(styleElement);
+
+      // Log creation if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Added accessibility styles');
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error adding accessibility styles', { error });
+      } else {
+        console.error('TooltipUI: Error adding accessibility styles', error);
+      }
+    }
+  }
+
+  /**
    * Applies all necessary styles to the tooltip element
    *
    * @private
@@ -97,10 +149,13 @@ const TooltipUI = (function () {
       element.style.whiteSpace = 'pre-wrap'; // Preserves whitespace but wraps text
 
       // Appearance
+      // Color contrast: Using dark background (rgba(40, 40, 40, 0.9)) with white text (#ffffff)
+      // Effective contrast ratio after alpha blending is approx 12:1, well exceeding
+      // WCAG AA requirement of 4.5:1 for normal text and 7:1 for AAA
       // @ts-ignore: TypeScript doesn't recognize element.style properly
-      element.style.backgroundColor = 'rgba(40, 40, 40, 0.9)'; // Semi-transparent dark background
+      element.style.backgroundColor = 'rgba(32, 32, 32, 0.95)'; // Very dark background with high opacity
       // @ts-ignore: TypeScript doesn't recognize element.style properly
-      element.style.color = '#ffffff'; // White text for contrast
+      element.style.color = '#ffffff'; // White text for maximum contrast
       // @ts-ignore: TypeScript doesn't recognize element.style properly
       element.style.padding = '8px 12px';
       // @ts-ignore: TypeScript doesn't recognize element.style properly
@@ -162,6 +217,9 @@ const TooltipUI = (function () {
 
       // Apply all styles to the tooltip element
       applyTooltipStyles(tooltipElement);
+
+      // Add CSS for focus styles to improve accessibility
+      addAccessibilityStyles();
 
       // Append to document body
       document.body.appendChild(tooltipElement);
