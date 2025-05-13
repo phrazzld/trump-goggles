@@ -149,13 +149,117 @@ const TooltipUI = (function () {
    * avoiding viewport overflow.
    *
    * @public
-   * @param {HTMLElement} _targetElement - The element the tooltip should be positioned relative to
+   * @param {HTMLElement} targetElement - The element the tooltip should be positioned relative to
    */
-  function updatePosition(_targetElement) {
-    // This is a placeholder implementation that will be completed in T009
-    // For now, we're just setting up the module structure
-    // TODO: Implementation will be added in T009
-    // Will use _targetElement parameter when implemented
+  function updatePosition(targetElement) {
+    try {
+      // Ensure the tooltip element exists
+      ensureCreated();
+
+      // Validate inputs
+      if (!tooltipElement || !targetElement) {
+        if (window.Logger && typeof window.Logger.warn === 'function') {
+          window.Logger.warn('TooltipUI: Cannot position tooltip - missing element references');
+        }
+        return;
+      }
+
+      // Get target element's position and dimensions
+      const targetRect = targetElement.getBoundingClientRect();
+
+      // Get tooltip dimensions
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with offsetWidth
+      const tooltipWidth = tooltipElement.offsetWidth;
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with offsetHeight
+      const tooltipHeight = tooltipElement.offsetHeight;
+
+      // Get viewport dimensions
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // Calculate initial position (centered above the target element)
+      let top = targetRect.top - tooltipHeight - 8; // 8px offset
+      let left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+
+      // Position flags to track final position type for logging
+      let positionType = 'above';
+
+      // Check if tooltip would overflow top of the viewport
+      if (top < 0) {
+        // Position below target instead
+        top = targetRect.bottom + 8; // 8px offset
+        positionType = 'below';
+
+        // If also overflows bottom, position where it fits best
+        if (top + tooltipHeight > viewportHeight) {
+          // If target is larger than half the viewport height,
+          // position at middle of viewport
+          if (targetRect.height > viewportHeight / 2) {
+            top = (viewportHeight - tooltipHeight) / 2;
+            positionType = 'middle';
+          } else if (targetRect.top > viewportHeight / 2) {
+            // If target is in lower half of viewport, position above
+            top = targetRect.top - tooltipHeight - 8;
+            positionType = 'above';
+          } else {
+            // Target is in upper half, position below
+            top = targetRect.bottom + 8;
+            positionType = 'below';
+          }
+        }
+      }
+
+      // Check if tooltip would overflow left edge of the viewport
+      if (left < 0) {
+        left = 8; // 8px from left edge
+        positionType += '-left-adjusted';
+      }
+
+      // Check if tooltip would overflow right edge of the viewport
+      if (left + tooltipWidth > viewportWidth) {
+        left = viewportWidth - tooltipWidth - 8; // 8px from right edge
+        positionType += '-right-adjusted';
+
+        // If still overflows after adjustment (tooltip wider than viewport),
+        // center it in the viewport
+        if (left < 0) {
+          left = (viewportWidth - tooltipWidth) / 2;
+          positionType += '-centered';
+        }
+      }
+
+      // Apply final position
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.top = `${Math.max(0, top)}px`;
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.left = `${Math.max(0, left)}px`;
+
+      // Log position update if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Positioned tooltip', {
+          position: positionType,
+          top,
+          left,
+        });
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error positioning tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error positioning tooltip', error);
+      }
+
+      // Set fallback position in center of viewport if positioning fails
+      if (tooltipElement) {
+        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        tooltipElement.style.top = '50%';
+        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        tooltipElement.style.left = '50%';
+        // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+        tooltipElement.style.transform = 'translate(-50%, -50%)';
+      }
+    }
   }
 
   /**

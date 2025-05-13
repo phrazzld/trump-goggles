@@ -123,7 +123,7 @@
         2. Verify ARIA attribute changes
     - **Depends‑on:** [T006]
 
-- [ ] **T009 · Feature · P1: Implement TooltipUI positioning logic**
+- [x] **T009 · Feature · P1: Implement TooltipUI positioning logic**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md); Error & Edge-Case Strategy: Tooltip Positioning
     - **Action:**
         1. Implement `updatePosition(targetElement)` method
