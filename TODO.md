@@ -42,7 +42,7 @@
         3. Module structure is ready for method implementation
     - **Depends‑on:** [T001]
 
-- [ ] **T004 · Feature · P0: Implement DOMModifier.processTextNodeAndWrapSegments method**
+- [x] **T004 · Feature · P0: Implement DOMModifier.processTextNodeAndWrapSegments method**
     - **Context:** Detailed Build Steps #2 (TS-01-plan.md)
     - **Action:**
         1. Implement `processTextNodeAndWrapSegments(textNode, segments)` method
