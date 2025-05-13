@@ -76,7 +76,7 @@
         1. `tooltip-ui.js` exists with proper module structure implementing interface
     - **Depends‑on:** [T001]
 
-- [ ] **T006 · Feature · P1: Implement TooltipUI core functionality: creation and destruction**
+- [x] **T006 · Feature · P1: Implement TooltipUI core functionality: creation and destruction**
     - **Context:** Detailed Build Steps #3 (TS-01-plan.md)
     - **Action:**
         1. Implement `ensureCreated()` method to lazily create tooltip element with:

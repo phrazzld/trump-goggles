@@ -19,6 +19,12 @@ const TooltipUI = (function () {
    */
   const TOOLTIP_ID = 'tg-tooltip';
 
+  /**
+   * ARIA role for the tooltip element
+   * @type {string}
+   */
+  const TOOLTIP_ROLE = 'tooltip';
+
   // ===== MODULE STATE =====
 
   /**
@@ -36,19 +42,63 @@ const TooltipUI = (function () {
   // ===== TOOLTIP CORE METHODS =====
 
   /**
-   * Ensures the tooltip DOM element is created and ready
+   * Ensures the tooltip DOM element is created and ready.
+   * Creates the element if it doesn't exist yet and appends it to document.body.
    *
    * @public
    */
   function ensureCreated() {
-    // This is a placeholder implementation that will be completed in T006
-    // For now, we're just setting up the module structure
+    // If tooltip already exists, do nothing
     if (isCreated && tooltipElement) {
       return;
     }
 
-    // TODO: Implementation will be added in T006
-    isCreated = false;
+    try {
+      // Check if document is available (important for testing environments)
+      if (typeof document === 'undefined') {
+        return;
+      }
+
+      // Create tooltip element
+      tooltipElement = document.createElement('div');
+
+      // Set attributes
+      tooltipElement.id = TOOLTIP_ID;
+      tooltipElement.setAttribute('role', TOOLTIP_ROLE);
+      tooltipElement.setAttribute('aria-hidden', 'true');
+
+      // Set initial styles - tooltipElement is an HTMLDivElement which definitely has style
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.visibility = 'hidden';
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.opacity = '0';
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.position = 'fixed'; // Ensures initial position
+      // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
+      tooltipElement.style.pointerEvents = 'none'; // Prevents tooltip from blocking interactions
+
+      // Append to document body
+      document.body.appendChild(tooltipElement);
+
+      // Mark as created
+      isCreated = true;
+
+      // Log creation if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Tooltip element created', { id: TOOLTIP_ID });
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error creating tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error creating tooltip element', error);
+      }
+
+      // Reset state on error
+      tooltipElement = null;
+      isCreated = false;
+    }
   }
 
   /**
@@ -107,12 +157,33 @@ const TooltipUI = (function () {
    * @public
    */
   function destroy() {
-    // This is a placeholder implementation that will be completed in T006
-    // For now, we're just setting up the module structure
+    try {
+      // Check if tooltip exists
+      if (!tooltipElement) {
+        return;
+      }
 
-    // TODO: Implementation will be added in T006
-    isCreated = false;
-    tooltipElement = null;
+      // Remove from DOM if it has a parent
+      if (tooltipElement.parentNode) {
+        tooltipElement.parentNode.removeChild(tooltipElement);
+      }
+
+      // Log destruction if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipUI: Tooltip element destroyed', { id: TOOLTIP_ID });
+      }
+    } catch (error) {
+      // Log error if Logger is available
+      if (window.Logger && typeof window.Logger.error === 'function') {
+        window.Logger.error('TooltipUI: Error destroying tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error destroying tooltip element', error);
+      }
+    } finally {
+      // Reset state regardless of success or failure
+      isCreated = false;
+      tooltipElement = null;
+    }
   }
 
   /**
@@ -122,10 +193,8 @@ const TooltipUI = (function () {
    * @returns {string} The ID of the tooltip element
    */
   function getId() {
-    // This is a placeholder implementation that will be completed in T006
-    // For now, we're just setting up the module structure
-
-    // TODO: Implementation will be added in T006
+    // Simply return the ID constant
+    // This will be used for aria-describedby attributes
     return TOOLTIP_ID;
   }
 
