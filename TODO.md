@@ -296,7 +296,7 @@
         1. Tests pass with >90% coverage for the new method
     - **Depends‑on:** [T002]
 
-- [ ] **T019 · Test · P1: Write unit tests for DOMModifier**
+- [x] **T019 · Test · P1: Write unit tests for DOMModifier**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Create test file for DOMModifier
