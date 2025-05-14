@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trump Goggles Performance Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1, h2, h3 {
+      margin-top: 1em;
+    }
+    
+    button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    
+    input[type="number"] {
+      padding: 8px;
+      width: 100px;
+    }
+    
+    .controls {
+      background-color: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .metric-card {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    
+    .metric-value {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    
+    .test-area {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      min-height: 200px;
+      max-height: 600px;
+      overflow: auto;
+    }
+    
+    #results-log {
+      background-color: #f8f9fa;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+      height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    
+    /* Styling for the converted text elements (for manual testing) */
+    .tg-converted-text {
+      background-color: #ffc;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+    
+    .tg-converted-text:hover {
+      background-color: #ffb;
+    }
+    
+    /* Custom tooltip for manual testing */
+    .manual-tooltip {
+      position: fixed;
+      background-color: rgba(32, 32, 32, 0.95);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      max-width: 300px;
+      max-height: 200px;
+      overflow: auto;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trump Goggles Tooltip Performance Test</h1>
+  
+  <div class="controls">
+    <h2>Test Configuration</h2>
+    <div>
+      <label>
+        Number of paragraphs:
+        <input type="number" id="paragraph-count" value="100" min="1" max="10000">
+      </label>
+      <label>
+        Trump references per paragraph:
+        <input type="number" id="references-per-paragraph" value="1" min="0" max="10">
+      </label>
+    </div>
+    
+    <div style="margin-top: 15px;">
+      <button id="generate-content">Generate Test Content</button>
+      <button id="clear-content">Clear Content</button>
+      <button id="run-measure">Run Performance Measurement</button>
+      <button id="toggle-tooltips">Toggle Manual Tooltips</button>
+      <button id="run-test-suite" style="background-color: #0d6efd; color: white; font-weight: bold;">Run Automated Test Suite</button>
+    </div>
+  </div>
+  
+  <div class="metrics">
+    <div class="metric-card">
+      <h3>Content Generation Time</h3>
+      <div class="metric-value" id="generation-time">0 ms</div>
+      <div class="metric-description">Time to generate test content</div>
+    </div>
+    <div class="metric-card">
+      <h3>Processing Time</h3>
+      <div class="metric-value" id="processing-time">0 ms</div>
+      <div class="metric-description">Time for Trump Goggles to process content</div>
+    </div>
+    <div class="metric-card">
+      <h3>Tooltip Show Time</h3>
+      <div class="metric-value" id="tooltip-show-time">0 ms</div>
+      <div class="metric-description">Avg. time to show tooltip on hover</div>
+    </div>
+    <div class="metric-card">
+      <h3>Memory Usage</h3>
+      <div class="metric-value" id="memory-usage">0 MB</div>
+      <div class="metric-description">Estimated JS heap size</div>
+    </div>
+  </div>
+  
+  <h2>Test Content</h2>
+  <div id="test-area" class="test-area"></div>
+  
+  <h2>Results Log</h2>
+  <div id="results-log"></div>
+  
+  <!-- Include performance test runner script -->
+  <script src="performance-test-runner.js"></script>
+  
+  <script>
+    // Performance test utilities
+    const PerformanceUtils = {
+      startTime: 0,
+      marks: {},
+      
+      // Start timing
+      start(label) {
+        const markName = `${label}_start`;
+        performance.mark(markName);
+        this.marks[label] = markName;
+        return markName;
+      },
+      
+      // End timing and get duration
+      end(label) {
+        const startMark = this.marks[label];
+        const endMark = `${label}_end`;
+        
+        if (!startMark) {
+          console.error(`No start mark found for ${label}`);
+          return 0;
+        }
+        
+        performance.mark(endMark);
+        
+        const measureName = `${label}_measure`;
+        performance.measure(measureName, startMark, endMark);
+        
+        const entries = performance.getEntriesByName(measureName);
+        const duration = entries.length > 0 ? entries[0].duration : 0;
+        
+        // Clean up
+        performance.clearMarks(startMark);
+        performance.clearMarks(endMark);
+        performance.clearMeasures(measureName);
+        
+        delete this.marks[label];
+        
+        return duration;
+      },
+      
+      // Get current memory usage if available
+      getMemoryUsage() {
+        if (performance.memory) {
+          return Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
+        }
+        return 0;
+      },
+      
+      // Helper to format time
+      formatTime(ms) {
+        if (ms < 1) {
+          return `${(ms * 1000).toFixed(2)} μs`;
+        }
+        if (ms < 1000) {
+          return `${ms.toFixed(2)} ms`;
+        }
+        return `${(ms / 1000).toFixed(2)} s`;
+      }
+    };
+    
+    // Test content generator
+    const ContentGenerator = {
+      paragraphTemplates: [
+        "TEMPLATE_TOKEN is known for his controversial statements on social media. Many people follow TEMPLATE_TOKEN on various platforms to stay updated with his latest thoughts.",
+        "During his presidency, TEMPLATE_TOKEN implemented several policies that were met with mixed reactions from the public. Critics and supporters of TEMPLATE_TOKEN continue to debate these policies.",
+        "The supporters of TEMPLATE_TOKEN believe he brought significant changes to the country. Others disagree with TEMPLATE_TOKEN's approach to governance.",
+        "TEMPLATE_TOKEN has been in the news recently for his comments about the economy. Analysts are discussing TEMPLATE_TOKEN's statements and their potential impact.",
+        "When asked about TEMPLATE_TOKEN, many voters have strong opinions. The polarizing nature of TEMPLATE_TOKEN has been a defining feature of recent political discourse.",
+        "Media coverage of TEMPLATE_TOKEN has varied widely across different outlets. Some portray TEMPLATE_TOKEN positively while others are more critical.",
+        "Political opponents of TEMPLATE_TOKEN frequently cite his rhetoric as problematic. Meanwhile, allies of TEMPLATE_TOKEN defend his communication style.",
+        "Historians will likely debate the legacy of TEMPLATE_TOKEN for decades to come. The impact of TEMPLATE_TOKEN on American politics cannot be understated."
+      ],
+      
+      randomParagraphTemplate() {
+        const index = Math.floor(Math.random() * this.paragraphTemplates.length);
+        return this.paragraphTemplates[index];
+      },
+      
+      generateParagraph(trumpReferences) {
+        let template = this.randomParagraphTemplate();
+        
+        // If no Trump references requested, remove the template tokens
+        if (trumpReferences === 0) {
+          return template.replace(/TEMPLATE_TOKEN/g, "the former president");
+        }
+        
+        // Count how many tokens are in the template
+        const tokenCount = (template.match(/TEMPLATE_TOKEN/g) || []).length;
+        
+        // If we need more references than tokens, duplicate the paragraph
+        if (trumpReferences > tokenCount) {
+          const repetitions = Math.ceil(trumpReferences / tokenCount);
+          const templates = [];
+          
+          for (let i = 0; i < repetitions; i++) {
+            templates.push(this.randomParagraphTemplate());
+          }
+          
+          template = templates.join(" ");
+        }
+        
+        // Replace tokens with "Donald Trump"
+        let remaining = trumpReferences;
+        let result = template;
+        
+        const allTokens = result.match(/TEMPLATE_TOKEN/g) || [];
+        
+        // Replace only the specified number of tokens
+        for (let i = 0; i < allTokens.length; i++) {
+          if (i < remaining) {
+            result = result.replace("TEMPLATE_TOKEN", "Donald Trump");
+          } else {
+            result = result.replace("TEMPLATE_TOKEN", "the former president");
+          }
+        }
+        
+        return result;
+      },
+      
+      generateContent(paragraphCount, referencesPerParagraph) {
+        const content = [];
+        
+        for (let i = 0; i < paragraphCount; i++) {
+          // Add some variation to references per paragraph
+          let references = referencesPerParagraph;
+          
+          // For more realistic content, randomize references a bit
+          if (referencesPerParagraph > 0) {
+            const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+            references = Math.max(0, referencesPerParagraph + variation);
+          }
+          
+          content.push(this.generateParagraph(references));
+        }
+        
+        return content;
+      }
+    };
+    
+    // Tooltip performance tester
+    const TooltipTester = {
+      tooltipShowTimes: [],
+      manualTooltipsEnabled: false,
+      manualTooltipElement: null,
+      
+      createManualTooltip() {
+        if (this.manualTooltipElement) {
+          return this.manualTooltipElement;
+        }
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'manual-tooltip';
+        tooltip.id = 'manual-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+        tooltip.setAttribute('aria-hidden', 'true');
+        
+        document.body.appendChild(tooltip);
+        this.manualTooltipElement = tooltip;
+        
+        return tooltip;
+      },
+      
+      enableManualTooltips() {
+        this.manualTooltipsEnabled = true;
+        this.createManualTooltip();
+        this.addManualTooltipListeners();
+        logMessage('Manual tooltips enabled');
+      },
+      
+      disableManualTooltips() {
+        this.manualTooltipsEnabled = false;
+        this.removeManualTooltipListeners();
+        logMessage('Manual tooltips disabled');
+      },
+      
+      toggleManualTooltips() {
+        if (this.manualTooltipsEnabled) {
+          this.disableManualTooltips();
+        } else {
+          this.enableManualTooltips();
+        }
+      },
+      
+      addManualTooltipListeners() {
+        const testArea = document.getElementById('test-area');
+        
+        // Use event delegation
+        testArea.addEventListener('mouseover', this.handleShowTooltip);
+        testArea.addEventListener('mouseout', this.handleHideTooltip);
+      },
+      
+      removeManualTooltipListeners() {
+        const testArea = document.getElementById('test-area');
+        
+        testArea.removeEventListener('mouseover', this.handleShowTooltip);
+        testArea.removeEventListener('mouseout', this.handleHideTooltip);
+      },
+      
+      handleShowTooltip: function(event) {
+        if (!TooltipTester.manualTooltipsEnabled) return;
+        
+        // Find if we're hovering over "Donald Trump" text
+        const target = event.target;
+        
+        if (target.textContent && target.textContent.includes('Donald Trump')) {
+          const startTime = performance.now();
+          
+          const tooltip = TooltipTester.manualTooltipElement;
+          
+          // Set content
+          tooltip.textContent = "Original text: Donald Trump";
+          
+          // Position the tooltip
+          const rect = target.getBoundingClientRect();
+          tooltip.style.top = (rect.top - tooltip.offsetHeight - 8) + 'px';
+          tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+          
+          // Show the tooltip
+          tooltip.style.visibility = 'visible';
+          tooltip.style.opacity = '1';
+          tooltip.setAttribute('aria-hidden', 'false');
+          
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+          
+          TooltipTester.tooltipShowTimes.push(duration);
+          
+          // Update the average tooltip show time
+          const avgShowTime = TooltipTester.getAverageShowTime();
+          document.getElementById('tooltip-show-time').textContent = PerformanceUtils.formatTime(avgShowTime);
+        }
+      },
+      
+      handleHideTooltip: function(event) {
+        if (!TooltipTester.manualTooltipsEnabled) return;
+        
+        const tooltip = TooltipTester.manualTooltipElement;
+        
+        // Hide the tooltip
+        tooltip.style.opacity = '0';
+        tooltip.style.visibility = 'hidden';
+        tooltip.setAttribute('aria-hidden', 'true');
+      },
+      
+      getAverageShowTime() {
+        if (this.tooltipShowTimes.length === 0) return 0;
+        
+        const sum = this.tooltipShowTimes.reduce((acc, time) => acc + time, 0);
+        return sum / this.tooltipShowTimes.length;
+      },
+      
+      resetMetrics() {
+        this.tooltipShowTimes = [];
+        document.getElementById('tooltip-show-time').textContent = '0 ms';
+      },
+      
+      simulateHoverEvents(count) {
+        // Get all elements containing "Donald Trump"
+        const testArea = document.getElementById('test-area');
+        const paragraphs = testArea.querySelectorAll('p');
+        const targetParagraphs = [];
+        
+        for (const p of paragraphs) {
+          if (p.textContent.includes('Donald Trump')) {
+            targetParagraphs.push(p);
+          }
+        }
+        
+        if (targetParagraphs.length === 0) {
+          logMessage('No elements containing "Donald Trump" found');
+          return;
+        }
+        
+        logMessage(`Simulating hover on ${count} elements...`);
+        
+        // Reset metrics
+        this.resetMetrics();
+        
+        // Randomly simulate hover on paragraphs
+        for (let i = 0; i < count; i++) {
+          const randomIndex = Math.floor(Math.random() * targetParagraphs.length);
+          const paragraph = targetParagraphs[randomIndex];
+          
+          // Create and dispatch events
+          const mouseOverEvent = new MouseEvent('mouseover', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          
+          const mouseOutEvent = new MouseEvent('mouseout', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          
+          paragraph.dispatchEvent(mouseOverEvent);
+          
+          // Wait a bit before mouseout
+          setTimeout(() => {
+            paragraph.dispatchEvent(mouseOutEvent);
+          }, 50);
+        }
+      }
+    };
+    
+    // UI interactions
+    document.getElementById('generate-content').addEventListener('click', function() {
+      const paragraphCount = parseInt(document.getElementById('paragraph-count').value, 10);
+      const referencesPerParagraph = parseInt(document.getElementById('references-per-paragraph').value, 10);
+      
+      // Validate inputs
+      if (isNaN(paragraphCount) || paragraphCount < 1 || paragraphCount > 10000) {
+        alert('Please enter a valid number of paragraphs (1-10000)');
+        return;
+      }
+      
+      if (isNaN(referencesPerParagraph) || referencesPerParagraph < 0 || referencesPerParagraph > 10) {
+        alert('Please enter a valid number of references per paragraph (0-10)');
+        return;
+      }
+      
+      // Generate content
+      PerformanceUtils.start('content_generation');
+      
+      const content = ContentGenerator.generateContent(paragraphCount, referencesPerParagraph);
+      const testArea = document.getElementById('test-area');
+      
+      // Create paragraphs
+      testArea.innerHTML = '';
+      content.forEach(paragraphText => {
+        const p = document.createElement('p');
+        p.textContent = paragraphText;
+        testArea.appendChild(p);
+      });
+      
+      const generationTime = PerformanceUtils.end('content_generation');
+      document.getElementById('generation-time').textContent = PerformanceUtils.formatTime(generationTime);
+      
+      // Estimate the count of "Donald Trump" instances
+      const trumpCount = paragraphCount * referencesPerParagraph;
+      
+      logMessage(`Generated ${paragraphCount} paragraphs with approximately ${trumpCount} instances of "Donald Trump"`);
+      logMessage(`Content generation took ${PerformanceUtils.formatTime(generationTime)}`);
+      
+      // Update memory usage
+      document.getElementById('memory-usage').textContent = `${PerformanceUtils.getMemoryUsage()} MB`;
+    });
+    
+    document.getElementById('clear-content').addEventListener('click', function() {
+      document.getElementById('test-area').innerHTML = '';
+      document.getElementById('generation-time').textContent = '0 ms';
+      document.getElementById('processing-time').textContent = '0 ms';
+      document.getElementById('memory-usage').textContent = '0 MB';
+      
+      TooltipTester.resetMetrics();
+      
+      logMessage('Content cleared');
+    });
+    
+    document.getElementById('run-measure').addEventListener('click', function() {
+      const testArea = document.getElementById('test-area');
+      
+      if (testArea.children.length === 0) {
+        alert('Please generate test content first');
+        return;
+      }
+      
+      // Check if Trump Goggles is active by looking for converted text spans
+      PerformanceUtils.start('process_check');
+      
+      // We'll use MutationObserver to detect when Trump Goggles processes the content
+      const observer = new MutationObserver((mutations) => {
+        let conversionFound = false;
+        
+        for (const mutation of mutations) {
+          if (mutation.addedNodes.length > 0) {
+            for (const node of mutation.addedNodes) {
+              if (node.classList && node.classList.contains('tg-converted-text')) {
+                conversionFound = true;
+                break;
+              }
+            }
+          }
+          
+          if (conversionFound) break;
+        }
+        
+        if (conversionFound) {
+          const processingTime = PerformanceUtils.end('process_check');
+          document.getElementById('processing-time').textContent = PerformanceUtils.formatTime(processingTime);
+          
+          logMessage(`Trump Goggles processing detected in ${PerformanceUtils.formatTime(processingTime)}`);
+          
+          // Count conversions
+          const conversions = document.querySelectorAll('.tg-converted-text');
+          logMessage(`Found ${conversions.length} converted text elements`);
+          
+          // Update memory usage
+          document.getElementById('memory-usage').textContent = `${PerformanceUtils.getMemoryUsage()} MB`;
+          
+          // Disconnect the observer
+          observer.disconnect();
+          
+          // Simulate some hover events to measure tooltip performance
+          setTimeout(() => {
+            TooltipTester.simulateHoverEvents(20);
+          }, 1000);
+        }
+      });
+      
+      // Start observing
+      observer.observe(testArea, { 
+        childList: true, 
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ['class', 'data-original-text']
+      });
+      
+      // If Trump Goggles isn't detected after 5 seconds, report that
+      setTimeout(() => {
+        if (document.getElementById('processing-time').textContent === '0 ms') {
+          observer.disconnect();
+          logMessage('Trump Goggles extension not detected or not processing content');
+          
+          // Fallback to manual tooltip testing
+          alert('Trump Goggles extension not detected. Enabling manual tooltip simulation for testing.');
+          TooltipTester.enableManualTooltips();
+        }
+      }, 5000);
+      
+      logMessage('Running performance measurement...');
+    });
+    
+    document.getElementById('toggle-tooltips').addEventListener('click', function() {
+      TooltipTester.toggleManualTooltips();
+    });
+    
+    document.getElementById('run-test-suite').addEventListener('click', function() {
+      if (window.PerformanceTestRunner && typeof window.PerformanceTestRunner.runTests === 'function') {
+        window.PerformanceTestRunner.runTests();
+      } else {
+        alert('Performance test runner not loaded');
+      }
+    });
+    
+    // Helper to log messages
+    function logMessage(message) {
+      const log = document.getElementById('results-log');
+      const timestamp = new Date().toLocaleTimeString();
+      log.textContent += `[${timestamp}] ${message}\n`;
+      log.scrollTop = log.scrollHeight;
+    }
+    
+    // Initialize
+    logMessage('Performance test page loaded');
+  </script>
+</body>
+</html>

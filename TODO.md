@@ -267,7 +267,7 @@
     - **Depends‑on:** [T015]
 
 ## Performance
-- [ ] **T017 · Optimization · P2: Performance testing and optimization**
+- [x] **T017 · Optimization · P2: Performance testing and optimization**
     - **Context:** Detailed Build Steps #7 (TS-01-plan.md)
     - **Action:**
         1. Benchmark DOM modification on pages with many conversions

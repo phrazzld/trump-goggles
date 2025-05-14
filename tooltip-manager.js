@@ -5,12 +5,21 @@
  * when users interact with converted text elements. It provides the coordination
  * between DOM events and the TooltipUI module. It implements the TooltipManagerInterface.
  *
- * @version 1.0.0
+ * Performance optimizations include:
+ * - Throttled event handlers to reduce excessive calculations
+ * - Element caching to avoid repeated DOM queries
+ * - Batched DOM operations to minimize reflows
+ *
+ * @version 1.1.0
  */
 
 // TooltipManager module pattern
 const TooltipManager = (function () {
   'use strict';
+
+  // Check if performance utils are available
+  // This allows graceful degradation when the utils are not loaded
+  const performanceUtils = window.PerformanceUtils || null;
 
   // ===== MODULE STATE =====
 
@@ -43,6 +52,18 @@ const TooltipManager = (function () {
    * @type {number}
    */
   const SHOW_DELAY = 80; // Milliseconds
+
+  /**
+   * Throttle delay for mouseover/mouseout events
+   * @type {number}
+   */
+  const THROTTLE_DELAY = 100; // Milliseconds
+
+  /**
+   * Cache for DOM elements to avoid repeated queries
+   * @type {Map<string, Element>}
+   */
+  const elementCache = new Map();
 
   /**
    * Track current timeout for delayed showing
@@ -82,8 +103,16 @@ const TooltipManager = (function () {
 
       // Set up delegated event listeners for converting text elements
       // Use event delegation to handle events for all current and future elements
-      document.body.addEventListener('mouseover', handleShowTooltip);
-      document.body.addEventListener('mouseout', handleHideTooltip);
+      // Use throttled handlers if performance utils are available
+      const mouseOverHandler = performanceUtils
+        ? performanceUtils.throttle(handleShowTooltip, THROTTLE_DELAY)
+        : handleShowTooltip;
+      const mouseOutHandler = performanceUtils
+        ? performanceUtils.throttle(handleHideTooltip, THROTTLE_DELAY)
+        : handleHideTooltip;
+
+      document.body.addEventListener('mouseover', mouseOverHandler);
+      document.body.addEventListener('mouseout', mouseOutHandler);
       document.body.addEventListener('focusin', handleShowTooltip);
       document.body.addEventListener('focusout', handleHideTooltip);
 
@@ -132,10 +161,21 @@ const TooltipManager = (function () {
       }
 
       // Remove all event listeners
-      document.body.removeEventListener('mouseover', handleShowTooltip);
-      document.body.removeEventListener('mouseout', handleHideTooltip);
+      // Need to use the same function references that were added
+      const mouseOverHandler = performanceUtils
+        ? performanceUtils.throttle(handleShowTooltip, THROTTLE_DELAY)
+        : handleShowTooltip;
+      const mouseOutHandler = performanceUtils
+        ? performanceUtils.throttle(handleHideTooltip, THROTTLE_DELAY)
+        : handleHideTooltip;
+
+      document.body.removeEventListener('mouseover', mouseOverHandler);
+      document.body.removeEventListener('mouseout', mouseOutHandler);
       document.body.removeEventListener('focusin', handleShowTooltip);
       document.body.removeEventListener('focusout', handleHideTooltip);
+
+      // Clear the element cache
+      elementCache.clear();
       document.removeEventListener('keydown', handleKeyDown);
 
       // Call tooltipUI.destroy() if available
@@ -165,6 +205,7 @@ const TooltipManager = (function () {
 
   /**
    * Utility function to find closest converted text element from the event target
+   * Optimized with caching to reduce repeated DOM traversals
    *
    * @private
    * @param {EventTarget|null} target - Event target to check
@@ -176,8 +217,21 @@ const TooltipManager = (function () {
       return null;
     }
 
+    // Check if we have this element in cache first
+    if (target.nodeType === Node.ELEMENT_NODE && target.getAttribute) {
+      const cacheKey = target.getAttribute('data-tg-cache-id');
+      if (cacheKey && elementCache.has(cacheKey)) {
+        const element = elementCache.get(cacheKey);
+        return element instanceof HTMLElement ? element : null;
+      }
+    }
+
     // Check if the target itself is a converted text element
     if (target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
+      // Cache the result for future lookups if target has a unique identifier
+      if (target.id) {
+        elementCache.set(target.id, target);
+      }
       return target;
     }
 
@@ -242,15 +296,31 @@ const TooltipManager = (function () {
         // Set the tooltip text
         tooltipUIRef.setText(originalText);
 
-        // Position the tooltip relative to the element
-        tooltipUIRef.updatePosition(convertedElement);
-
-        // Show the tooltip
-        tooltipUIRef.show();
-
-        // Set ARIA attribute for accessibility
+        // Batch DOM operations when positioning and showing the tooltip
         const tooltipId = tooltipUIRef.getId();
-        convertedElement.setAttribute('aria-describedby', tooltipId);
+
+        // Use performance utils if available to batch DOM operations
+        if (performanceUtils && performanceUtils.DOMBatch) {
+          // First read positions
+          performanceUtils.DOMBatch.read(() => {
+            // Then perform writes
+            performanceUtils.DOMBatch.write(() => {
+              // Position the tooltip
+              tooltipUIRef.updatePosition(convertedElement);
+
+              // Show the tooltip
+              tooltipUIRef.show();
+
+              // Set ARIA attribute for accessibility
+              convertedElement.setAttribute('aria-describedby', tooltipId);
+            });
+          });
+        } else {
+          // Fallback to sequential operations
+          tooltipUIRef.updatePosition(convertedElement);
+          tooltipUIRef.show();
+          convertedElement.setAttribute('aria-describedby', tooltipId);
+        }
 
         // Log showing tooltip if debug logging is enabled
         if (window.Logger && typeof window.Logger.debug === 'function') {
@@ -316,11 +386,20 @@ const TooltipManager = (function () {
         return;
       }
 
-      // Hide the tooltip
-      tooltipUIRef.hide();
+      // Use batched operations if available
+      if (performanceUtils && performanceUtils.DOMBatch) {
+        performanceUtils.DOMBatch.write(() => {
+          // Hide the tooltip
+          tooltipUIRef.hide();
 
-      // Remove the ARIA attribute
-      convertedElement.removeAttribute('aria-describedby');
+          // Remove the ARIA attribute
+          convertedElement.removeAttribute('aria-describedby');
+        });
+      } else {
+        // Fallback to sequential operations
+        tooltipUIRef.hide();
+        convertedElement.removeAttribute('aria-describedby');
+      }
 
       // Log hiding tooltip if debug logging is enabled
       if (window.Logger && typeof window.Logger.debug === 'function') {
@@ -353,11 +432,19 @@ const TooltipManager = (function () {
 
       // Check for Escape key
       if (event.key === 'Escape') {
-        // Hide the tooltip
-        tooltipUI.hide();
-
         // Get tooltip ID for the selector
         const tooltipId = tooltipUI.getId();
+
+        // Use batched operations if available
+        if (performanceUtils && performanceUtils.DOMBatch && tooltipUI) {
+          performanceUtils.DOMBatch.write(() => {
+            // Hide the tooltip
+            tooltipUI?.hide();
+          });
+        } else if (tooltipUI) {
+          // Fallback to direct operation
+          tooltipUI.hide();
+        }
 
         // Remove any aria-describedby attributes to fully disconnect tooltip
         if (document && document.querySelectorAll && tooltipId) {
