@@ -307,7 +307,7 @@
         1. Tests pass with >90% coverage for the module
     - **Depends‑on:** [T004]
 
-- [ ] **T020 · Test · P1: Write unit tests for TooltipUI**
+- [x] **T020 · Test · P1: Write unit tests for TooltipUI**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Create test file for TooltipUI
