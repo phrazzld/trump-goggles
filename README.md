@@ -22,9 +22,11 @@ Trump Goggles is a browser extension that automatically replaces references to D
 ## Features
 
 - **Automatic Replacements**: Replaces mentions of Donald Trump, politicians, media outlets, and more with Trump's nicknames
+- **Original Text Tooltips**: Hover over or focus on converted text to see the original text in a tooltip
 - **Dynamic Content Support**: Works with dynamically loaded content using MutationObserver
 - **Cross-browser Compatibility**: Supports Chrome, Firefox, and Edge
 - **Performance Optimized**: Efficient processing with minimal impact on page loading and browsing
+- **Accessibility Support**: Keyboard navigation, ARIA attributes, and screen reader compatibility
 - **No Configuration Needed**: Works out of the box without any setup
 
 ## Installation
@@ -65,6 +67,8 @@ When you visit a webpage, Trump Goggles scans the text content for certain keywo
 2. Watches for dynamically added content
 3. Performs replacements while preserving the page's functionality
 4. Skips inputs, textareas, and other editable elements
+5. Wraps converted text in interactive elements that show tooltips with the original text
+6. Provides keyboard navigation for accessing original text (using Tab and Escape keys)
 
 For more details on the extension's behavior, see [docs/behavior.md](docs/behavior.md).
 
@@ -145,15 +149,38 @@ For more details, see [docs/architecture.md](docs/architecture.md).
 
 ## Testing
 
-The project uses Vitest for unit and integration testing:
+The project uses Vitest for unit and integration testing, and Playwright for end-to-end (E2E) testing:
 
 ```bash
-# Run all tests
+# Run all unit and integration tests
 pnpm test
 
 # Run tests with coverage
 pnpm test:coverage
+
+# Run E2E tests (requires browser extension to be built)
+pnpm test:e2e
+
+# Run E2E tests with UI mode (for interactive debugging)
+pnpm test:e2e:ui
+
+# Run E2E tests with debug mode
+pnpm test:e2e:debug
+
+# View the E2E test report
+pnpm test:e2e:report
 ```
+
+### E2E Testing
+
+E2E tests verify the tooltip feature of the extension in a real browser environment:
+
+- Tests verify tooltip appearance on hover
+- Tests verify keyboard navigation and accessibility
+- Tests verify tooltip content matches original text
+- Tests verify tooltip behavior with dynamic content
+
+The E2E tests require the extension to be loaded in a headful browser and cannot run in headless mode due to browser extension limitations.
 
 ## Contributing
 

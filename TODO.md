@@ -318,7 +318,7 @@
         1. Tests pass with >90% coverage for the module
     - **Depends‑on:** [T007, T008, T009, T010]
 
-- [ ] **T021 · Test · P1: Write unit tests for TooltipManager**
+- [x] **T021 · Test · P1: Write unit tests for TooltipManager**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Create test file for TooltipManager
@@ -330,7 +330,7 @@
         1. Tests pass with >90% coverage for the module
     - **Depends‑on:** [T013, T014]
 
-- [ ] **T022 · Test · P2: Write integration tests for component interaction**
+- [x] **T022 · Test · P2: Write integration tests for component interaction**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Create integration test for TextProcessor → DOMModifier flow
@@ -340,7 +340,7 @@
         1. Integration tests pass for key component interactions
     - **Depends‑on:** [T015]
 
-- [ ] **T023 · Test · P3: Write E2E tests for tooltip feature**
+- [x] **T023 · Test · P3: Write E2E tests for tooltip feature**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Set up Playwright or Cypress for browser testing
@@ -352,7 +352,7 @@
     - **Depends‑on:** [T016]
 
 ## Documentation
-- [ ] **T024 · Docs · P2: Update documentation**
+- [x] **T024 · Docs · P2: Update documentation**
     - **Context:** Documentation section (TS-01-plan.md)
     - **Action:**
         1. Add JSDoc/TSDoc comments to all new interfaces, classes, methods
@@ -370,19 +370,3 @@
         2. Project documentation reflects the new feature
     - **Depends‑on:** [T015]
 
-## Clarifications & Assumptions
-- [ ] **Q001: Clarify tooltip content styling for long or pre-formatted text**
-    - **Context:** Open Questions #1 (TS-01-plan.md)
-    - **Blocking:** No - Current plan is max-width/height, ellipsis/scroll, white-space: pre-wrap
-
-- [ ] **Q002: Clarify touch device interaction requirements**
-    - **Context:** Open Questions #2 (TS-01-plan.md)
-    - **Blocking:** No - Current plan focuses on hover and keyboard only
-
-- [ ] **Q003: Clarify if user configuration of tooltip behavior is needed**
-    - **Context:** Open Questions #3 (TS-01-plan.md)
-    - **Blocking:** No - Current plan has no user configuration
-
-- [ ] **Q004: Clarify visual coordination between tooltip and converted text**
-    - **Context:** Open Questions #4 (TS-01-plan.md)
-    - **Blocking:** No - Current plan assumes independent styling
