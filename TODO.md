@@ -283,7 +283,7 @@
     - **Depends‑on:** [T015]
 
 ## Testing
-- [ ] **T018 · Test · P1: Write unit tests for TextProcessor.identifyConversableSegments**
+- [x] **T018 · Test · P1: Write unit tests for TextProcessor.identifyConversableSegments**
     - **Context:** Testing Strategy (TS-01-plan.md)
     - **Action:**
         1. Create test file for TextProcessor
