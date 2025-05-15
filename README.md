@@ -49,8 +49,6 @@ Trump Goggles transforms your browsing experience with replacements like:
 
 | Original         | Replacement         |
 | ---------------- | ------------------- |
-| Donald Trump     | Agent Orange        |
-| Trump            | The Orange One      |
 | ISIS             | Evil Losers         |
 | Hillary Clinton  | Crooked Hillary     |
 | New York Times   | FAKE NEWS           |
