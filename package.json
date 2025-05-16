@@ -3,6 +3,10 @@
   "version": "2.0.0",
   "description": "See the world like Trump does - Chrome Extension",
   "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "build:prod": "NODE_ENV=production rollup -c",
+    "build:clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -35,6 +39,9 @@
   "type": "module",
   "devDependencies": {
     "@playwright/test": "1.52.0",
+    "@rollup/plugin-commonjs": "28.0.3",
+    "@rollup/plugin-node-resolve": "16.0.1",
+    "@rollup/plugin-terser": "0.4.4",
     "@types/chrome": "0.0.318",
     "@types/node": "22.15.3",
     "@vitest/coverage-v8": "^3.1.2",
@@ -47,6 +54,8 @@
     "open": "10.1.2",
     "playwright": "1.52.0",
     "prettier": "3.5.3",
+    "rollup": "4.40.2",
+    "rollup-plugin-copy": "3.5.0",
     "typescript": "5.8.3",
     "vitest": "^3.1.2"
   }

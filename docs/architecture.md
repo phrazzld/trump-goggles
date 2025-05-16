@@ -54,8 +54,8 @@ Each module is designed as a self-contained unit with a clear responsibility:
 │      Logger         │
 │                     │
 └─────────────────────┘
- Provides logging and  
- diagnostics           
+ Provides logging and
+ diagnostics
 
 ┌─────────────────────┐
 │                     │
@@ -176,6 +176,7 @@ Each module is designed as a self-contained unit with a clear responsibility:
    - TooltipManager sets up event listeners for tooltips
 
 3. **Ongoing Processing**:
+
    - MutationObserver watches for DOM changes
    - New content is processed as it appears
    - Text replacements and DOM modifications apply to new content

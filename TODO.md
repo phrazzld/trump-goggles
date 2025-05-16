@@ -69,7 +69,7 @@
 
 ## TypeScript Foundation & Build Configuration
 
-- [ ] **T007 · Chore · P0: configure bundler (webpack/rollup) for ES Module browser extension build**
+- [x] **T007 · Chore · P0: configure bundler (webpack/rollup) for ES Module browser extension build**
 
   - **Context:** PLAN.md, CR-01, Step 3
   - **Action:**

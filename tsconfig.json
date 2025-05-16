@@ -29,6 +29,8 @@
     "content-consolidated.js",
     "content-before-optimization.js",
     "performance-test.js",
-    "setup-performance-test.js"
+    "setup-performance-test.js",
+    "dist/**/*",
+    "rollup.config.js"
   ]
 }

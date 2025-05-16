@@ -8,6 +8,7 @@
 ### Core User Features & Accessibility
 
 - **[Feature]**: Implement hover tooltip showing original unconverted text
+
   - **Type**: Feature
   - **Complexity**: Medium
   - **Rationale**: Enhances user experience by providing context and transparency about the conversion process, allowing users to see the original text.
@@ -15,6 +16,7 @@
   - **Dependencies**: None
 
 - **[Feature]**: Display converted text in a styled, visually distinct container
+
   - **Type**: Feature
   - **Complexity**: Simple
   - **Rationale**: Improves visual distinction of converted text, making the extension's effect clear and enhancing readability without being overly intrusive.
@@ -31,6 +33,7 @@
 ### Architectural Foundation & Modernization
 
 - **[Refactor] ID: [FUT-02C]**: Convert All JavaScript to TypeScript & Enforce Strict Typing
+
   - **Type**: Refactor
   - **Complexity**: Complex
   - **Rationale**: Enforces strict typing ("Leverage Types Diligently"), improves code quality, maintainability, and developer experience by catching errors at compile-time. Prevents use of `any` without justification.
@@ -38,6 +41,7 @@
   - **Dependencies**: None (first step in modernization)
 
 - **[Refactor] ID: [FUT-03C]**: Adopt Standard Module System (ES Modules) & Bundling
+
   - **Type**: Refactor
   - **Complexity**: Complex
   - **Rationale**: Aligns with "Modularity is Mandatory" philosophy. Eliminates hidden global dependencies, improves code organization, enables tree-shaking, and facilitates modern development workflows.
@@ -45,6 +49,7 @@
   - **Dependencies**: [FUT-02C] (TypeScript conversion with module syntax)
 
 - **[Enhancement] ID: [FUT-04C]**: Refine and Centralize Type Definitions with Explicit Interfaces
+
   - **Type**: Enhancement
   - **Complexity**: Medium
   - **Rationale**: Improves code clarity, maintainability, and type safety by creating explicit contracts between modules and centralizing shared type definitions.
@@ -52,6 +57,7 @@
   - **Dependencies**: [FUT-02C] (Basic TypeScript implementation)
 
 - **[Refactor] ID: [ARCH-01]**: Modularize Content Script Architecture with Dependency Injection
+
   - **Type**: Refactor
   - **Complexity**: Complex
   - **Rationale**: Decouples components, makes dependencies explicit, improves testability, and removes reliance on global state/functions. Aligns with "Strict Separation of Concerns."
@@ -68,6 +74,7 @@
 ### Testing & CI/CD Infrastructure
 
 - **[Test] ID: [FUT-01C]**: Implement Comprehensive Unit Testing with Strict Mocking Policy
+
   - **Type**: Test
   - **Complexity**: Complex
   - **Rationale**: Ensures code correctness, prevents regressions, and enables safe refactoring. Strict mocking policy (mock only at true external boundaries) improves test quality and design.
@@ -75,6 +82,7 @@
   - **Dependencies**: None (can begin with existing code, evolving as architecture improves)
 
 - **[Enhancement] ID: [DEV-01]**: Add Explicit TypeScript Checking to Pre-commit Hooks
+
   - **Type**: Enhancement
   - **Complexity**: Simple
   - **Rationale**: Provides faster feedback to developers and catches type errors before code is even pushed, improving robustness and reducing CI load.
@@ -91,6 +99,7 @@
 ### Observability & Error Handling
 
 - **[Enhancement] ID: [LOG-01]**: Implement Structured JSON Logging for All Operations
+
   - **Type**: Enhancement
   - **Complexity**: Medium
   - **Rationale**: Eliminates direct `console.*` usage for application logging, enabling better log analysis, filtering, and monitoring. Aligns with "Structured Logging is Mandatory."
@@ -109,6 +118,7 @@
 ### Code Quality & Maintainability
 
 - **[Refactor] ID: [DEV-03C]**: Enforce Immutability for Core Data Structures
+
   - **Type**: Refactor
   - **Complexity**: Medium
   - **Rationale**: Prevents accidental mutations in shared data (e.g., mapping objects), simplifies state management, and reduces side effects. Aligns with "Default to Immutability."
@@ -125,6 +135,7 @@
 ### Documentation & Configuration
 
 - **[Docs] ID: [DOCS-01]**: Update Documentation with Architectural Decisions and "Why" Rationales
+
   - **Type**: Docs
   - **Complexity**: Medium
   - **Rationale**: Documents key architectural choices, design patterns, and their reasoning, aiding onboarding for new contributors and providing context for future development. Aligns with "Document Decisions, Not Mechanics."
@@ -143,6 +154,7 @@
 ### Security & Dependency Management
 
 - **[Security] ID: [SEC-01]**: Add Dependency Vulnerability Scanning to CI Pipeline
+
   - **Type**: Security
   - **Complexity**: Simple
   - **Rationale**: Automatically detects known security vulnerabilities in third-party dependencies, enabling proactive mitigation.
@@ -159,6 +171,7 @@
 ### Code Cleanup & Housekeeping
 
 - **[Chore] ID: [CLEANUP-01]**: Remove Deprecated Code and Legacy Warning Mechanisms
+
   - **Type**: Chore
   - **Complexity**: Simple
   - **Rationale**: Improves codebase maintainability by removing dead, obsolete, or superseded code (e.g., legacy `window.buildTrumpMap` function, custom console warning shims).
@@ -166,6 +179,7 @@
   - **Dependencies**: [LOG-01] (For replacement logging functionality)
 
 - **[Chore] ID: [DEV-05C]**: Enforce Newlines at End of All Text Files
+
   - **Type**: Chore
   - **Complexity**: Simple
   - **Rationale**: Ensures consistent file formatting across the project, preventing trivial diffs and satisfying some linter/tool requirements.
@@ -184,18 +198,21 @@
 This section includes items that are valuable for long-term vision, innovation, or depend on significant prior work.
 
 - **[Research]**: Investigate Advanced Text Processing & Matching Algorithms
+
   - **Type**: Research
   - **Complexity**: Medium
   - **Rationale**: Explore more sophisticated techniques (e.g., context-awareness, NLP, whole-word matching improvements) to enhance the accuracy and relevance of text transformations.
   - **Expected Outcome**: A research summary outlining potential improvements, feasibility, and effort for enhancing text processing capabilities.
 
 - **[Feature]**: User-configurable Mappings and Settings UI
+
   - **Type**: Feature
   - **Complexity**: Complex
   - **Rationale**: Allow users to customize replacement rules, toggle the extension on/off for specific sites, or adjust UI styling, significantly increasing utility and user control.
   - **Expected Outcome**: A functional and accessible options page or popup UI allowing users to manage their preferences, with settings persisted via extension storage.
 
 - **[Test]**: Implement End-to-End (E2E) Testing for Key User Flows
+
   - **Type**: Test
   - **Complexity**: Complex
   - **Rationale**: Provides the highest level of confidence by testing user scenarios in a real browser environment, complementing unit and integration tests.

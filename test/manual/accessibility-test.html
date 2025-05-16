@@ -1,407 +1,433 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trump Goggles Accessibility Test</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.6;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    h1, h2, h3 {
-      margin-top: 1.5em;
-    }
-    
-    .section {
-      margin-bottom: 30px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    
-    .instructions {
-      background-color: #f8f9fa;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-left: 4px solid #0d6efd;
-    }
-    
-    .test-item {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px dashed #ccc;
-    }
-    
-    .tg-converted-text {
-      background-color: #ffc;
-      cursor: pointer;
-      position: relative;
-      transition: background-color 0.2s;
-    }
-    
-    .tg-converted-text:hover {
-      background-color: #ffb;
-    }
-    
-    .tg-converted-text:focus {
-      background-color: #ffe;
-      outline: 2px solid #0d6efd;
-      box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
-      border-radius: 2px;
-      text-decoration: underline;
-    }
-    
-    .contrast-section {
-      padding: 15px;
-    }
-    
-    .dark-bg {
-      background-color: #222;
-      color: #fff;
-      padding: 15px;
-    }
-    
-    .light-bg {
-      background-color: #f8f9fa;
-      color: #333;
-      padding: 15px;
-    }
-    
-    .colored-bg {
-      background-color: #235;
-      color: #fff;
-      padding: 15px;
-    }
-    
-    .controls {
-      margin: 20px 0;
-      padding: 10px;
-      background-color: #f0f0f0;
-      border-radius: 4px;
-    }
-    
-    button {
-      padding: 5px 10px;
-      margin-right: 10px;
-    }
-    
-    code {
-      display: block;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: monospace;
-      white-space: pre-wrap;
-      margin: 10px 0;
-    }
-  </style>
-</head>
-<body>
-  <h1>Trump Goggles Accessibility Test Page</h1>
-  
-  <div class="instructions">
-    <p>This page is designed to test accessibility features of the Trump Goggles tooltip functionality. It includes test cases for keyboard navigation, ARIA attributes, screen reader compatibility, and visual contrast.</p>
-    <p>To use this page, load it with the Trump Goggles extension enabled.</p>
-  </div>
-  
-  <div class="controls">
-    <button id="inspection-mode">Enable Inspector</button>
-    <button id="reset-page">Reset Page</button>
-    <button id="check-contrast">Check Contrast</button>
-    <button id="check-tabindex">Test Tab Order</button>
-    <button id="check-aria">Check ARIA Attributes</button>
-  </div>
-  
-  <div class="section" id="keyboard-section">
-    <h2>Keyboard Navigation Testing</h2>
-    <div class="instructions">
-      <p>Use Tab key to navigate between converted text elements. Press Escape to dismiss tooltips.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>In a speech on Tuesday, Donald Trump criticized the policy decisions made by President Biden.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>Many Americans are concerned about what Donald Trump said during his recent interview.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>Form with intervening elements:</p>
-      <input type="text" placeholder="Text input">
-      <br><br>
-      <p>Donald Trump has announced his intention to run for office again.</p>
-      <br>
-      <button>A button</button>
-      <br><br>
-      <p>Donald Trump's economic policies have been debated extensively.</p>
-    </div>
-  </div>
-  
-  <div class="section" id="screen-reader">
-    <h2>Screen Reader Testing</h2>
-    <div class="instructions">
-      <p>Navigate through these examples using a screen reader to verify that original text is announced.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>Donald Trump released a statement about the new economic plan.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>The spokesperson for Donald Trump declined to comment.</p>
-    </div>
-    
-    <div class="test-item">
-      <p>A longer text with multiple mentions of Donald Trump, where Donald Trump is mentioned more than once. Donald Trump appears three times in this paragraph.</p>
-    </div>
-  </div>
-  
-  <div class="section" id="contrast-section">
-    <h2>Contrast Testing</h2>
-    <div class="instructions">
-      <p>Test tooltips against different background colors to verify sufficient contrast.</p>
-    </div>
-    
-    <div class="test-item light-bg">
-      <p>Light background: Donald Trump spoke at the conference yesterday.</p>
-    </div>
-    
-    <div class="test-item dark-bg">
-      <p>Dark background: Donald Trump is planning to visit several states next month.</p>
-    </div>
-    
-    <div class="test-item colored-bg">
-      <p>Colored background: According to Donald Trump, the negotiations are ongoing.</p>
-    </div>
-  </div>
-  
-  <div class="section" id="aria-verification">
-    <h2>ARIA Attributes Verification</h2>
-    <div class="instructions">
-      <p>This section helps verify proper ARIA attribute implementation.</p>
-      <p>Use the inspector button above to examine converted text elements for:</p>
-      <ul>
-        <li>tabindex="0" attribute</li>
-        <li>data-original-text attribute</li>
-        <li>aria-describedby linking to tooltip</li>
-      </ul>
-      <p>And on the tooltip element for:</p>
-      <ul>
-        <li>role="tooltip"</li>
-        <li>aria-hidden state changes</li>
-      </ul>
-    </div>
-    
-    <div class="test-item">
-      <p>Hover or focus on this text about Donald Trump to verify ARIA attributes.</p>
-    </div>
-    
-    <div id="attribute-display">
-      <h3>Element Attributes</h3>
-      <code id="element-attributes">Select an element to inspect</code>
-      
-      <h3>Tooltip Attributes</h3>
-      <code id="tooltip-attributes">Tooltip not yet shown</code>
-    </div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trump Goggles Accessibility Test</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          'Open Sans', 'Helvetica Neue', sans-serif;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-  <script>
-    // This script is for the test page only, to help with inspection
-    let isInspectorActive = false;
-    
-    document.getElementById('inspection-mode').addEventListener('click', function() {
-      this.textContent = isInspectorActive ? 'Enable Inspector' : 'Disable Inspector';
-      isInspectorActive = !isInspectorActive;
-      
-      if (isInspectorActive) {
-        document.addEventListener('mouseover', inspectElement);
-      } else {
-        document.removeEventListener('mouseover', inspectElement);
+      h1,
+      h2,
+      h3 {
+        margin-top: 1.5em;
       }
-    });
-    
-    document.getElementById('reset-page').addEventListener('click', function() {
-      location.reload();
-    });
-    
-    document.getElementById('check-contrast').addEventListener('click', function() {
-      const tooltip = document.getElementById('tg-tooltip');
-      if (!tooltip) {
-        alert('Tooltip element not found. Hover over a converted text element first.');
-        return;
+
+      .section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
-      
-      const bgColor = getComputedStyle(tooltip).backgroundColor;
-      const textColor = getComputedStyle(tooltip).color;
-      
-      const resultDiv = document.createElement('div');
-      resultDiv.style.padding = '10px';
-      resultDiv.style.margin = '10px 0';
-      resultDiv.style.border = '1px solid #ccc';
-      
-      resultDiv.innerHTML = `
+
+      .instructions {
+        background-color: #f8f9fa;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-left: 4px solid #0d6efd;
+      }
+
+      .test-item {
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px dashed #ccc;
+      }
+
+      .tg-converted-text {
+        background-color: #ffc;
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .tg-converted-text:hover {
+        background-color: #ffb;
+      }
+
+      .tg-converted-text:focus {
+        background-color: #ffe;
+        outline: 2px solid #0d6efd;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+        border-radius: 2px;
+        text-decoration: underline;
+      }
+
+      .contrast-section {
+        padding: 15px;
+      }
+
+      .dark-bg {
+        background-color: #222;
+        color: #fff;
+        padding: 15px;
+      }
+
+      .light-bg {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 15px;
+      }
+
+      .colored-bg {
+        background-color: #235;
+        color: #fff;
+        padding: 15px;
+      }
+
+      .controls {
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+      }
+
+      button {
+        padding: 5px 10px;
+        margin-right: 10px;
+      }
+
+      code {
+        display: block;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Trump Goggles Accessibility Test Page</h1>
+
+    <div class="instructions">
+      <p>
+        This page is designed to test accessibility features of the Trump Goggles tooltip
+        functionality. It includes test cases for keyboard navigation, ARIA attributes, screen
+        reader compatibility, and visual contrast.
+      </p>
+      <p>To use this page, load it with the Trump Goggles extension enabled.</p>
+    </div>
+
+    <div class="controls">
+      <button id="inspection-mode">Enable Inspector</button>
+      <button id="reset-page">Reset Page</button>
+      <button id="check-contrast">Check Contrast</button>
+      <button id="check-tabindex">Test Tab Order</button>
+      <button id="check-aria">Check ARIA Attributes</button>
+    </div>
+
+    <div class="section" id="keyboard-section">
+      <h2>Keyboard Navigation Testing</h2>
+      <div class="instructions">
+        <p>
+          Use Tab key to navigate between converted text elements. Press Escape to dismiss tooltips.
+        </p>
+      </div>
+
+      <div class="test-item">
+        <p>
+          In a speech on Tuesday, Donald Trump criticized the policy decisions made by President
+          Biden.
+        </p>
+      </div>
+
+      <div class="test-item">
+        <p>
+          Many Americans are concerned about what Donald Trump said during his recent interview.
+        </p>
+      </div>
+
+      <div class="test-item">
+        <p>Form with intervening elements:</p>
+        <input type="text" placeholder="Text input" />
+        <br /><br />
+        <p>Donald Trump has announced his intention to run for office again.</p>
+        <br />
+        <button>A button</button>
+        <br /><br />
+        <p>Donald Trump's economic policies have been debated extensively.</p>
+      </div>
+    </div>
+
+    <div class="section" id="screen-reader">
+      <h2>Screen Reader Testing</h2>
+      <div class="instructions">
+        <p>
+          Navigate through these examples using a screen reader to verify that original text is
+          announced.
+        </p>
+      </div>
+
+      <div class="test-item">
+        <p>Donald Trump released a statement about the new economic plan.</p>
+      </div>
+
+      <div class="test-item">
+        <p>The spokesperson for Donald Trump declined to comment.</p>
+      </div>
+
+      <div class="test-item">
+        <p>
+          A longer text with multiple mentions of Donald Trump, where Donald Trump is mentioned more
+          than once. Donald Trump appears three times in this paragraph.
+        </p>
+      </div>
+    </div>
+
+    <div class="section" id="contrast-section">
+      <h2>Contrast Testing</h2>
+      <div class="instructions">
+        <p>Test tooltips against different background colors to verify sufficient contrast.</p>
+      </div>
+
+      <div class="test-item light-bg">
+        <p>Light background: Donald Trump spoke at the conference yesterday.</p>
+      </div>
+
+      <div class="test-item dark-bg">
+        <p>Dark background: Donald Trump is planning to visit several states next month.</p>
+      </div>
+
+      <div class="test-item colored-bg">
+        <p>Colored background: According to Donald Trump, the negotiations are ongoing.</p>
+      </div>
+    </div>
+
+    <div class="section" id="aria-verification">
+      <h2>ARIA Attributes Verification</h2>
+      <div class="instructions">
+        <p>This section helps verify proper ARIA attribute implementation.</p>
+        <p>Use the inspector button above to examine converted text elements for:</p>
+        <ul>
+          <li>tabindex="0" attribute</li>
+          <li>data-original-text attribute</li>
+          <li>aria-describedby linking to tooltip</li>
+        </ul>
+        <p>And on the tooltip element for:</p>
+        <ul>
+          <li>role="tooltip"</li>
+          <li>aria-hidden state changes</li>
+        </ul>
+      </div>
+
+      <div class="test-item">
+        <p>Hover or focus on this text about Donald Trump to verify ARIA attributes.</p>
+      </div>
+
+      <div id="attribute-display">
+        <h3>Element Attributes</h3>
+        <code id="element-attributes">Select an element to inspect</code>
+
+        <h3>Tooltip Attributes</h3>
+        <code id="tooltip-attributes">Tooltip not yet shown</code>
+      </div>
+    </div>
+
+    <script>
+      // This script is for the test page only, to help with inspection
+      let isInspectorActive = false;
+
+      document.getElementById('inspection-mode').addEventListener('click', function () {
+        this.textContent = isInspectorActive ? 'Enable Inspector' : 'Disable Inspector';
+        isInspectorActive = !isInspectorActive;
+
+        if (isInspectorActive) {
+          document.addEventListener('mouseover', inspectElement);
+        } else {
+          document.removeEventListener('mouseover', inspectElement);
+        }
+      });
+
+      document.getElementById('reset-page').addEventListener('click', function () {
+        location.reload();
+      });
+
+      document.getElementById('check-contrast').addEventListener('click', function () {
+        const tooltip = document.getElementById('tg-tooltip');
+        if (!tooltip) {
+          alert('Tooltip element not found. Hover over a converted text element first.');
+          return;
+        }
+
+        const bgColor = getComputedStyle(tooltip).backgroundColor;
+        const textColor = getComputedStyle(tooltip).color;
+
+        const resultDiv = document.createElement('div');
+        resultDiv.style.padding = '10px';
+        resultDiv.style.margin = '10px 0';
+        resultDiv.style.border = '1px solid #ccc';
+
+        resultDiv.innerHTML = `
         <h3>Contrast Analysis</h3>
         <p>Tooltip Background: ${bgColor}</p>
         <p>Tooltip Text: ${textColor}</p>
         <p>For accurate contrast ratio calculation, please use a tool like WebAIM's Contrast Checker with these values.</p>
         <p>WCAG AA requires a minimum contrast ratio of 4.5:1 for normal text.</p>
       `;
-      
-      // Sample the background color the tooltip is displayed against
-      const testPoints = [
-        document.querySelector('.light-bg'),
-        document.querySelector('.dark-bg'),
-        document.querySelector('.colored-bg')
-      ];
-      
-      if (testPoints.some(el => el)) {
-        resultDiv.innerHTML += '<h4>Background Colors:</h4><ul>';
-        testPoints.forEach(el => {
-          if (el) {
-            resultDiv.innerHTML += `<li>${el.className}: ${getComputedStyle(el).backgroundColor}</li>`;
-          }
-        });
-        resultDiv.innerHTML += '</ul>';
-      }
-      
-      document.body.appendChild(resultDiv);
-    });
-    
-    document.getElementById('check-tabindex').addEventListener('click', function() {
-      const convertedElements = document.querySelectorAll('.tg-converted-text');
-      if (!convertedElements.length) {
-        alert('No converted text elements found. Make sure the extension is active.');
-        return;
-      }
-      
-      // Highlight elements in tab order
-      let index = 1;
-      convertedElements.forEach(el => {
-        const badge = document.createElement('span');
-        badge.textContent = index++;
-        badge.style.position = 'absolute';
-        badge.style.top = '-10px';
-        badge.style.right = '-10px';
-        badge.style.backgroundColor = 'red';
-        badge.style.color = 'white';
-        badge.style.borderRadius = '50%';
-        badge.style.width = '20px';
-        badge.style.height = '20px';
-        badge.style.textAlign = 'center';
-        badge.style.lineHeight = '20px';
-        badge.style.fontSize = '12px';
-        badge.style.fontWeight = 'bold';
-        
-        el.style.position = 'relative';
-        el.appendChild(badge);
-      });
-      
-      alert(`Found ${convertedElements.length} tabbable elements. They are now numbered in tab order.`);
-    });
-    
-    document.getElementById('check-aria').addEventListener('click', function() {
-      const convertedElements = document.querySelectorAll('.tg-converted-text');
-      if (!convertedElements.length) {
-        alert('No converted text elements found. Make sure the extension is active.');
-        return;
-      }
-      
-      const tooltip = document.getElementById('tg-tooltip');
-      
-      const resultDiv = document.createElement('div');
-      resultDiv.style.padding = '10px';
-      resultDiv.style.margin = '10px 0';
-      resultDiv.style.border = '1px solid #ccc';
-      
-      let ariaReport = '<h3>ARIA Attribute Check</h3>';
-      
-      // Check converted text elements
-      ariaReport += '<h4>Converted Text Elements:</h4><ul>';
-      let allHaveTabindex = true;
-      let allHaveDataOriginal = true;
-      
-      convertedElements.forEach((el, i) => {
-        const hasTabindex = el.hasAttribute('tabindex');
-        const hasDataOriginal = el.hasAttribute('data-original-text');
-        const tabindexValue = el.getAttribute('tabindex');
-        
-        if (!hasTabindex) allHaveTabindex = false;
-        if (!hasDataOriginal) allHaveDataOriginal = false;
-        
-        ariaReport += `<li>Element #${i+1}: ${hasTabindex ? '✅' : '❌'} tabindex="${tabindexValue}" | ${hasDataOriginal ? '✅' : '❌'} data-original-text</li>`;
-      });
-      
-      ariaReport += '</ul>';
-      ariaReport += `<p>All elements have tabindex="0": ${allHaveTabindex ? '✅ Yes' : '❌ No'}</p>`;
-      ariaReport += `<p>All elements have data-original-text: ${allHaveDataOriginal ? '✅ Yes' : '❌ No'}</p>`;
-      
-      // Check tooltip element
-      ariaReport += '<h4>Tooltip Element:</h4>';
-      if (tooltip) {
-        const hasRole = tooltip.hasAttribute('role');
-        const roleValue = tooltip.getAttribute('role');
-        const hasAriaHidden = tooltip.hasAttribute('aria-hidden');
-        const ariaHiddenValue = tooltip.getAttribute('aria-hidden');
-        
-        ariaReport += `<p>role="tooltip": ${hasRole && roleValue === 'tooltip' ? '✅ Yes' : '❌ No'}</p>`;
-        ariaReport += `<p>aria-hidden attribute: ${hasAriaHidden ? '✅ Yes (value: ' + ariaHiddenValue + ')' : '❌ No'}</p>`;
-        
-        // Check if any element has aria-describedby
-        let hasAriaDescribedby = false;
-        const describedbyElements = document.querySelectorAll(`[aria-describedby="${tooltip.id}"]`);
-        
-        ariaReport += `<p>Elements with aria-describedby linking to tooltip: ${describedbyElements.length}</p>`;
-        if (describedbyElements.length > 0) {
-          ariaReport += '<ul>';
-          describedbyElements.forEach((el, i) => {
-            ariaReport += `<li>Element #${i+1}: ✅ aria-describedby="${tooltip.id}"</li>`;
+
+        // Sample the background color the tooltip is displayed against
+        const testPoints = [
+          document.querySelector('.light-bg'),
+          document.querySelector('.dark-bg'),
+          document.querySelector('.colored-bg'),
+        ];
+
+        if (testPoints.some((el) => el)) {
+          resultDiv.innerHTML += '<h4>Background Colors:</h4><ul>';
+          testPoints.forEach((el) => {
+            if (el) {
+              resultDiv.innerHTML += `<li>${el.className}: ${getComputedStyle(el).backgroundColor}</li>`;
+            }
           });
-          ariaReport += '</ul>';
+          resultDiv.innerHTML += '</ul>';
         }
-      } else {
-        ariaReport += '<p>❌ Tooltip element not found. Hover over a converted text element first.</p>';
-      }
-      
-      resultDiv.innerHTML = ariaReport;
-      document.body.appendChild(resultDiv);
-    });
-    
-    function inspectElement(event) {
-      const target = event.target;
-      
-      // Check if this is a converted text element
-      if (target.classList.contains('tg-converted-text')) {
-        // Display element attributes
-        const attrHTML = [];
-        for (const attr of target.attributes) {
-          attrHTML.push(`${attr.name}="${attr.value}"`);
+
+        document.body.appendChild(resultDiv);
+      });
+
+      document.getElementById('check-tabindex').addEventListener('click', function () {
+        const convertedElements = document.querySelectorAll('.tg-converted-text');
+        if (!convertedElements.length) {
+          alert('No converted text elements found. Make sure the extension is active.');
+          return;
         }
-        
-        document.getElementById('element-attributes').textContent = 
-          `<${target.tagName.toLowerCase()} ${attrHTML.join(' ')}>`;
-        
-        // Display tooltip attributes
+
+        // Highlight elements in tab order
+        let index = 1;
+        convertedElements.forEach((el) => {
+          const badge = document.createElement('span');
+          badge.textContent = index++;
+          badge.style.position = 'absolute';
+          badge.style.top = '-10px';
+          badge.style.right = '-10px';
+          badge.style.backgroundColor = 'red';
+          badge.style.color = 'white';
+          badge.style.borderRadius = '50%';
+          badge.style.width = '20px';
+          badge.style.height = '20px';
+          badge.style.textAlign = 'center';
+          badge.style.lineHeight = '20px';
+          badge.style.fontSize = '12px';
+          badge.style.fontWeight = 'bold';
+
+          el.style.position = 'relative';
+          el.appendChild(badge);
+        });
+
+        alert(
+          `Found ${convertedElements.length} tabbable elements. They are now numbered in tab order.`
+        );
+      });
+
+      document.getElementById('check-aria').addEventListener('click', function () {
+        const convertedElements = document.querySelectorAll('.tg-converted-text');
+        if (!convertedElements.length) {
+          alert('No converted text elements found. Make sure the extension is active.');
+          return;
+        }
+
         const tooltip = document.getElementById('tg-tooltip');
+
+        const resultDiv = document.createElement('div');
+        resultDiv.style.padding = '10px';
+        resultDiv.style.margin = '10px 0';
+        resultDiv.style.border = '1px solid #ccc';
+
+        let ariaReport = '<h3>ARIA Attribute Check</h3>';
+
+        // Check converted text elements
+        ariaReport += '<h4>Converted Text Elements:</h4><ul>';
+        let allHaveTabindex = true;
+        let allHaveDataOriginal = true;
+
+        convertedElements.forEach((el, i) => {
+          const hasTabindex = el.hasAttribute('tabindex');
+          const hasDataOriginal = el.hasAttribute('data-original-text');
+          const tabindexValue = el.getAttribute('tabindex');
+
+          if (!hasTabindex) allHaveTabindex = false;
+          if (!hasDataOriginal) allHaveDataOriginal = false;
+
+          ariaReport += `<li>Element #${i + 1}: ${hasTabindex ? '✅' : '❌'} tabindex="${tabindexValue}" | ${hasDataOriginal ? '✅' : '❌'} data-original-text</li>`;
+        });
+
+        ariaReport += '</ul>';
+        ariaReport += `<p>All elements have tabindex="0": ${allHaveTabindex ? '✅ Yes' : '❌ No'}</p>`;
+        ariaReport += `<p>All elements have data-original-text: ${allHaveDataOriginal ? '✅ Yes' : '❌ No'}</p>`;
+
+        // Check tooltip element
+        ariaReport += '<h4>Tooltip Element:</h4>';
         if (tooltip) {
-          const tooltipAttrHTML = [];
-          for (const attr of tooltip.attributes) {
-            tooltipAttrHTML.push(`${attr.name}="${attr.value}"`);
+          const hasRole = tooltip.hasAttribute('role');
+          const roleValue = tooltip.getAttribute('role');
+          const hasAriaHidden = tooltip.hasAttribute('aria-hidden');
+          const ariaHiddenValue = tooltip.getAttribute('aria-hidden');
+
+          ariaReport += `<p>role="tooltip": ${hasRole && roleValue === 'tooltip' ? '✅ Yes' : '❌ No'}</p>`;
+          ariaReport += `<p>aria-hidden attribute: ${hasAriaHidden ? '✅ Yes (value: ' + ariaHiddenValue + ')' : '❌ No'}</p>`;
+
+          // Check if any element has aria-describedby
+          let hasAriaDescribedby = false;
+          const describedbyElements = document.querySelectorAll(
+            `[aria-describedby="${tooltip.id}"]`
+          );
+
+          ariaReport += `<p>Elements with aria-describedby linking to tooltip: ${describedbyElements.length}</p>`;
+          if (describedbyElements.length > 0) {
+            ariaReport += '<ul>';
+            describedbyElements.forEach((el, i) => {
+              ariaReport += `<li>Element #${i + 1}: ✅ aria-describedby="${tooltip.id}"</li>`;
+            });
+            ariaReport += '</ul>';
           }
-          
-          document.getElementById('tooltip-attributes').textContent = 
-            `<div ${tooltipAttrHTML.join(' ')}>`;
         } else {
-          document.getElementById('tooltip-attributes').textContent = 'Tooltip element not found';
+          ariaReport +=
+            '<p>❌ Tooltip element not found. Hover over a converted text element first.</p>';
+        }
+
+        resultDiv.innerHTML = ariaReport;
+        document.body.appendChild(resultDiv);
+      });
+
+      function inspectElement(event) {
+        const target = event.target;
+
+        // Check if this is a converted text element
+        if (target.classList.contains('tg-converted-text')) {
+          // Display element attributes
+          const attrHTML = [];
+          for (const attr of target.attributes) {
+            attrHTML.push(`${attr.name}="${attr.value}"`);
+          }
+
+          document.getElementById('element-attributes').textContent =
+            `<${target.tagName.toLowerCase()} ${attrHTML.join(' ')}>`;
+
+          // Display tooltip attributes
+          const tooltip = document.getElementById('tg-tooltip');
+          if (tooltip) {
+            const tooltipAttrHTML = [];
+            for (const attr of tooltip.attributes) {
+              tooltipAttrHTML.push(`${attr.name}="${attr.value}"`);
+            }
+
+            document.getElementById('tooltip-attributes').textContent =
+              `<div ${tooltipAttrHTML.join(' ')}>`;
+          } else {
+            document.getElementById('tooltip-attributes').textContent = 'Tooltip element not found';
+          }
         }
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

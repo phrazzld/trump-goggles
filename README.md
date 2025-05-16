@@ -106,6 +106,18 @@ pnpm install
 ### Development Commands
 
 ```bash
+# Build the extension
+pnpm build
+
+# Build for production (minified, no source maps)
+pnpm build:prod
+
+# Watch mode for development
+pnpm build:watch
+
+# Clean build directory
+pnpm build:clean
+
 # Run tests
 pnpm test
 
@@ -127,6 +139,18 @@ pnpm format
 # Check TypeScript types
 pnpm typecheck
 ```
+
+### Build Process
+
+The extension uses Rollup to bundle ES Modules for browser extension compatibility:
+
+- **Development Build** (`pnpm build:watch`): Includes inline source maps for debugging, watches for file changes
+- **Production Build** (`pnpm build:prod`): Minified output, no source maps, optimized for extension size
+- **Output Directory**: All built files are output to `dist/` directory
+  - `dist/content.js` - Content script bundle
+  - `dist/background.js` - Background script bundle
+  - `dist/manifest.json` - Extension manifest
+  - `dist/images/` - Extension icons and images
 
 ## Project Structure
 

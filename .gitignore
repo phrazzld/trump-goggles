@@ -7,6 +7,8 @@ images/.DS_Store
 SCOPE-ANALYSIS.md
 TODO-*.md
 ci-failure-analysis*.md
+**/glance.md
+REVIEW-CONTEXT.md
 
 # Node and dependencies
 node_modules/
@@ -15,3 +17,6 @@ node_modules/
 # Test files
 coverage/
 .vitest/
+
+# Build output
+dist/
