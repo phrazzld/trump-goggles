@@ -13,504 +13,505 @@
  * @version 1.1.0
  */
 
-// TooltipManager module pattern
-const TooltipManager = (function () {
-  'use strict';
+'use strict';
 
-  // Check if performance utils are available
-  // This allows graceful degradation when the utils are not loaded
-  const performanceUtils = window.PerformanceUtils || null;
+// Check if performance utils are available
+// This allows graceful degradation when the utils are not loaded
+const performanceUtils = window.PerformanceUtils || null;
 
-  // ===== MODULE STATE =====
+// ===== MODULE STATE =====
 
-  /**
-   * Reference to the TooltipUI instance
-   * @type {TooltipUIInterface|null}
-   */
-  let tooltipUI = null;
+/**
+ * Reference to the TooltipUI instance
+ * @type {TooltipUIInterface|null}
+ */
+let tooltipUI = null;
 
-  /**
-   * Flag indicating whether event listeners have been initialized
-   * @type {boolean}
-   */
-  let isInitialized = false;
+/**
+ * Flag indicating whether event listeners have been initialized
+ * @type {boolean}
+ */
+let isInitialized = false;
 
-  /**
-   * Selector for converted text elements that should trigger tooltips
-   * @type {string}
-   */
-  const CONVERTED_TEXT_SELECTOR = '.tg-converted-text';
+/**
+ * Selector for converted text elements that should trigger tooltips
+ * @type {string}
+ */
+const CONVERTED_TEXT_SELECTOR = '.tg-converted-text';
 
-  /**
-   * Attribute containing the original text to display in tooltip
-   * @type {string}
-   */
-  const ORIGINAL_TEXT_ATTR = 'data-original-text';
+/**
+ * Attribute containing the original text to display in tooltip
+ * @type {string}
+ */
+const ORIGINAL_TEXT_ATTR = 'data-original-text';
 
-  /**
-   * Optional delay in milliseconds before showing tooltip to prevent flickering
-   * @type {number}
-   */
-  const SHOW_DELAY = 80; // Milliseconds
+/**
+ * Cache for throttled mouse move handler
+ * @type {Function|null}
+ */
+let cachedThrottledMouseMove = null;
 
-  /**
-   * Throttle delay for mouseover/mouseout events
-   * @type {number}
-   */
-  const THROTTLE_DELAY = 100; // Milliseconds
+/**
+ * Cache for throttled scroll handler
+ * @type {Function|null}
+ */
+let cachedThrottledScroll = null;
 
-  /**
-   * Cache for DOM elements to avoid repeated queries
-   * @type {Map<string, Element>}
-   */
-  const elementCache = new Map();
+/**
+ * Cache for debounced keyboard handler
+ * @type {Function|null}
+ */
+let cachedDebouncedKeyboard = null;
 
-  /**
-   * Track current timeout for delayed showing
-   * @type {ReturnType<typeof setTimeout>|null}
-   */
-  let showDelayTimeout = null;
+// ===== PERFORMANCE OPTIMIZATIONS =====
 
-  // ===== INITIALIZATION & DISPOSAL =====
+/**
+ * Actual logic for mousemove handler
+ *
+ * @private
+ * @param {MouseEvent} event - The mousemove event object
+ */
+function handleMouseMoveLogic(event) {
+  try {
+    const target = event.target;
 
-  /**
-   * Initializes the TooltipManager with a TooltipUI instance
-   * Must be called before other methods can be used
-   *
-   * @public
-   * @param {TooltipUIInterface} tooltipUIInstance - The TooltipUI instance to use
-   */
-  function initialize(tooltipUIInstance) {
-    try {
-      // Validate inputs
-      if (!tooltipUIInstance) {
-        if (window.Logger) {
-          window.Logger.error('TooltipManager: Cannot initialize with null TooltipUI instance');
-        }
-        return;
-      }
-
-      // If already initialized, clean up first
-      if (isInitialized) {
-        dispose();
-      }
-
-      // Store tooltipUI instance
-      tooltipUI = tooltipUIInstance;
-
-      // Ensure tooltip element is created
-      tooltipUI.ensureCreated();
-
-      // Set up delegated event listeners for converting text elements
-      // Use event delegation to handle events for all current and future elements
-      // Use throttled handlers if performance utils are available
-      const mouseOverHandler = performanceUtils
-        ? performanceUtils.throttle(handleShowTooltip, THROTTLE_DELAY)
-        : handleShowTooltip;
-      const mouseOutHandler = performanceUtils
-        ? performanceUtils.throttle(handleHideTooltip, THROTTLE_DELAY)
-        : handleHideTooltip;
-
-      document.body.addEventListener('mouseover', mouseOverHandler);
-      document.body.addEventListener('mouseout', mouseOutHandler);
-      document.body.addEventListener('focusin', handleShowTooltip);
-      document.body.addEventListener('focusout', handleHideTooltip);
-
-      // Add keydown event listener for keyboard dismissal (Escape key)
-      document.addEventListener('keydown', handleKeyDown);
-
-      // Add browser-specific event listeners if adapter is available
-      if (
-        window.TooltipBrowserAdapter &&
-        typeof window.TooltipBrowserAdapter.registerBrowserEvents === 'function'
-      ) {
-        // The function returned by registerBrowserEvents is a cleanup function that we'll call in dispose()
-        const cleanupBrowserEvents = window.TooltipBrowserAdapter.registerBrowserEvents(
-          tooltipUI.getId(),
-          () => {}, // No additional show behavior needed
-          () => {
-            if (tooltipUI) {
-              tooltipUI.hide();
-            }
-          }
-        );
-
-        // Store cleanup function for later use
-        window.tooltipManagerBrowserEventsCleanup = cleanupBrowserEvents;
-      }
-
-      // Mark as initialized
-      isInitialized = true;
-
-      // Log initialization
-      if (window.Logger) {
-        window.Logger.info(
-          'TooltipManager: Initialized successfully with event listeners attached'
-        );
-      }
-    } catch (error) {
-      // Log any errors during initialization
-      if (window.Logger) {
-        window.Logger.error('TooltipManager: Error during initialization', { error });
-      } else {
-        console.error('TooltipManager: Error during initialization', error);
-      }
-
-      // Reset state on error
-      tooltipUI = null;
-      isInitialized = false;
-    }
-  }
-
-  /**
-   * Disposes of the TooltipManager, removing event listeners and cleaning up resources
-   *
-   * @public
-   */
-  function dispose() {
-    try {
-      // Check if already initialized
-      if (!isInitialized) {
-        return;
-      }
-
-      // Clear any pending timeout
-      if (showDelayTimeout !== null) {
-        clearTimeout(showDelayTimeout);
-        showDelayTimeout = null;
-      }
-
-      // Remove all event listeners
-      // Need to use the same function references that were added
-      const mouseOverHandler = performanceUtils
-        ? performanceUtils.throttle(handleShowTooltip, THROTTLE_DELAY)
-        : handleShowTooltip;
-      const mouseOutHandler = performanceUtils
-        ? performanceUtils.throttle(handleHideTooltip, THROTTLE_DELAY)
-        : handleHideTooltip;
-
-      document.body.removeEventListener('mouseover', mouseOverHandler);
-      document.body.removeEventListener('mouseout', mouseOutHandler);
-      document.body.removeEventListener('focusin', handleShowTooltip);
-      document.body.removeEventListener('focusout', handleHideTooltip);
-
-      // Clear the element cache
-      elementCache.clear();
-      document.removeEventListener('keydown', handleKeyDown);
-
-      // Clean up browser-specific event listeners if they were added
-      if (
-        window.tooltipManagerBrowserEventsCleanup &&
-        typeof window.tooltipManagerBrowserEventsCleanup === 'function'
-      ) {
-        window.tooltipManagerBrowserEventsCleanup();
-        window.tooltipManagerBrowserEventsCleanup = undefined;
-      }
-
-      // Call tooltipUI.destroy() if available
-      if (tooltipUI) {
-        tooltipUI.destroy();
-      }
-
-      // Reset state
-      tooltipUI = null;
-      isInitialized = false;
-
-      // Log disposal
-      if (window.Logger) {
-        window.Logger.info('TooltipManager: Disposed successfully, event listeners removed');
-      }
-    } catch (error) {
-      // Log any errors during disposal
-      if (window.Logger) {
-        window.Logger.error('TooltipManager: Error during disposal', { error });
-      } else {
-        console.error('TooltipManager: Error during disposal', error);
-      }
-    }
-  }
-
-  // ===== EVENT HANDLING =====
-
-  /**
-   * Utility function to find closest converted text element from the event target
-   * Optimized with caching to reduce repeated DOM traversals
-   *
-   * @private
-   * @param {EventTarget|null} target - Event target to check
-   * @returns {HTMLElement|null} The converted text element or null if not found
-   */
-  function findConvertedTextElement(target) {
-    // Check if target exists and is an element node
-    if (!target || !(target instanceof HTMLElement)) {
-      return null;
+    // Early exit if target is not valid
+    // @ts-ignore: using target as HTMLElement
+    if (!target || !target.closest) {
+      return;
     }
 
-    // Check if we have this element in cache first
-    if (target.nodeType === Node.ELEMENT_NODE && target.getAttribute) {
-      const cacheKey = target.getAttribute('data-tg-cache-id');
-      if (cacheKey && elementCache.has(cacheKey)) {
-        const element = elementCache.get(cacheKey);
-        return element instanceof HTMLElement ? element : null;
-      }
-    }
+    // Check if we're hovering over a converted text element
+    // @ts-ignore: using target as HTMLElement
+    const convertedElement = target.closest(CONVERTED_TEXT_SELECTOR);
 
-    // Check if the target itself is a converted text element
-    if (target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
-      // Cache the result for future lookups if target has a unique identifier
-      if (target.id) {
-        elementCache.set(target.id, target);
-      }
-      return target;
-    }
-
-    // Otherwise, check if any parent is a converted text element (for events bubbling up)
-    // This is helpful if the event originated from a child of the span (unlikely but possible)
-    if (target.closest) {
-      const closestElement = target.closest(CONVERTED_TEXT_SELECTOR);
-      return closestElement instanceof HTMLElement ? closestElement : null;
-    }
-
-    return null;
-  }
-
-  /**
-   * Shows the tooltip with the original text when hovering over or focusing on converted text
-   *
-   * @private
-   * @param {MouseEvent|FocusEvent} event - The mouseover or focusin event
-   */
-  function handleShowTooltip(event) {
-    try {
-      // Exit early if not initialized
-      if (!isInitialized || !tooltipUI) {
-        return;
-      }
-
-      // Find the converted text element
-      const convertedElement = findConvertedTextElement(event.target);
-      if (!convertedElement) {
-        return; // Not a converted text element or its child
-      }
-
-      // Get the original text from the data attribute
+    if (convertedElement) {
+      // We're hovering over converted text that hasn't shown tooltip yet
+      // Get original text from data attribute
       const originalText = convertedElement.getAttribute(ORIGINAL_TEXT_ATTR);
 
-      // Validate original text
-      if (!originalText) {
-        if (window.Logger) {
-          window.Logger.warn('TooltipManager: Missing data-original-text attribute', {
-            element: convertedElement.outerHTML.slice(0, 100), // Log a snippet of the element
-          });
-        }
-        return;
-      }
+      if (originalText && tooltipUI) {
+        // Update tooltip text and position
+        tooltipUI.setText(originalText);
+        tooltipUI.updatePosition(convertedElement);
+        tooltipUI.show();
 
-      // Clear any existing timeout
-      if (showDelayTimeout !== null) {
-        clearTimeout(showDelayTimeout);
-      }
+        // Set up ARIA relationship for accessibility
+        const tooltipId = tooltipUI.getId();
+        convertedElement.setAttribute('aria-describedby', tooltipId);
 
-      // Store a reference to the current tooltipUI to use inside the closure
-      // This ensures we're not using the potentially null tooltipUI inside the timeout callback
-      const tooltipUIRef = tooltipUI;
-
-      // Implement a small delay to prevent flickering when moving between elements
-      showDelayTimeout = setTimeout(() => {
-        // Verify tooltipUIRef exists before using it
-        if (!tooltipUIRef) {
-          return;
-        }
-
-        // Set the tooltip text
-        tooltipUIRef.setText(originalText);
-
-        // Batch DOM operations when positioning and showing the tooltip
-        const tooltipId = tooltipUIRef.getId();
-
-        // Use performance utils if available to batch DOM operations
-        if (performanceUtils && performanceUtils.DOMBatch) {
-          // First read positions
-          performanceUtils.DOMBatch.read(() => {
-            // Then perform writes
-            performanceUtils.DOMBatch.write(() => {
-              // Position the tooltip
-              tooltipUIRef.updatePosition(convertedElement);
-
-              // Show the tooltip
-              tooltipUIRef.show();
-
-              // Set ARIA attribute for accessibility
-              convertedElement.setAttribute('aria-describedby', tooltipId);
-            });
-          });
-        } else {
-          // Fallback to sequential operations
-          tooltipUIRef.updatePosition(convertedElement);
-          tooltipUIRef.show();
-          convertedElement.setAttribute('aria-describedby', tooltipId);
-        }
-
-        // Log showing tooltip if debug logging is enabled
+        // Log activity if Logger is available
         if (window.Logger && typeof window.Logger.debug === 'function') {
           window.Logger.debug('TooltipManager: Showing tooltip', {
-            originalTextSnippet:
-              originalText.length > 30 ? `${originalText.substring(0, 30)}...` : originalText,
-            elementTag: convertedElement.tagName,
-            elementClasses: convertedElement.className,
+            originalText: originalText.substring(0, 30),
           });
         }
-
-        // Reset timeout reference
-        showDelayTimeout = null;
-      }, SHOW_DELAY);
-    } catch (error) {
-      // Log any errors during tooltip showing
-      if (window.Logger) {
-        window.Logger.error('TooltipManager: Error showing tooltip', { error });
-      } else {
-        console.error('TooltipManager: Error showing tooltip', error);
       }
+    } else if (tooltipUI) {
+      // Not hovering over converted text, hide tooltip if it's visible
+      hideTooltip();
+    }
+  } catch (error) {
+    // Log any errors during mousemove handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error in mousemove handler', { error });
+    } else {
+      console.error('TooltipManager: Error in mousemove handler', error);
     }
   }
+}
 
-  /**
-   * Hides the tooltip when moving away from or blurring a converted text element
-   *
-   * @private
-   * @param {MouseEvent|FocusEvent} event - The mouseout or focusout event
-   */
-  function handleHideTooltip(event) {
-    try {
-      // Exit early if not initialized
-      if (!isInitialized || !tooltipUI) {
-        return;
-      }
+/**
+ * Helper function to hide the tooltip and clean up ARIA attributes
+ *
+ * @private
+ */
+function hideTooltip() {
+  try {
+    if (tooltipUI) {
+      tooltipUI.hide();
 
-      // Clear any pending show timeout
-      if (showDelayTimeout !== null) {
-        clearTimeout(showDelayTimeout);
-        showDelayTimeout = null;
-      }
+      // Remove aria-describedby from any elements that had it
+      const tooltipId = tooltipUI.getId();
+      if (tooltipId) {
+        // Find all elements that reference this tooltip
+        // @ts-ignore: TypeScript doesn't recognize that document.querySelectorAll is always available
+        const describedElements = document.querySelectorAll(`[aria-describedby="${tooltipId}"]`);
 
-      // Find the converted text element
-      const convertedElement = findConvertedTextElement(event.target);
-      if (!convertedElement) {
-        return; // Not a converted text element or its child
-      }
-
-      // For mouseout events, check if we're moving to another element inside the converted text element
-      // This prevents the tooltip from flickering when moving between child elements
-      if (event.type === 'mouseout' && event.relatedTarget) {
-        // Safely check if it's a node before using contains
-        // Since relatedTarget could be any EventTarget not necessarily a Node
-        if (event.relatedTarget instanceof Node && convertedElement.contains(event.relatedTarget)) {
-          return;
+        if (describedElements) {
+          describedElements.forEach((element) => {
+            if (element && element.removeAttribute) {
+              element.removeAttribute('aria-describedby');
+            }
+          });
         }
       }
-
-      // Store a reference to the current tooltipUI to use
-      const tooltipUIRef = tooltipUI;
-      if (!tooltipUIRef) {
-        return;
-      }
-
-      // Use batched operations if available
-      if (performanceUtils && performanceUtils.DOMBatch) {
-        performanceUtils.DOMBatch.write(() => {
-          // Hide the tooltip
-          tooltipUIRef.hide();
-
-          // Remove the ARIA attribute
-          convertedElement.removeAttribute('aria-describedby');
-        });
-      } else {
-        // Fallback to sequential operations
-        tooltipUIRef.hide();
-        convertedElement.removeAttribute('aria-describedby');
-      }
-
-      // Log hiding tooltip if debug logging is enabled
-      if (window.Logger && typeof window.Logger.debug === 'function') {
-        window.Logger.debug('TooltipManager: Hiding tooltip', {
-          eventType: event.type,
-        });
-      }
-    } catch (error) {
-      // Log any errors during tooltip hiding
-      if (window.Logger) {
-        window.Logger.error('TooltipManager: Error hiding tooltip', { error });
-      } else {
-        console.error('TooltipManager: Error hiding tooltip', error);
-      }
+    }
+  } catch (error) {
+    // Log any errors during tooltip hiding
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error hiding tooltip', { error });
+    } else {
+      console.error('TooltipManager: Error hiding tooltip', error);
     }
   }
+}
 
-  /**
-   * Handles keyboard events - dismisses tooltip when Escape key is pressed
-   *
-   * @private
-   * @param {KeyboardEvent} event - The keydown event
-   */
-  function handleKeyDown(event) {
-    try {
-      // Exit early if not initialized
-      if (!isInitialized || !tooltipUI) {
-        return;
-      }
+// ===== HANDLERS =====
 
-      // Check for Escape key
-      if (event.key === 'Escape') {
-        // Get tooltip ID for the selector
+/**
+ * Handles mouse move events with performance throttling
+ * Shows tooltip when hovering over converted text
+ *
+ * @private
+ * @param {MouseEvent} event - The mouse move event object from DOM
+ */
+function handleMouseMove(event) {
+  if (!cachedThrottledMouseMove && performanceUtils) {
+    // Create and cache the throttled function
+    cachedThrottledMouseMove = performanceUtils.throttle(
+      handleMouseMoveLogic,
+      // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+      performanceUtils.Configs.input || { delay: 32 }
+    );
+  }
+
+  if (cachedThrottledMouseMove) {
+    // Use the cached throttled version
+    cachedThrottledMouseMove(event);
+  } else {
+    // Fallback to direct call if no performance utils
+    handleMouseMoveLogic(event);
+  }
+}
+
+/**
+ * Handles mouse leave events to hide tooltip when cursor leaves the page/window
+ *
+ * @private
+ */
+function handleMouseLeave() {
+  try {
+    hideTooltip();
+
+    // Log mouse leave if Logger is available
+    if (window.Logger && typeof window.Logger.debug === 'function') {
+      window.Logger.debug('TooltipManager: Mouse left document, hiding tooltip');
+    }
+  } catch (error) {
+    // Log any errors during mouse leave handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error in mouseleave handler', { error });
+    } else {
+      console.error('TooltipManager: Error in mouseleave handler', error);
+    }
+  }
+}
+
+/**
+ * Handles focus events to show tooltip when tabbing to converted text
+ *
+ * @private
+ * @param {FocusEvent} event - The focus event object from DOM
+ */
+function handleFocus(event) {
+  try {
+    const target = event.target;
+
+    // Check if the focused element is converted text
+    // @ts-ignore: using target as HTMLElement
+    if (target && target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
+      // Get original text from data attribute
+      // @ts-ignore: using target as HTMLElement
+      const originalText = target.getAttribute(ORIGINAL_TEXT_ATTR);
+
+      if (originalText && tooltipUI) {
+        // Show tooltip for focused element
+        tooltipUI.setText(originalText);
+        // @ts-ignore: target is HTMLElement
+        tooltipUI.updatePosition(target);
+        tooltipUI.show();
+
+        // Set up ARIA relationship
         const tooltipId = tooltipUI.getId();
+        // @ts-ignore: target is HTMLElement
+        target.setAttribute('aria-describedby', tooltipId);
 
-        // Use batched operations if available
-        if (performanceUtils && performanceUtils.DOMBatch && tooltipUI) {
-          performanceUtils.DOMBatch.write(() => {
-            // Hide the tooltip
-            tooltipUI?.hide();
-          });
-        } else if (tooltipUI) {
-          // Fallback to direct operation
-          tooltipUI.hide();
-        }
-
-        // Remove any aria-describedby attributes to fully disconnect tooltip
-        if (document && document.querySelectorAll && tooltipId) {
-          const describedElements = document.querySelectorAll(`[aria-describedby="${tooltipId}"]`);
-
-          if (describedElements) {
-            Array.from(describedElements).forEach((element) => {
-              if (element && element.removeAttribute) {
-                element.removeAttribute('aria-describedby');
-              }
-            });
-          }
-        }
-
-        // Log escape key dismissal if debug logging is enabled
+        // Log activity if Logger is available
         if (window.Logger && typeof window.Logger.debug === 'function') {
-          window.Logger.debug('TooltipManager: Dismissed tooltip with Escape key');
+          window.Logger.debug('TooltipManager: Showing tooltip on focus', {
+            originalText: originalText.substring(0, 30),
+          });
         }
-      }
-    } catch (error) {
-      // Log any errors during keyboard handling
-      if (window.Logger) {
-        window.Logger.error('TooltipManager: Error during keyboard dismissal', { error });
-      } else {
-        console.error('TooltipManager: Error during keyboard dismissal', error);
       }
     }
+  } catch (error) {
+    // Log any errors during focus handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error in focus handler', { error });
+    } else {
+      console.error('TooltipManager: Error in focus handler', error);
+    }
+  }
+}
+
+/**
+ * Handles blur events to hide tooltip when tabbing away from converted text
+ *
+ * @private
+ * @param {FocusEvent} event - The blur event object from DOM
+ */
+function handleBlur(event) {
+  try {
+    const target = event.target;
+
+    // Check if the blurred element was showing a tooltip
+    // @ts-ignore: using target as HTMLElement
+    if (target && target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
+      hideTooltip();
+
+      // Log activity if Logger is available
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipManager: Hiding tooltip on blur');
+      }
+    }
+  } catch (error) {
+    // Log any errors during blur handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error in blur handler', { error });
+    } else {
+      console.error('TooltipManager: Error in blur handler', error);
+    }
+  }
+}
+
+/**
+ * Handles scroll events with performance throttling
+ * Hides tooltip during scrolling to avoid positioning issues
+ *
+ * @private
+ */
+function handleScrollLogic() {
+  try {
+    hideTooltip();
+
+    // Log scroll if debug level logging is enabled
+    if (window.Logger && typeof window.Logger.debug === 'function') {
+      window.Logger.debug('TooltipManager: Hiding tooltip due to scroll');
+    }
+  } catch (error) {
+    // Log any errors during scroll handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error in scroll handler', { error });
+    } else {
+      console.error('TooltipManager: Error in scroll handler', error);
+    }
+  }
+}
+
+/**
+ * Handles scroll events
+ * Hides tooltip during scrolling to prevent jarring repositioning
+ *
+ * @private
+ */
+function handleScroll() {
+  if (!cachedThrottledScroll && performanceUtils) {
+    // Create and cache the throttled function
+    cachedThrottledScroll = performanceUtils.throttle(
+      handleScrollLogic,
+      // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+      performanceUtils.Configs.scroll || { delay: 150 }
+    );
   }
 
-  // ===== PUBLIC API =====
+  if (cachedThrottledScroll) {
+    // Use the cached throttled version
+    cachedThrottledScroll();
+  } else {
+    // Fallback to direct call if no performance utils
+    handleScrollLogic();
+  }
+}
 
-  /** @type {TooltipManagerInterface} */
-  return {
-    initialize: initialize,
-    dispose: dispose,
-  };
-})();
+/**
+ * Core keyboard event handler functionality
+ * Currently only handles Escape key to close tooltip
+ *
+ * @private
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+function handleKeyboardLogic(event) {
+  try {
+    // Only handle Escape key for now
+    if (event.key === 'Escape' || event.keyCode === 27) {
+      // @ts-ignore: tooltipUI is checked to be non-null in handleKeydown
+      tooltipUI.hide();
 
-// Export the module
-window.TooltipManager = TooltipManager;
+      // Remove aria-describedby from any elements that had it
+      // @ts-ignore: tooltipUI is checked to be non-null in handleKeydown
+      const tooltipId = tooltipUI.getId();
+      if (tooltipId) {
+        // Find all elements that reference this tooltip
+        // @ts-ignore: TypeScript doesn't recognize that document.querySelectorAll is always available
+        const describedElements = document.querySelectorAll(`[aria-describedby="${tooltipId}"]`);
+
+        if (describedElements) {
+          Array.from(describedElements).forEach((element) => {
+            if (element && element.removeAttribute) {
+              element.removeAttribute('aria-describedby');
+            }
+          });
+        }
+      }
+
+      // Log escape key dismissal if debug logging is enabled
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipManager: Dismissed tooltip with Escape key');
+      }
+    }
+  } catch (error) {
+    // Log any errors during keyboard handling
+    if (window.Logger) {
+      window.Logger.error('TooltipManager: Error during keyboard dismissal', { error });
+    } else {
+      console.error('TooltipManager: Error during keyboard dismissal', error);
+    }
+  }
+}
+
+/**
+ * Handles keyboard events
+ * Currently only handles Escape key to dismiss tooltip
+ *
+ * @private
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+function handleKeydown(event) {
+  if (!cachedDebouncedKeyboard && performanceUtils) {
+    // Create and cache the debounced function
+    cachedDebouncedKeyboard = performanceUtils.debounce(
+      handleKeyboardLogic,
+      // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+      performanceUtils.Configs.keyboard || { delay: 50 }
+    );
+  }
+
+  if (cachedDebouncedKeyboard) {
+    // Use the cached debounced version
+    cachedDebouncedKeyboard(event);
+  } else {
+    // Fallback to direct call if no performance utils
+    handleKeyboardLogic(event);
+  }
+}
+
+// ===== PUBLIC API =====
+
+/**
+ * Initializes the TooltipManager with event listeners
+ * Sets up all necessary event delegation for tooltip functionality
+ *
+ * @public
+ * @param {TooltipUIInterface} uiModule - The TooltipUI module instance
+ */
+function initialize(uiModule) {
+  try {
+    // Validate input
+    if (!uiModule) {
+      throw new Error('TooltipUI module is required');
+    }
+
+    // Prevent multiple initializations
+    if (isInitialized) {
+      if (window.Logger && typeof window.Logger.warn === 'function') {
+        window.Logger.warn('TooltipManager: Already initialized');
+      }
+      return;
+    }
+
+    // Store reference to UI module
+    tooltipUI = uiModule;
+
+    // Ensure tooltip element is created before we start
+    tooltipUI.ensureCreated();
+
+    // Set up event listeners with proper options for performance
+    // Note: using passive where possible to improve scroll performance
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+    document.addEventListener('focusin', handleFocus, { passive: true });
+    document.addEventListener('focusout', handleBlur, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    document.addEventListener('keydown', handleKeydown, { passive: false }); // Not passive - we might preventDefault
+
+    // Update initialization flag
+    isInitialized = true;
+
+    // Log successful initialization
+    if (window.Logger && typeof window.Logger.info === 'function') {
+      window.Logger.info('TooltipManager: Initialized successfully');
+    }
+  } catch (error) {
+    // Log initialization errors
+    if (window.Logger && typeof window.Logger.error === 'function') {
+      window.Logger.error('TooltipManager: Initialization failed', { error });
+    } else {
+      console.error('TooltipManager: Initialization failed', error);
+    }
+
+    // Re-throw critical errors to prevent silent failure
+    throw error;
+  }
+}
+
+/**
+ * Disposes of the TooltipManager by removing all event listeners
+ * Should be called when the extension is being disabled or cleaned up
+ *
+ * @public
+ */
+function dispose() {
+  try {
+    // Remove all event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseleave', handleMouseLeave);
+    document.removeEventListener('focusin', handleFocus);
+    document.removeEventListener('focusout', handleBlur);
+    window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('keydown', handleKeydown);
+
+    // Destroy the tooltip UI element
+    if (tooltipUI) {
+      tooltipUI.destroy();
+    }
+
+    // Reset module state
+    tooltipUI = null;
+    isInitialized = false;
+    cachedThrottledMouseMove = null;
+    cachedThrottledScroll = null;
+    cachedDebouncedKeyboard = null;
+
+    // Log disposal
+    if (window.Logger && typeof window.Logger.info === 'function') {
+      window.Logger.info('TooltipManager: Disposed successfully');
+    }
+  } catch (error) {
+    // Log disposal errors
+    if (window.Logger && typeof window.Logger.error === 'function') {
+      window.Logger.error('TooltipManager: Error during disposal', { error });
+    } else {
+      console.error('TooltipManager: Error during disposal', error);
+    }
+  }
+}
+
+// ===== PUBLIC API =====
+
+export const TooltipManager = {
+  initialize: initialize,
+  dispose: dispose,
+};
+
+export default TooltipManager;
