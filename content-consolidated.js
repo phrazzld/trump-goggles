@@ -8,6 +8,11 @@
  * @version 3.0.0
  */
 
+// Import ES Modules
+import { DOMModifier } from './dom-modifier.js';
+import { TooltipUI } from './tooltip-ui.js';
+import { TooltipManager } from './tooltip-manager.js';
+
 // TrumpGoggles module pattern - provides a self-contained module with proper encapsulation
 const TrumpGoggles = (function () {
   'use strict';
@@ -84,15 +89,21 @@ const TrumpGoggles = (function () {
         return;
       }
 
-      if (!window.DOMModifier) {
-        window.Logger.error('DOMModifier module not found! Check script loading order.');
-        return;
-      }
-
       // Initialize tooltip components
-      if (!window.TooltipUI || !window.TooltipManager) {
-        window.Logger.error('Tooltip modules not found! Check script loading order.');
-        return;
+      try {
+        window.Logger.debug('Initializing tooltip components');
+
+        // Create TooltipUI instance
+        tooltipUI = TooltipUI;
+
+        // Create and initialize TooltipManager with TooltipUI
+        tooltipManager = TooltipManager;
+        tooltipManager.initialize(TooltipUI);
+
+        window.Logger.info('Tooltip components initialized successfully');
+      } catch (error) {
+        window.Logger.error('Error initializing tooltip components', error);
+        // Continue with other initialization even if tooltip fails
       }
 
       // First try to use the TrumpMappings module
@@ -123,23 +134,6 @@ const TrumpGoggles = (function () {
       // Add kill switch if in debug mode
       if (DEBUG) {
         addKillSwitch();
-      }
-
-      // Initialize tooltip components
-      try {
-        window.Logger.debug('Initializing tooltip components');
-
-        // Create TooltipUI instance
-        tooltipUI = window.TooltipUI;
-
-        // Create and initialize TooltipManager with TooltipUI
-        tooltipManager = window.TooltipManager;
-        tooltipManager.initialize(tooltipUI);
-
-        window.Logger.info('Tooltip components initialized successfully');
-      } catch (error) {
-        window.Logger.error('Error initializing tooltip components', error);
-        // Continue with other initialization even if tooltip fails
       }
 
       // Process in chunks to avoid freezing the browser
@@ -205,7 +199,7 @@ const TrumpGoggles = (function () {
           }
 
           // If tooltip functionality is available, use DOMModifier approach with segments
-          if (window.DOMModifier && window.TextProcessor.identifyConversableSegments) {
+          if (window.TextProcessor.identifyConversableSegments) {
             // First identify segments that need to be converted
             const segments = window.TextProcessor.identifyConversableSegments(
               textNode.nodeValue,
@@ -232,15 +226,12 @@ const TrumpGoggles = (function () {
                 {
                   textContent: textNode.nodeValue.substring(0, 100),
                   segments: segments,
-                  hasDomModifier: !!window.DOMModifier,
-                  hasMethod: !!window.DOMModifier?.processTextNodeAndWrapSegments,
+                  hasDomModifier: !!DOMModifier,
+                  hasMethod: !!DOMModifier?.processTextNodeAndWrapSegments,
                 }
               );
 
-              const processed = window.DOMModifier.processTextNodeAndWrapSegments(
-                textNode,
-                segments
-              );
+              const processed = DOMModifier.processTextNodeAndWrapSegments(textNode, segments);
 
               window.Logger.debug('DEBUGGING: DOMModifier.processTextNodeAndWrapSegments result', {
                 processed: processed,
@@ -371,7 +362,7 @@ const TrumpGoggles = (function () {
             window.Logger.protect(
               () => {
                 // If tooltip functionality is available, use DOMModifier approach
-                if (window.DOMModifier && window.TextProcessor.identifyConversableSegments) {
+                if (window.TextProcessor.identifyConversableSegments) {
                   // First identify segments that need to be converted
                   const segments = window.TextProcessor.identifyConversableSegments(
                     node.nodeValue,
@@ -381,10 +372,7 @@ const TrumpGoggles = (function () {
 
                   // If segments are found, process the text node with DOMModifier
                   if (segments && segments.length > 0) {
-                    const processed = window.DOMModifier.processTextNodeAndWrapSegments(
-                      node,
-                      segments
-                    );
+                    const processed = DOMModifier.processTextNodeAndWrapSegments(node, segments);
 
                     if (processed) {
                       // Increment operation counter when a replacement actually happens
@@ -1034,9 +1022,9 @@ const TrumpGoggles = (function () {
         DOMProcessor: !!window.DOMProcessor,
         TextProcessor: !!window.TextProcessor,
         MutationObserverManager: !!window.MutationObserverManager,
-        DOMModifier: !!window.DOMModifier,
-        TooltipUI: !!window.TooltipUI,
-        TooltipManager: !!window.TooltipManager,
+        DOMModifier: !!DOMModifier,
+        TooltipUI: !!TooltipUI,
+        TooltipManager: !!TooltipManager,
       },
       tooltip: {
         initialized: !!tooltipUI && !!tooltipManager,

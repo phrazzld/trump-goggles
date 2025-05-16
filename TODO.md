@@ -57,7 +57,7 @@
     2. The module's exports are available for import.
   - **Depends‑on:** none
 
-- [ ] **T006 · Refactor · P0: update content-consolidated.js to import new ES Modules**
+- [x] **T006 · Refactor · P0: update content-consolidated.js to import new ES Modules**
   - **Context:** PLAN.md, CR-01, Step 2
   - **Action:**
     1. Modify `content-consolidated.js` to use `import` statements for `dom-modifier`, `tooltip-ui`, `tooltip-manager`, `tooltip-browser-adapter`, and `performance-utils`.
@@ -317,6 +317,7 @@
   - **Depends‑on:** none
 
 - [ ] **T028 · Fix · P3: add newline to end of PLAN.md**
+
   - **Context:** PLAN.md, CR-17
   - **Action:**
     1. Add a newline character to the end of `PLAN.md`.
