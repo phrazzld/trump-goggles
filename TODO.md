@@ -13,7 +13,7 @@
     2. The module's exports are available for import.
   - **Depends‑on:** none
 
-- [ ] **T002 · Refactor · P0: convert tooltip-ui.js to ES Module**
+- [x] **T002 · Refactor · P0: convert tooltip-ui.js to ES Module**
 
   - **Context:** PLAN.md, CR-01, Step 1 (tooltip-ui.js)
   - **Action:**
@@ -24,7 +24,7 @@
     2. The module's exports are available for import.
   - **Depends‑on:** none
 
-- [ ] **T003 · Refactor · P0: convert tooltip-manager.js to ES Module**
+- [x] **T003 · Refactor · P0: convert tooltip-manager.js to ES Module**
 
   - **Context:** PLAN.md, CR-01, Step 1 (tooltip-manager.js)
   - **Action:**
@@ -35,7 +35,7 @@
     2. The module's exports are available for import.
   - **Depends‑on:** none
 
-- [ ] **T004 · Refactor · P0: convert tooltip-browser-adapter.js to ES Module**
+- [x] **T004 · Refactor · P0: convert tooltip-browser-adapter.js to ES Module**
 
   - **Context:** PLAN.md, CR-01, Step 1 (tooltip-browser-adapter.js)
   - **Action:**
@@ -46,7 +46,7 @@
     2. The module's exports are available for import.
   - **Depends‑on:** none
 
-- [ ] **T005 · Refactor · P0: convert performance-utils.js to ES Module**
+- [x] **T005 · Refactor · P0: convert performance-utils.js to ES Module**
 
   - **Context:** PLAN.md, CR-01, Step 1 (performance-utils.js)
   - **Action:**
@@ -322,4 +322,14 @@
     1. Add a newline character to the end of `PLAN.md`.
   - **Done‑when:**
     1. PLAN.md ends with a newline character.
+  - **Depends‑on:** none
+
+- [ ] **T029 · Fix · P0: fix TypeScript errors in tooltip-browser-adapter.js**
+  - **Context:** TypeScript errors blocking CI pipeline
+  - **Action:**
+    1. Fix 'testElement.style' possibly undefined errors in tooltip-browser-adapter.js.
+    2. Ensure proper type safety for DOM element operations.
+  - **Done‑when:**
+    1. tooltip-browser-adapter.js passes TypeScript type checking.
+    2. Pre-commit hooks pass successfully.
   - **Depends‑on:** none
