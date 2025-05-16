@@ -53,7 +53,7 @@ const TrumpGoggles = (function () {
     window.Logger.configure({
       enabled: true,
       debug: DEBUG,
-      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.INFO,
+      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.WARN,
       prefix: 'TrumpGoggles',
       useTimestamps: true,
       enhancedDisplay: true,
@@ -213,12 +213,39 @@ const TrumpGoggles = (function () {
               mapKeys
             );
 
+            // Debug logging to see what's happening
+            if (
+              textNode.nodeValue.toLowerCase().includes('clinton') ||
+              textNode.nodeValue.toLowerCase().includes('hillary')
+            ) {
+              // DEBUG: Found Clinton/Hillary text
+              // text: textNode.nodeValue
+              // segmentsLength: segments length
+              // trumpMapKeys: first 5 keys
+              // trumpMapHasHillary: yes/no
+            }
+
             // If segments are found, process the text node with DOMModifier
             if (segments && segments.length > 0) {
+              window.Logger.debug(
+                'DEBUGGING: About to call DOMModifier.processTextNodeAndWrapSegments',
+                {
+                  textContent: textNode.nodeValue.substring(0, 100),
+                  segments: segments,
+                  hasDomModifier: !!window.DOMModifier,
+                  hasMethod: !!window.DOMModifier?.processTextNodeAndWrapSegments,
+                }
+              );
+
               const processed = window.DOMModifier.processTextNodeAndWrapSegments(
                 textNode,
                 segments
               );
+
+              window.Logger.debug('DEBUGGING: DOMModifier.processTextNodeAndWrapSegments result', {
+                processed: processed,
+                textNodeAfter: textNode.nodeValue,
+              });
 
               if (processed) {
                 // Increment operation counter when a replacement actually happens

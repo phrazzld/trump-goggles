@@ -36,6 +36,15 @@ const DOMModifier = (function () {
    * @returns {boolean} - True if modifications were made, false otherwise
    */
   function processTextNodeAndWrapSegments(textNode, segments) {
+    // Debug log entry point
+    if (window.Logger) {
+      window.Logger.debug('DOMModifier: processTextNodeAndWrapSegments called', {
+        textContent: textNode?.nodeValue?.substring(0, 50) + '...',
+        segmentsLength: segments?.length,
+        segments: segments,
+      });
+    }
+
     // Create a function that captures the parameters
     function processImplementation() {
       return innerImplementation(textNode, segments);
@@ -44,7 +53,13 @@ const DOMModifier = (function () {
     // Use Logger if available, otherwise use a fallback implementation
     if (window.Logger && typeof window.Logger.protect === 'function') {
       // @ts-ignore: Logger.protect is properly typed in LoggerInterface but TypeScript doesn't see it
-      return window.Logger.protect(processImplementation, 'processTextNodeAndWrapSegments', false);
+      const protectedFunction = window.Logger.protect(
+        processImplementation,
+        'processTextNodeAndWrapSegments',
+        false
+      );
+      // Execute the protected function and return its result
+      return protectedFunction();
     } else {
       // Fallback if Logger is not available
       try {
@@ -67,9 +82,25 @@ const DOMModifier = (function () {
    */
   function innerImplementation(textNode, segments) {
     const logger = window.Logger || console;
-    const debug = logger === console ? console.log : logger.debug;
-    const warn = logger === console ? console.warn : logger.warn;
-    const error = logger === console ? console.error : logger.error;
+    // Use info level for debug during troubleshooting
+    const debug =
+      logger === console
+        ? console.log
+        : /** @param {string} msg @param {any} data */ (msg, data) => logger.debug(msg, data);
+    const warn =
+      logger === console
+        ? console.warn
+        : /** @param {string} msg @param {any} data */ (msg, data) => logger.warn(msg, data);
+    const error =
+      logger === console
+        ? console.error
+        : /** @param {string} msg @param {any} data */ (msg, data) => logger.error(msg, data);
+
+    debug('DOMModifier: Starting innerImplementation', {
+      hasTextNode: !!textNode,
+      textNodeType: textNode?.nodeType,
+      segmentsLength: segments?.length,
+    });
 
     // Input validation
     if (!textNode || !textNode.nodeValue || textNode.nodeType !== 3) {

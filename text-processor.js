@@ -240,23 +240,44 @@ const TextProcessor = (function () {
   function extractKeyTerms(regex) {
     // Get regex source and normalize it
     const source = regex.source
-      .replace(/\\\(/g, '(') // Convert \( to ( for easier parsing
-      .replace(/\\\)/g, ')') // Convert \) to ) for easier parsing
-      .replace(/\\b/g, ''); // Remove word boundaries
+      .replace(/\\b/g, '') // Remove word boundaries
+      .replace(/\\\./g, '.'); // Unescape dots
 
-    // Extract literal strings that aren't in character classes or complex groups
-    const parts = source
-      .replace(/\\.|\[.*?\]/g, ' ') // Replace escapes and character classes with space
-      .replace(/\((\?:)?.*?\)/g, ' ') // Replace capturing and non-capturing groups with space
-      .split(/[\^\$\*\+\?\{\}|\\]/); // Split on regex special chars
+    // Log for Hillary pattern
+    if (source.includes('Hillary') || source.includes('Clinton')) {
+      // DEBUG: Extracting keyTerms from pattern
+      // source: source, original: regex.source
+    }
 
-    // Filter out short terms, duplicates, and normalize
-    return parts
+    // First extract the content from groups and replace groups with their content
+    const flattenedSource = source.replace(/\((?:\?:)?([^)]+)\)/g, '$1');
+
+    // Then split on OR operators and regex special chars
+    const parts = flattenedSource
+      .split(/[|]/) // Split on OR operator first
+      .flatMap((part) => part.split(/[\^\$\*\+\?\{\}\\]/)) // Then split on other special chars
       .map((part) => part.trim())
-      .filter(
-        (part) => part.length >= MIN_TERM_LENGTH && !part.includes('(') && !part.includes(')')
-      )
-      .filter((part, index, self) => self.indexOf(part) === index); // Remove duplicates
+      .filter((part) => part.length > 0);
+
+    // Extract individual words from each part
+    /** @type {string[]} */
+    const terms = [];
+    parts.forEach((part) => {
+      // Split on spaces to get individual words
+      const words = part.split(/\s+/).filter((word) => word.length >= MIN_TERM_LENGTH);
+      terms.push(...words);
+    });
+
+    // Filter out duplicates
+    const result = terms.filter((term, index, self) => self.indexOf(term) === index);
+
+    // Log the result for Hillary pattern
+    if (source.includes('Hillary') || source.includes('Clinton')) {
+      // DEBUG: Extracted keyTerms
+      // result: keyTerms array
+    }
+
+    return result;
   }
 
   // ===== EARLY BAILOUT OPTIMIZATION =====
@@ -344,6 +365,11 @@ const TextProcessor = (function () {
         );
 
         if (!hasKeyTerm) {
+          // Log when we bail out on Hillary/Clinton text
+          if (lowerText.includes('clinton') || lowerText.includes('hillary')) {
+            // DEBUG: Bailing out due to missing keyTerms
+            // text, keyTerms, and patternRegex
+          }
           return segments;
         }
       }
@@ -357,6 +383,12 @@ const TextProcessor = (function () {
       // Find all matches
       let match;
       while ((match = regex.exec(text)) !== null) {
+        // Log matches for Hillary/Clinton
+        if (text.toLowerCase().includes('clinton') || text.toLowerCase().includes('hillary')) {
+          // DEBUG: Found match in text
+          // text, match, pattern, nick
+        }
+
         // Create segment info
         segments.push({
           originalText: match[0],
@@ -689,6 +721,14 @@ const TextProcessor = (function () {
 
     // Skip processing with early bailout optimization
     if (!isLikelyToContainMatches(textNodeContent, replacementMap, mapKeys)) {
+      // Log early bailout for Clinton/Hillary texts (DEBUG)
+      if (
+        textNodeContent.toLowerCase().includes('clinton') ||
+        textNodeContent.toLowerCase().includes('hillary')
+      ) {
+        // DEBUG: Early bailout optimization working correctly for text with partial Clinton/Hillary matches
+        // console.log('Early bailout for text containing Clinton/Hillary:', textNodeContent);
+      }
       return segments;
     }
 
