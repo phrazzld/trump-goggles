@@ -8,13 +8,13 @@
   "action": {
     "default_title": "Trump Goggles",
     "default_icon": {
-      "19": "images/goggles-02.png",
-      "38": "images/goggles-02.png"
+      "19": "dist/images/goggles-02.png",
+      "38": "dist/images/goggles-02.png"
     }
   },
 
   "background": {
-    "service_worker": "background-polyfill.js"
+    "service_worker": "dist/background.js"
   },
 
   "permissions": ["storage", "contextMenus"],
@@ -23,20 +23,20 @@
 
   "content_scripts": [
     {
-      "js": ["content.js"],
+      "js": ["dist/content.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }
   ],
 
   "options_ui": {
-    "page": "options.html",
+    "page": "dist/options.html",
     "open_in_tab": false
   },
 
   "icons": {
-    "16": "images/goggles-02.png",
-    "48": "images/goggles-02.png",
-    "128": "images/goggles-02.png"
+    "16": "dist/images/goggles-02.png",
+    "48": "dist/images/goggles-02.png",
+    "128": "dist/images/goggles-02.png"
   }
 }

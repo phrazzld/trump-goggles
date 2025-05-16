@@ -9,13 +9,13 @@
   "action": {
     "default_title": "Trump Goggles",
     "default_icon": {
-      "19": "images/goggles-02.png",
-      "38": "images/goggles-02.png"
+      "19": "dist/images/goggles-02.png",
+      "38": "dist/images/goggles-02.png"
     }
   },
 
   "background": {
-    "service_worker": "background-combined.js"
+    "service_worker": "dist/background.js"
   },
 
   "permissions": ["storage", "contextMenus"],
@@ -24,35 +24,20 @@
 
   "content_scripts": [
     {
-      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, browser-detect.js detects browser environment, browser-adapter.js provides cross-browser compatibility, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, dom-modifier.js provides DOM modification capabilities, mutation-observer.js provides the observer functionality, tooltip-ui.js and tooltip-manager.js provide tooltip core functionality, tooltip-browser-adapter.js provides tooltip-specific browser compatibility, and content-consolidated.js uses all of them.",
-      "js": [
-        "logger.js",
-        "error-handler.js",
-        "browser-detect.js",
-        "browser-adapter.js",
-        "trump-mappings.js",
-        "dom-processor.js",
-        "text-processor.js",
-        "dom-modifier.js",
-        "mutation-observer.js",
-        "tooltip-ui.js",
-        "tooltip-manager.js",
-        "tooltip-browser-adapter.js",
-        "content-consolidated.js"
-      ],
+      "js": ["dist/content.js"],
       "matches": ["*://*/*"],
       "run_at": "document_end"
     }
   ],
 
   "options_ui": {
-    "page": "options.html",
+    "page": "dist/options.html",
     "open_in_tab": false
   },
 
   "icons": {
-    "16": "images/goggles-02.png",
-    "48": "images/goggles-02.png",
-    "128": "images/goggles-02.png"
+    "16": "dist/images/goggles-02.png",
+    "48": "dist/images/goggles-02.png",
+    "128": "dist/images/goggles-02.png"
   }
 }

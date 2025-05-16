@@ -80,7 +80,7 @@
     2. Build process is documented for development and production.
   - **Depends‑on:** [T001, T002, T003, T004, T005]
 
-- [ ] **T008 · Chore · P0: update manifest files to use bundled output**
+- [~] **T008 · Chore · P0: update manifest files to use bundled output**
 
   - **Context:** PLAN.md, CR-01, Step 4
   - **Action:**
