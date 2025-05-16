@@ -119,6 +119,26 @@ const TooltipManager = (function () {
       // Add keydown event listener for keyboard dismissal (Escape key)
       document.addEventListener('keydown', handleKeyDown);
 
+      // Add browser-specific event listeners if adapter is available
+      if (
+        window.TooltipBrowserAdapter &&
+        typeof window.TooltipBrowserAdapter.registerBrowserEvents === 'function'
+      ) {
+        // The function returned by registerBrowserEvents is a cleanup function that we'll call in dispose()
+        const cleanupBrowserEvents = window.TooltipBrowserAdapter.registerBrowserEvents(
+          tooltipUI.getId(),
+          () => {}, // No additional show behavior needed
+          () => {
+            if (tooltipUI) {
+              tooltipUI.hide();
+            }
+          }
+        );
+
+        // Store cleanup function for later use
+        window.tooltipManagerBrowserEventsCleanup = cleanupBrowserEvents;
+      }
+
       // Mark as initialized
       isInitialized = true;
 
@@ -177,6 +197,15 @@ const TooltipManager = (function () {
       // Clear the element cache
       elementCache.clear();
       document.removeEventListener('keydown', handleKeyDown);
+
+      // Clean up browser-specific event listeners if they were added
+      if (
+        window.tooltipManagerBrowserEventsCleanup &&
+        typeof window.tooltipManagerBrowserEventsCleanup === 'function'
+      ) {
+        window.tooltipManagerBrowserEventsCleanup();
+        window.tooltipManagerBrowserEventsCleanup = undefined;
+      }
 
       // Call tooltipUI.destroy() if available
       if (tooltipUI) {

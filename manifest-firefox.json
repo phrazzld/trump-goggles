@@ -21,7 +21,7 @@
 
   "content_scripts": [
     {
-      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, browser-detect.js detects browser environment, browser-adapter.js provides cross-browser compatibility, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, mutation-observer.js provides the observer functionality, and content-consolidated.js uses all of them.",
+      "_comment": "IMPORTANT: Order is critical! The scripts must be loaded in this exact order to ensure proper dependency resolution: logger.js provides logging functionality, error-handler.js provides error handling, browser-detect.js detects browser environment, browser-adapter.js provides cross-browser compatibility, trump-mappings.js provides the mappings, dom-processor.js and text-processor.js provide the processing functionality, mutation-observer.js provides the observer functionality, tooltip-browser-adapter.js provides tooltip-specific browser compatibility, and content-consolidated.js uses all of them.",
       "js": [
         "logger.js",
         "error-handler.js",
@@ -31,6 +31,7 @@
         "dom-processor.js",
         "text-processor.js",
         "mutation-observer.js",
+        "tooltip-browser-adapter.js",
         "content-consolidated.js"
       ],
       "matches": ["*://*/*"],

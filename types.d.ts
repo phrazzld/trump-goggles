@@ -1211,6 +1211,40 @@ interface TooltipUIInterface {
    * @returns The ID of the tooltip element
    */
   getId(): string;
+
+  /**
+   * Gets debug information about the tooltip component and browser support.
+   *
+   * @returns Debug information object
+   */
+  getDebugInfo?(): {
+    isCreated: boolean;
+    tooltipElement: {
+      id: string;
+      isVisible: boolean;
+      zIndex: string;
+    } | null;
+    constants: {
+      TOOLTIP_ID: string;
+      TOOLTIP_Z_INDEX: number;
+      TOOLTIP_MAX_WIDTH: number;
+      TOOLTIP_MAX_HEIGHT: number;
+    };
+    browserAdapter?: {
+      browser: string;
+      version: number | null;
+      features: {
+        highZIndex: boolean;
+        pointerEvents: boolean;
+        transitions: boolean;
+        visibilityAPI: boolean;
+      };
+      appliedStyles: {
+        zIndex: number;
+        transitionProperty: string;
+      };
+    };
+  };
 }
 
 /**
@@ -1228,6 +1262,74 @@ interface TooltipManagerInterface {
    * Cleans up event listeners and resources.
    */
   dispose(): void;
+}
+
+/**
+ * TooltipBrowserAdapter interface for browser-specific tooltip adaptations
+ */
+interface TooltipBrowserAdapterInterface {
+  /**
+   * Gets the appropriate z-index value based on browser support
+   *
+   * @returns The appropriate z-index value
+   */
+  getSafeZIndex(): number;
+
+  /**
+   * Applies browser-specific styles to the tooltip element
+   *
+   * @param tooltipElement - The tooltip element to style
+   */
+  applyBrowserSpecificStyles(tooltipElement: HTMLElement): void;
+
+  /**
+   * Converts a CSS string to be compatible with the current browser
+   *
+   * @param cssText - The CSS text to convert
+   * @returns Browser-compatible CSS text
+   */
+  convertCssForBrowser(cssText: string): string;
+
+  /**
+   * Registers browser-specific event listeners
+   *
+   * @param tooltipElement - The tooltip element ID or element
+   * @param showCallback - Callback to show the tooltip
+   * @param hideCallback - Callback to hide the tooltip
+   * @returns Function to remove the event listeners
+   */
+  registerBrowserEvents(
+    tooltipId: string,
+    showCallback: Function,
+    hideCallback: Function
+  ): Function;
+
+  /**
+   * Gets the default tooltip styles as a string adjusted for the current browser
+   *
+   * @returns CSS styles for the tooltip
+   */
+  getDefaultTooltipStyles(): string;
+
+  /**
+   * Gets browser compatibility information for debugging
+   *
+   * @returns Browser compatibility information
+   */
+  getDebugInfo(): {
+    browser: string;
+    version: number | null;
+    features: {
+      highZIndex: boolean;
+      pointerEvents: boolean;
+      transitions: boolean;
+      visibilityAPI: boolean;
+    };
+    appliedStyles: {
+      zIndex: number;
+      transitionProperty: string;
+    };
+  };
 }
 
 // Window extensions
@@ -1250,6 +1352,8 @@ interface Window {
   MutationObserverManager?: MutationObserverManagerInterface;
   TooltipUI?: TooltipUIInterface;
   TooltipManager?: TooltipManagerInterface;
+  TooltipBrowserAdapter?: TooltipBrowserAdapterInterface;
+  tooltipManagerBrowserEventsCleanup?: Function;
   TrumpGoggles?: any;
 
   // Legacy functions

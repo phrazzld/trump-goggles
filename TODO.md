@@ -370,3 +370,21 @@
         2. Project documentation reflects the new feature
     - **Depends‑on:** [T015]
 
+## Cross-Browser Compatibility
+- [x] **T025 · Enhancement · P1: Implement browser adapter for tooltips**
+    - **Context:** Cross-browser compatibility for tooltip feature
+    - **Action:**
+        1. Create a new `tooltip-browser-adapter.js` module
+        2. Implement browser detection and feature detection
+        3. Handle browser-specific style and event differences
+        4. Update tooltip components to use the adapter
+        5. Update manifest files to include the adapter
+    - **Done‑when:**
+        1. Tooltip functions consistently across Chrome, Firefox, and Edge
+        2. Browser-specific code is isolated in the adapter
+        3. Tooltips maintain proper styling and interaction patterns in all browsers
+    - **Verification:**
+        1. Test adapter functionality with unit tests
+        2. Manual verification in different browsers
+    - **Depends‑on:** [T015]
+

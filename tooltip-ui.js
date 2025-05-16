@@ -27,9 +27,12 @@ const TooltipUI = (function () {
 
   /**
    * Z-index for the tooltip element to ensure it appears above other content
+   * Gets the appropriate z-index from the browser adapter if available
    * @type {number}
    */
-  const TOOLTIP_Z_INDEX = 2147483647; // Maximum safe z-index value
+  const TOOLTIP_Z_INDEX = window.TooltipBrowserAdapter
+    ? window.TooltipBrowserAdapter.getSafeZIndex()
+    : 2147483647; // Fallback to maximum safe z-index value
 
   /**
    * Max width for the tooltip in pixels
@@ -61,6 +64,7 @@ const TooltipUI = (function () {
 
   /**
    * Adds global CSS for accessibility styling
+   * Uses TooltipBrowserAdapter for browser-specific styles if available
    *
    * @private
    */
@@ -75,24 +79,32 @@ const TooltipUI = (function () {
       const styleElement = document.createElement('style');
       styleElement.id = 'tg-accessibility-styles';
 
-      // Add focus styles for converted text elements
-      styleElement.textContent = `
-        .tg-converted-text:focus {
-          outline: 2px solid #0066cc !important;
-          box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25) !important;
-          border-radius: 2px !important;
-          text-decoration: underline !important;
-          background-color: rgba(255, 239, 213, 0.7) !important;
-        }
-        
-        /* High contrast mode support */
-        @media (forced-colors: active) {
+      // Use browser adapter to get optimized styles if available, otherwise use default
+      if (
+        window.TooltipBrowserAdapter &&
+        typeof window.TooltipBrowserAdapter.getDefaultTooltipStyles === 'function'
+      ) {
+        styleElement.textContent = window.TooltipBrowserAdapter.getDefaultTooltipStyles();
+      } else {
+        // Fallback to default styles if adapter is not available
+        styleElement.textContent = `
           .tg-converted-text:focus {
-            outline: 2px solid HighlightText !important;
-            outline-offset: 2px !important;
+            outline: 2px solid #0066cc !important;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25) !important;
+            border-radius: 2px !important;
+            text-decoration: underline !important;
+            background-color: rgba(255, 239, 213, 0.7) !important;
           }
-        }
-      `;
+          
+          /* High contrast mode support */
+          @media (forced-colors: active) {
+            .tg-converted-text:focus {
+              outline: 2px solid HighlightText !important;
+              outline-offset: 2px !important;
+            }
+          }
+        `;
+      }
 
       // Append to document head
       document.head.appendChild(styleElement);
@@ -113,12 +125,24 @@ const TooltipUI = (function () {
 
   /**
    * Applies all necessary styles to the tooltip element
+   * Uses TooltipBrowserAdapter for browser-specific styles if available
    *
    * @private
    * @param {HTMLElement} element - The tooltip element to style
    */
   function applyTooltipStyles(element) {
     try {
+      // Check if browser adapter is available
+      if (
+        window.TooltipBrowserAdapter &&
+        typeof window.TooltipBrowserAdapter.applyBrowserSpecificStyles === 'function'
+      ) {
+        // Let the browser adapter apply browser-specific styles
+        window.TooltipBrowserAdapter.applyBrowserSpecificStyles(element);
+      }
+
+      // Always apply our base styles - the adapter will handle browser-specific adjustments
+
       // TypeScript has difficulty with direct style property access,
       // so we'll use @ts-ignore on each line
 
@@ -530,6 +554,42 @@ const TooltipUI = (function () {
     return TOOLTIP_ID;
   }
 
+  /**
+   * Gets debug information about the tooltip component and browser support
+   *
+   * @public
+   * @returns {any} Debug information
+   */
+  function getDebugInfo() {
+    /** @type {any} */
+    const info = {
+      isCreated: isCreated,
+      tooltipElement: tooltipElement
+        ? {
+          id: tooltipElement.id,
+          isVisible: /** @type {any} */ (tooltipElement).style.visibility === 'visible',
+          zIndex: /** @type {any} */ (tooltipElement).style.zIndex,
+        }
+        : null,
+      constants: {
+        TOOLTIP_ID,
+        TOOLTIP_Z_INDEX,
+        TOOLTIP_MAX_WIDTH,
+        TOOLTIP_MAX_HEIGHT,
+      },
+    };
+
+    // Add browser adapter info if available
+    if (
+      window.TooltipBrowserAdapter &&
+      typeof window.TooltipBrowserAdapter.getDebugInfo === 'function'
+    ) {
+      info.browserAdapter = window.TooltipBrowserAdapter.getDebugInfo();
+    }
+
+    return info;
+  }
+
   // ===== PUBLIC API =====
 
   /** @type {TooltipUIInterface} */
@@ -542,6 +602,9 @@ const TooltipUI = (function () {
     hide: hide,
     destroy: destroy,
     getId: getId,
+
+    // Debug methods
+    getDebugInfo: getDebugInfo,
   };
 })();
 

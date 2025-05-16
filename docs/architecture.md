@@ -43,11 +43,19 @@ Each module is designed as a self-contained unit with a clear responsibility:
 
 ┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
 │                     │     │                     │     │                     │
-│  Tooltip Manager    │────▶│    Tooltip UI       │     │      Logger         │
-│                     │     │                     │     │                     │
+│  Tooltip Manager    │────▶│    Tooltip UI       │────▶│  Tooltip Browser    │
+│                     │     │                     │     │      Adapter         │
 └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
- Manages tooltip events      Handles tooltip UI         Provides logging and
- and user interactions       creation and positioning   diagnostics
+ Manages tooltip events      Handles tooltip UI         Provides cross-browser
+ and user interactions       creation and positioning   compatibility for tooltips
+
+┌─────────────────────┐
+│                     │
+│      Logger         │
+│                     │
+└─────────────────────┘
+ Provides logging and  
+ diagnostics           
 
 ┌─────────────────────┐
 │                     │
@@ -144,6 +152,14 @@ Each module is designed as a self-contained unit with a clear responsibility:
 - Provides smooth transitions for tooltip appearance
 - Controls tooltip visibility and ARIA attributes
 
+#### TooltipBrowserAdapter
+
+- Provides cross-browser compatibility for tooltip functionality
+- Detects browser-specific features and capabilities
+- Applies appropriate browser-specific styles and workarounds
+- Handles browser differences in event handling
+- Ensures consistent tooltip appearance and behavior across browsers
+
 ## Data Flow
 
 1. **Initialization**:
@@ -168,8 +184,10 @@ Each module is designed as a self-contained unit with a clear responsibility:
    - User hovers over or focuses on converted text
    - TooltipManager detects interaction and retrieves original text
    - TooltipUI updates tooltip content and position
+   - TooltipBrowserAdapter applies browser-specific optimizations
    - Tooltip becomes visible with original text
    - When user moves away, tooltip is hidden
+   - Browser-specific events (like page visibility changes) are properly handled
 
 ## Design Decisions
 
@@ -210,6 +228,8 @@ The extension supports multiple browsers through:
 - API abstraction layer
 - Feature detection and fallbacks
 - Manifest version handling
+- Tooltip browser adapter for consistent UI behavior
+- Browser-specific style and event handling
 
 ## Conclusion
 
