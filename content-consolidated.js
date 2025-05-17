@@ -8,6 +8,11 @@
  * @version 3.0.0
  */
 
+// Import ES Modules
+import { DOMModifier } from './dom-modifier';
+import { TooltipUI } from './tooltip-ui';
+import { TooltipManager } from './tooltip-manager';
+
 // TrumpGoggles module pattern - provides a self-contained module with proper encapsulation
 const TrumpGoggles = (function () {
   'use strict';
@@ -32,6 +37,10 @@ const TrumpGoggles = (function () {
   let trumpMap = {}; // Mapping object for replacements
   let mapKeys = []; // Array of keys from trumpMap
 
+  // Tooltip components
+  let tooltipUI = null; // Instance of TooltipUI
+  let tooltipManager = null; // Instance of TooltipManager
+
   // ===== INITIALIZATION =====
 
   /**
@@ -49,7 +58,7 @@ const TrumpGoggles = (function () {
     window.Logger.configure({
       enabled: true,
       debug: DEBUG,
-      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.INFO,
+      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.WARN,
       prefix: 'TrumpGoggles',
       useTimestamps: true,
       enhancedDisplay: true,
@@ -78,6 +87,23 @@ const TrumpGoggles = (function () {
       if (!window.TextProcessor) {
         window.Logger.error('TextProcessor module not found! Check script loading order.');
         return;
+      }
+
+      // Initialize tooltip components
+      try {
+        window.Logger.debug('Initializing tooltip components');
+
+        // Create TooltipUI instance
+        tooltipUI = TooltipUI;
+
+        // Create and initialize TooltipManager with TooltipUI
+        tooltipManager = TooltipManager;
+        tooltipManager.initialize(TooltipUI);
+
+        window.Logger.info('Tooltip components initialized successfully');
+      } catch (error) {
+        window.Logger.error('Error initializing tooltip components', error);
+        // Continue with other initialization even if tooltip fails
       }
 
       // First try to use the TrumpMappings module
@@ -172,17 +198,69 @@ const TrumpGoggles = (function () {
             return false;
           }
 
-          // Process the text node
-          const processed = window.TextProcessor.processTextNode(textNode, trumpMap, mapKeys, {
-            useCache: true,
-            earlyBailout: false, // Disable early bailout to ensure all text is processed
-            onProcessed: () => {
-              // Increment operation counter when a replacement actually happens
-              operationCount++;
-            },
-          });
+          // If tooltip functionality is available, use DOMModifier approach with segments
+          if (window.TextProcessor.identifyConversableSegments) {
+            // First identify segments that need to be converted
+            const segments = window.TextProcessor.identifyConversableSegments(
+              textNode.nodeValue,
+              trumpMap,
+              mapKeys
+            );
 
-          return processed;
+            // Debug logging to see what's happening
+            if (
+              textNode.nodeValue.toLowerCase().includes('clinton') ||
+              textNode.nodeValue.toLowerCase().includes('hillary')
+            ) {
+              // DEBUG: Found Clinton/Hillary text
+              // text: textNode.nodeValue
+              // segmentsLength: segments length
+              // trumpMapKeys: first 5 keys
+              // trumpMapHasHillary: yes/no
+            }
+
+            // If segments are found, process the text node with DOMModifier
+            if (segments && segments.length > 0) {
+              window.Logger.debug(
+                'DEBUGGING: About to call DOMModifier.processTextNodeAndWrapSegments',
+                {
+                  textContent: textNode.nodeValue.substring(0, 100),
+                  segments: segments,
+                  hasDomModifier: !!DOMModifier,
+                  hasMethod: !!DOMModifier?.processTextNodeAndWrapSegments,
+                }
+              );
+
+              const processed = DOMModifier.processTextNodeAndWrapSegments(textNode, segments);
+
+              window.Logger.debug('DEBUGGING: DOMModifier.processTextNodeAndWrapSegments result', {
+                processed: processed,
+                textNodeAfter: textNode.nodeValue,
+              });
+
+              if (processed) {
+                // Increment operation counter when a replacement actually happens
+                operationCount++;
+                return true;
+              }
+              return false;
+            }
+            return false;
+          }
+          // Fallback to the legacy approach if tooltip components aren't fully available
+          else {
+            // Process the text node with the legacy approach
+            const processed = window.TextProcessor.processTextNode(textNode, trumpMap, mapKeys, {
+              useCache: true,
+              earlyBailout: false, // Disable early bailout to ensure all text is processed
+              onProcessed: () => {
+                // Increment operation counter when a replacement actually happens
+                operationCount++;
+              },
+            });
+
+            return processed;
+          }
         },
         'text node processing',
         false // fallback to no processing on error
@@ -283,14 +361,37 @@ const TrumpGoggles = (function () {
             // Protect text processing with error boundary
             window.Logger.protect(
               () => {
-                window.TextProcessor.processTextNode(node, trumpMap, mapKeys, {
-                  useCache: true,
-                  earlyBailout: true,
-                  onProcessed: () => {
-                    operationCount++;
-                    window.DOMProcessor.markProcessed(node);
-                  },
-                });
+                // If tooltip functionality is available, use DOMModifier approach
+                if (window.TextProcessor.identifyConversableSegments) {
+                  // First identify segments that need to be converted
+                  const segments = window.TextProcessor.identifyConversableSegments(
+                    node.nodeValue,
+                    trumpMap,
+                    mapKeys
+                  );
+
+                  // If segments are found, process the text node with DOMModifier
+                  if (segments && segments.length > 0) {
+                    const processed = DOMModifier.processTextNodeAndWrapSegments(node, segments);
+
+                    if (processed) {
+                      // Increment operation counter when a replacement actually happens
+                      operationCount++;
+                      window.DOMProcessor.markProcessed(node);
+                    }
+                  }
+                }
+                // Fallback to the legacy approach
+                else {
+                  window.TextProcessor.processTextNode(node, trumpMap, mapKeys, {
+                    useCache: true,
+                    earlyBailout: true,
+                    onProcessed: () => {
+                      operationCount++;
+                      window.DOMProcessor.markProcessed(node);
+                    },
+                  });
+                }
               },
               'text node mutation processing',
               null // no fallback needed
@@ -666,6 +767,17 @@ const TrumpGoggles = (function () {
         window.Logger.error('Error disabling mutation observer', error);
       }
     }
+
+    // Dispose tooltip manager if it exists
+    if (tooltipManager) {
+      try {
+        window.Logger.debug('Disposing tooltip manager');
+        tooltipManager.dispose();
+        window.Logger.info('Tooltip manager disposed successfully');
+      } catch (error) {
+        window.Logger.error('Error disposing tooltip manager', error);
+      }
+    }
   }
 
   /**
@@ -910,6 +1022,13 @@ const TrumpGoggles = (function () {
         DOMProcessor: !!window.DOMProcessor,
         TextProcessor: !!window.TextProcessor,
         MutationObserverManager: !!window.MutationObserverManager,
+        DOMModifier: !!DOMModifier,
+        TooltipUI: !!TooltipUI,
+        TooltipManager: !!TooltipManager,
+      },
+      tooltip: {
+        initialized: !!tooltipUI && !!tooltipManager,
+        managerActive: !!(tooltipManager && tooltipUI),
       },
     };
 

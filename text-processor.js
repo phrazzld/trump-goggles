@@ -240,23 +240,44 @@ const TextProcessor = (function () {
   function extractKeyTerms(regex) {
     // Get regex source and normalize it
     const source = regex.source
-      .replace(/\\\(/g, '(') // Convert \( to ( for easier parsing
-      .replace(/\\\)/g, ')') // Convert \) to ) for easier parsing
-      .replace(/\\b/g, ''); // Remove word boundaries
+      .replace(/\\b/g, '') // Remove word boundaries
+      .replace(/\\\./g, '.'); // Unescape dots
 
-    // Extract literal strings that aren't in character classes or complex groups
-    const parts = source
-      .replace(/\\.|\[.*?\]/g, ' ') // Replace escapes and character classes with space
-      .replace(/\((\?:)?.*?\)/g, ' ') // Replace capturing and non-capturing groups with space
-      .split(/[\^\$\*\+\?\{\}|\\]/); // Split on regex special chars
+    // Log for Hillary pattern
+    if (source.includes('Hillary') || source.includes('Clinton')) {
+      // DEBUG: Extracting keyTerms from pattern
+      // source: source, original: regex.source
+    }
 
-    // Filter out short terms, duplicates, and normalize
-    return parts
+    // First extract the content from groups and replace groups with their content
+    const flattenedSource = source.replace(/\((?:\?:)?([^)]+)\)/g, '$1');
+
+    // Then split on OR operators and regex special chars
+    const parts = flattenedSource
+      .split(/[|]/) // Split on OR operator first
+      .flatMap((part) => part.split(/[\^\$\*\+\?\{\}\\]/)) // Then split on other special chars
       .map((part) => part.trim())
-      .filter(
-        (part) => part.length >= MIN_TERM_LENGTH && !part.includes('(') && !part.includes(')')
-      )
-      .filter((part, index, self) => self.indexOf(part) === index); // Remove duplicates
+      .filter((part) => part.length > 0);
+
+    // Extract individual words from each part
+    /** @type {string[]} */
+    const terms = [];
+    parts.forEach((part) => {
+      // Split on spaces to get individual words
+      const words = part.split(/\s+/).filter((word) => word.length >= MIN_TERM_LENGTH);
+      terms.push(...words);
+    });
+
+    // Filter out duplicates
+    const result = terms.filter((term, index, self) => self.indexOf(term) === index);
+
+    // Log the result for Hillary pattern
+    if (source.includes('Hillary') || source.includes('Clinton')) {
+      // DEBUG: Extracted keyTerms
+      // result: keyTerms array
+    }
+
+    return result;
   }
 
   // ===== EARLY BAILOUT OPTIMIZATION =====
@@ -321,7 +342,78 @@ const TextProcessor = (function () {
     return false;
   }
 
-  // ===== TEXT REPLACEMENT =====
+  // ===== TEXT ANALYSIS AND REPLACEMENT =====
+
+  /**
+   * Find all conversable segments in a text that match a pattern
+   *
+   * @private
+   * @param {string} text - Text to analyze
+   * @param {TrumpMapping} patternEntry - Pattern entry with regex and nickname
+   * @returns {TextSegmentConversion[]} - Array of identified segments for conversion
+   */
+  function findMatchingSegments(text, patternEntry) {
+    /** @type {TextSegmentConversion[]} */
+    const segments = [];
+
+    try {
+      // Early bailout for unlikely matches
+      if (patternEntry.keyTerms && patternEntry.keyTerms.length > 0) {
+        const lowerText = text.toLowerCase();
+        const hasKeyTerm = patternEntry.keyTerms.some((term) =>
+          lowerText.includes(term.toLowerCase())
+        );
+
+        if (!hasKeyTerm) {
+          // Log when we bail out on Hillary/Clinton text
+          if (lowerText.includes('clinton') || lowerText.includes('hillary')) {
+            // DEBUG: Bailing out due to missing keyTerms
+            // text, keyTerms, and patternRegex
+          }
+          return segments;
+        }
+      }
+
+      // Create a copy of the regex with global flag to find all matches
+      const regex = new RegExp(
+        patternEntry.regex.source,
+        patternEntry.regex.global ? patternEntry.regex.flags : patternEntry.regex.flags + 'g'
+      );
+
+      // Find all matches
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        // Log matches for Hillary/Clinton
+        if (text.toLowerCase().includes('clinton') || text.toLowerCase().includes('hillary')) {
+          // DEBUG: Found match in text
+          // text, match, pattern, nick
+        }
+
+        // Create segment info
+        segments.push({
+          originalText: match[0],
+          convertedText: patternEntry.nick,
+          startIndex: match.index,
+          endIndex: match.index + match[0].length,
+        });
+
+        // Prevent infinite loops with zero-width matches
+        if (match.index === regex.lastIndex) {
+          regex.lastIndex++;
+        }
+      }
+
+      // Reset lastIndex
+      if (patternEntry.regex.global) {
+        patternEntry.regex.lastIndex = 0;
+      }
+
+      return segments;
+    } catch (error) {
+      console.error('Trump Goggles: Error finding matching segments', error);
+      return segments;
+    }
+  }
 
   /**
    * Apply a single replacement pattern to text
@@ -609,6 +701,74 @@ const TextProcessor = (function () {
     }
   }
 
+  /**
+   * Identifies text segments that need conversion without modifying the DOM
+   *
+   * @public
+   * @param {string} textNodeContent - The text content to process
+   * @param {ReplacementMap} replacementMap - The map of replacements to apply
+   * @param {string[]} mapKeys - The keys of the replacement map to use
+   * @returns {TextSegmentConversion[]} - Array of text segments that need conversion
+   */
+  function identifyConversableSegments(textNodeContent, replacementMap, mapKeys) {
+    /** @type {TextSegmentConversion[]} */
+    const segments = [];
+
+    // Don't process empty or very short strings
+    if (!textNodeContent || textNodeContent.length < 2) {
+      return segments;
+    }
+
+    // Skip processing with early bailout optimization
+    if (!isLikelyToContainMatches(textNodeContent, replacementMap, mapKeys)) {
+      // Log early bailout for Clinton/Hillary texts (DEBUG)
+      if (
+        textNodeContent.toLowerCase().includes('clinton') ||
+        textNodeContent.toLowerCase().includes('hillary')
+      ) {
+        // DEBUG: Early bailout optimization working correctly for text with partial Clinton/Hillary matches
+        // console.log('Early bailout for text containing Clinton/Hillary:', textNodeContent);
+      }
+      return segments;
+    }
+
+    // Precompile patterns for better performance
+    const finalMap = precompilePatterns(replacementMap);
+
+    // Find segments for each pattern
+    for (let i = 0; i < mapKeys.length; i++) {
+      const key = mapKeys[i];
+      const patternSegments = findMatchingSegments(textNodeContent, finalMap[key]);
+
+      // Add segments to the result array
+      segments.push(...patternSegments);
+    }
+
+    // Sort segments by startIndex to ensure proper ordering
+    segments.sort((a, b) => a.startIndex - b.startIndex);
+
+    // Handle potential overlapping segments by keeping only non-overlapping ones
+    // This is a simple approach that keeps earlier matches when overlaps occur
+    if (segments.length > 1) {
+      /** @type {TextSegmentConversion[]} */
+      const nonOverlapping = [segments[0]];
+
+      for (let i = 1; i < segments.length; i++) {
+        const current = segments[i];
+        const previous = nonOverlapping[nonOverlapping.length - 1];
+
+        // Only add non-overlapping segments
+        if (current.startIndex >= previous.endIndex) {
+          nonOverlapping.push(current);
+        }
+      }
+
+      return nonOverlapping;
+    }
+
+    return segments;
+  }
+
   // ===== PUBLIC API =====
 
   /** @type {TextProcessorInterface} */
@@ -617,6 +777,9 @@ const TextProcessor = (function () {
     processText: processText,
     processTextAsync: processTextAsync,
     processTextNode: processTextNode,
+
+    // Segment identification method
+    identifyConversableSegments: identifyConversableSegments,
 
     // Pattern optimization
     precompilePatterns: precompilePatterns,
