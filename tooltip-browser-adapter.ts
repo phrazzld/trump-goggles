@@ -14,21 +14,40 @@
 
 /**
  * Default z-index to use for tooltips if browser has issues with very large values
- * @type {number}
  */
-const DEFAULT_Z_INDEX = 9999;
+const DEFAULT_Z_INDEX: number = 9999;
 
 /**
  * Maximum safe z-index across all supported browsers
- * @type {number}
  */
-const MAX_SAFE_Z_INDEX = 2147483647;
+const MAX_SAFE_Z_INDEX: number = 2147483647;
 
 /**
  * Vendor prefixes for checking visibility API support
- * @type {string[]}
  */
-const VISIBILITY_PREFIXES = ['', 'webkit', 'moz', 'ms', 'o'];
+const VISIBILITY_PREFIXES: string[] = ['', 'webkit', 'moz', 'ms', 'o'];
+
+// ===== TYPE DEFINITIONS =====
+
+interface BrowserInfo {
+  browser: string;
+  version: number | null;
+  isFirefox: boolean;
+  isChrome: boolean;
+  isEdge: boolean;
+  isSafari: boolean;
+}
+
+interface VisibilityEvent extends Event {
+  hidden?: boolean;
+}
+
+interface PrefixedDocument extends Document {
+  webkitHidden?: boolean;
+  mozHidden?: boolean;
+  msHidden?: boolean;
+  oHidden?: boolean;
+}
 
 // ===== BROWSER DETECTION =====
 
@@ -36,17 +55,17 @@ const VISIBILITY_PREFIXES = ['', 'webkit', 'moz', 'ms', 'o'];
  * Gets browser information using BrowserDetect if available
  *
  * @private
- * @returns {{browser: string, version: number | null, isFirefox: boolean, isChrome: boolean, isEdge: boolean, isSafari: boolean}} Browser information
+ * @returns Browser information
  */
-function getBrowserInfo() {
+function getBrowserInfo(): BrowserInfo {
   if (window.BrowserDetect) {
     return {
       browser: window.BrowserDetect.getBrowser(),
-      version: /** @type {number | null} */ window.BrowserDetect.getVersion(),
-      isFirefox: /** @type {() => boolean} */ window.BrowserDetect.isFirefox(),
-      isChrome: /** @type {() => boolean} */ window.BrowserDetect.isChrome(),
-      isEdge: /** @type {() => boolean} */ window.BrowserDetect.isEdge(),
-      isSafari: /** @type {() => boolean} */ window.BrowserDetect.isSafari(),
+      version: window.BrowserDetect.getVersion() as number | null,
+      isFirefox: window.BrowserDetect.isFirefox(),
+      isChrome: window.BrowserDetect.isChrome(),
+      isEdge: window.BrowserDetect.isEdge ? window.BrowserDetect.isEdge() : false,
+      isSafari: window.BrowserDetect.isSafari ? window.BrowserDetect.isSafari() : false,
     };
   }
 
@@ -81,14 +100,14 @@ function getBrowserInfo() {
  * Checks if the browser supports high z-index values
  *
  * @private
- * @returns {boolean} Whether high z-index is supported
+ * @returns Whether high z-index is supported
  */
-function hasHighZIndexSupport() {
+function hasHighZIndexSupport(): boolean {
   try {
     const testElement = document.createElement('div');
-    // @ts-ignore: We're testing browser behavior
-    testElement.style.zIndex = MAX_SAFE_Z_INDEX;
-    // @ts-ignore: We're testing browser behavior
+    if (testElement.style) {
+      testElement.style.zIndex = String(MAX_SAFE_Z_INDEX);
+    }
     const computedZIndex = parseInt(window.getComputedStyle(testElement).zIndex || '0', 10);
     return computedZIndex === MAX_SAFE_Z_INDEX;
   } catch {
@@ -100,9 +119,9 @@ function hasHighZIndexSupport() {
  * Checks if the browser supports pointer-events CSS property
  *
  * @private
- * @returns {boolean} Whether pointer-events is supported
+ * @returns Whether pointer-events is supported
  */
-function hasPointerEventsSupport() {
+function hasPointerEventsSupport(): boolean {
   const testElement = document.createElement('div');
   return Boolean(testElement.style && 'pointerEvents' in testElement.style);
 }
@@ -111,9 +130,9 @@ function hasPointerEventsSupport() {
  * Checks if the browser supports CSS transitions
  *
  * @private
- * @returns {boolean} Whether transitions are supported
+ * @returns Whether transitions are supported
  */
-function hasTransitionSupport() {
+function hasTransitionSupport(): boolean {
   const testElement = document.createElement('div');
   return Boolean(
     testElement.style &&
@@ -127,14 +146,17 @@ function hasTransitionSupport() {
  * Gets the appropriate visibility change event name
  *
  * @private
- * @returns {string | null} The visibility change event name or null if not supported
+ * @returns The visibility change event name or null if not supported
  */
-function getVisibilityChangeEvent() {
+function getVisibilityChangeEvent(): string | null {
   for (const prefix of VISIBILITY_PREFIXES) {
     const eventName = prefix ? `${prefix}visibilitychange` : 'visibilitychange';
-    if (`${prefix}hidden` in document || prefix === '') {
-      // @ts-ignore: We're checking for existence
-      if (typeof document[`${prefix}hidden`] !== 'undefined' || prefix === '') {
+    const prop = prefix ? `${prefix}hidden` : 'hidden';
+
+    // Check if the property exists on document
+    const doc = document as PrefixedDocument;
+    if (prop in doc || prefix === '') {
+      if (typeof doc[prop as keyof PrefixedDocument] !== 'undefined' || prefix === '') {
         return eventName;
       }
     }
@@ -148,9 +170,9 @@ function getVisibilityChangeEvent() {
  * Gets a safe z-index value for the current browser
  *
  * @public
- * @returns {number} A z-index value that's safe for the current browser
+ * @returns A z-index value that's safe for the current browser
  */
-function getSafeZIndex() {
+function getSafeZIndex(): number {
   // Test if browser supports high z-index values
   if (hasHighZIndexSupport()) {
     return MAX_SAFE_Z_INDEX;
@@ -164,9 +186,9 @@ function getSafeZIndex() {
  * Gets the appropriate transition property name for the browser
  *
  * @private
- * @returns {string} The transition property name
+ * @returns The transition property name
  */
-function getTransitionProperty() {
+function getTransitionProperty(): string {
   const testElement = document.createElement('div');
 
   if (testElement.style) {
@@ -186,34 +208,29 @@ function getTransitionProperty() {
  * Applies browser-specific style adjustments to tooltip element
  *
  * @public
- * @param {HTMLElement} element - The tooltip element to style
+ * @param element - The tooltip element to style
  */
-function applyBrowserSpecificStyles(element) {
+function applyBrowserSpecificStyles(element: HTMLElement): void {
   const browser = getBrowserInfo();
 
   // Firefox adjustments
-  if (browser.isFirefox) {
+  if (browser.isFirefox && element.style) {
     // Firefox may have issues with subpixel rendering
-    // @ts-ignore: We're applying browser-specific styles
     element.style.backfaceVisibility = 'hidden';
-    // @ts-ignore: We're applying browser-specific styles
     element.style.transform = 'translateZ(0)';
   }
 
   // Safari adjustments
-  if (browser.isSafari) {
+  if (browser.isSafari && element.style) {
     // Safari may need prefixed properties
-    // @ts-ignore: We're applying browser-specific styles
-    element.style.webkitBackfaceVisibility = 'hidden';
-    // @ts-ignore: We're applying browser-specific styles
-    element.style.webkitTransform = 'translateZ(0)';
+    (element.style as any).webkitBackfaceVisibility = 'hidden';
+    (element.style as any).webkitTransform = 'translateZ(0)';
   }
 
   // Edge (legacy) adjustments
   if (browser.isEdge && browser.version && browser.version < 80) {
     // Legacy Edge specific adjustments
-    // @ts-ignore: We're applying browser-specific styles
-    element.style.msTransform = 'translateZ(0)';
+    (element.style as any).msTransform = 'translateZ(0)';
   }
 
   // Check for pointer-events support
@@ -226,13 +243,15 @@ function applyBrowserSpecificStyles(element) {
   // Apply appropriate transition property
   const transitionProp = getTransitionProperty();
   if (transitionProp !== 'transition') {
-    // @ts-ignore: We're applying browser-specific styles
-    element.style[transitionProp] = 'opacity 0.2s ease-in-out';
+    (element.style as any)[transitionProp] = 'opacity 0.2s ease-in-out';
   }
 
   // High contrast mode support
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    // @ts-ignore: We're applying browser-specific styles
+  if (
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches &&
+    element.style
+  ) {
     element.style.borderColor = 'rgba(255, 255, 255, 0.1)';
   }
 }
@@ -241,10 +260,10 @@ function applyBrowserSpecificStyles(element) {
  * Converts CSS text for browser compatibility
  *
  * @public
- * @param {string} cssText - The CSS text to convert
- * @returns {string} Browser-compatible CSS text
+ * @param cssText - The CSS text to convert
+ * @returns Browser-compatible CSS text
  */
-function convertCssForBrowser(cssText) {
+function convertCssForBrowser(cssText: string): string {
   const browser = getBrowserInfo();
   let result = cssText;
 
@@ -265,18 +284,30 @@ function convertCssForBrowser(cssText) {
 }
 
 /**
+ * Event handler info for cleanup
+ */
+interface EventHandlerInfo {
+  element: Document | Window;
+  event: string;
+  handler: EventListener;
+}
+
+/**
  * Registers browser-specific event listeners
  *
  * @public
- * @param {string} tooltipId - The tooltip element ID
- * @param {Function} showCallback - Callback to show the tooltip
- * @param {Function} hideCallback - Callback to hide the tooltip
- * @returns {Function} Function to remove the event listeners
+ * @param tooltipId - The tooltip element ID
+ * @param showCallback - Callback to show the tooltip
+ * @param hideCallback - Callback to hide the tooltip
+ * @returns Function to remove the event listeners
  */
-function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
+function registerBrowserEvents(
+  tooltipId: string,
+  showCallback: () => void,
+  hideCallback: () => void
+): () => void {
   const visibilityChangeEvent = getVisibilityChangeEvent();
-  /** @type {Array<{element: Document | Window, event: string, handler: Function}>} */
-  const handlers = [];
+  const handlers: EventHandlerInfo[] = [];
 
   // Handle page visibility changes
   if (visibilityChangeEvent) {
@@ -286,10 +317,7 @@ function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
       }
     };
 
-    document.addEventListener(
-      visibilityChangeEvent,
-      /** @type {EventListener} */ visibilityHandler
-    );
+    document.addEventListener(visibilityChangeEvent, visibilityHandler);
     handlers.push({
       element: document,
       event: visibilityChangeEvent,
@@ -302,13 +330,13 @@ function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
     hideCallback();
   };
 
-  window.addEventListener('blur', /** @type {EventListener} */ blurHandler);
+  window.addEventListener('blur', blurHandler);
   handlers.push({ element: window, event: 'blur', handler: blurHandler });
 
   // Return cleanup function
   return function cleanup() {
     handlers.forEach(({ element, event, handler }) => {
-      element.removeEventListener(event, /** @type {EventListener} */ handler);
+      element.removeEventListener(event, handler);
     });
   };
 }
@@ -318,9 +346,9 @@ function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
  * adjusted for the current browser
  *
  * @public
- * @returns {string} CSS styles for the tooltip
+ * @returns CSS styles for the tooltip
  */
-function getDefaultTooltipStyles() {
+function getDefaultTooltipStyles(): string {
   // Base styles for all browsers
   let styles = `
     .tg-tooltip {
@@ -370,9 +398,22 @@ function getDefaultTooltipStyles() {
  * Gets browser compatibility information for debugging
  *
  * @public
- * @returns {{browser: string, version: number | null, features: {highZIndex: boolean, pointerEvents: boolean, transitions: boolean, visibilityAPI: boolean}, appliedStyles: {zIndex: number, transitionProperty: string}}} Browser compatibility information
+ * @returns Browser compatibility information
  */
-function getDebugInfo() {
+function getDebugInfo(): {
+  browser: string;
+  version: number | null;
+  features: {
+    highZIndex: boolean;
+    pointerEvents: boolean;
+    transitions: boolean;
+    visibilityAPI: boolean;
+  };
+  appliedStyles: {
+    zIndex: number;
+    transitionProperty: string;
+  };
+} {
   const browser = getBrowserInfo();
 
   return {
@@ -400,5 +441,10 @@ export const TooltipBrowserAdapter = {
   getDefaultTooltipStyles,
   getDebugInfo,
 };
+
+// Browser compatibility export
+if (typeof window !== 'undefined') {
+  window.TooltipBrowserAdapter = TooltipBrowserAdapter;
+}
 
 export default TooltipBrowserAdapter;

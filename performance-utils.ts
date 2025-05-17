@@ -14,22 +14,18 @@
  * Throttles a function to limit how often it can be called
  * Useful for optimizing frequent events like mousemove, scroll, resize
  *
- * @param {Function} fn - The function to throttle
- * @param {number} delay - Minimum time between invocations in milliseconds
- * @returns {Function} Throttled function
+ * @param fn - The function to throttle
+ * @param delay - Minimum time between invocations in milliseconds
+ * @returns Throttled function
  */
-/**
- * @template T
- * @param {T} fn - The function to throttle
- * @param {number} delay - Minimum time between invocations in milliseconds
- * @returns {T} Throttled function
- */
-function throttle(fn, delay) {
+function throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => ReturnType<T> | undefined {
   let lastCall = 0;
-  /** @type {number|null} */
-  let timeout = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  return function (/** @type {...any} */ ...args) {
+  return function (this: any, ...args: Parameters<T>): ReturnType<T> | undefined {
     const now = Date.now();
     const timeSinceLastCall = now - lastCall;
     const context = this;
@@ -56,41 +52,31 @@ function throttle(fn, delay) {
 }
 
 /**
- * Debounces a function to delay its execution until after a period of inactivity
- * Useful for events that fire rapidly but only need one response at the end
+ * Debounces a function to delay its execution until after a certain time has passed
+ * since the last invocation. Useful for optimizing input events.
  *
- * @param {Function} fn - The function to debounce
- * @param {number} delay - Milliseconds to wait after last call before executing
- * @param {boolean} [immediate=false] - If true, execute on the leading edge instead of trailing
- * @returns {Function} Debounced function
+ * @param fn - The function to debounce
+ * @param delay - Time to wait before executing in milliseconds
+ * @param immediate - If true, execute on the leading edge rather than trailing
+ * @returns Debounced function
  */
-/**
- * @template T
- * @param {T} fn - The function to debounce
- * @param {number} delay - Milliseconds to wait after last call before executing
- * @param {boolean} [immediate=false] - If true, execute on the leading edge instead of trailing
- * @returns {T} Debounced function
- */
-function debounce(fn, delay, immediate = false) {
-  /** @type {number|null} */
-  let timeout = null;
+function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number,
+  immediate: boolean = false
+): (...args: Parameters<T>) => ReturnType<T> | undefined {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  return function (/** @type {...any} */ ...args) {
+  return function (this: any, ...args: Parameters<T>): ReturnType<T> | undefined {
     const context = this;
-    const callNow = immediate && !timeout;
-
-    // Clear existing timeout
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    // Set up new timeout
-    timeout = setTimeout(() => {
+    const later = () => {
       timeout = null;
-      if (!immediate) {
-        fn.apply(context, args);
-      }
-    }, delay);
+      if (!immediate) fn.apply(context, args);
+    };
+
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout!);
+    timeout = setTimeout(later, delay);
 
     if (callNow) {
       return fn.apply(context, args);
@@ -101,19 +87,16 @@ function debounce(fn, delay, immediate = false) {
 /**
  * Measures the execution time of a function
  *
- * @param {Function} fn - The function to measure
- * @param {Array} args - Arguments to pass to the function
- * @returns {Object} Object containing result and executionTime properties
+ * @param fn - The function to measure
+ * @param args - Arguments to pass to the function
+ * @returns Object containing the result and execution time
  */
-/**
- * @template T, R
- * @param {(...args: T[]) => R} fn - The function to measure
- * @param {T[]} [args=[]] - Arguments to pass to the function
- * @returns {{result: R, executionTime: number}} Object containing result and executionTime properties
- */
-function measureExecutionTime(fn, args = []) {
+function measureExecutionTime<T extends (...args: any[]) => any>(
+  fn: T,
+  ...args: Parameters<T>
+): { result: ReturnType<T>; executionTime: number } {
   const startTime = performance.now();
-  const result = fn.apply(null, args);
+  const result = fn(...args);
   const endTime = performance.now();
   const executionTime = endTime - startTime;
 
@@ -124,27 +107,34 @@ function measureExecutionTime(fn, args = []) {
 }
 
 /**
- * Measures memory usage before and after running a function
- * Note: Only works in browsers that support performance.memory
- *
- * @param {Function} fn - The function to measure
- * @param {Array} args - Arguments to pass to the function
- * @returns {Object} Object containing result, beforeMemory and afterMemory properties
+ * Memory information interface
  */
-/**
- * @template T, R
- * @param {(...args: T[]) => R} fn - The function to measure
- * @param {T[]} [args=[]] - Arguments to pass to the function
- * @returns {{result: R, beforeMemory: {totalJSHeapSize: number, usedJSHeapSize: number, jsHeapSizeLimit: number}|null, afterMemory: {totalJSHeapSize: number, usedJSHeapSize: number, jsHeapSizeLimit: number}|null}} Object containing result, beforeMemory and afterMemory properties
- */
-function measureMemoryUsage(fn, args = []) {
-  /** @type {{totalJSHeapSize: number, usedJSHeapSize: number, jsHeapSizeLimit: number}|null} */
-  let beforeMemory = null;
-  /** @type {{totalJSHeapSize: number, usedJSHeapSize: number, jsHeapSizeLimit: number}|null} */
-  let afterMemory = null;
+interface MemoryInfo {
+  totalJSHeapSize: number;
+  usedJSHeapSize: number;
+  jsHeapSizeLimit?: number;
+}
 
-  // Check if performance.memory is available (Chrome only)
-  if (window.performance && performance.memory) {
+/**
+ * Measures memory usage before and after executing a function
+ * Note: This only works in Chrome with certain flags enabled
+ *
+ * @param fn - The function to measure
+ * @param args - Arguments to pass to the function
+ * @returns Object containing the result and memory measurements
+ */
+function measureMemoryUsage<T extends (...args: any[]) => any>(
+  fn: T,
+  ...args: Parameters<T>
+): {
+  result: ReturnType<T>;
+  beforeMemory: MemoryInfo | null;
+  afterMemory: MemoryInfo | null;
+} {
+  let beforeMemory: MemoryInfo | null = null;
+  let afterMemory: MemoryInfo | null = null;
+
+  if (performance.memory) {
     beforeMemory = {
       totalJSHeapSize: performance.memory.totalJSHeapSize,
       usedJSHeapSize: performance.memory.usedJSHeapSize,
@@ -152,10 +142,9 @@ function measureMemoryUsage(fn, args = []) {
     };
   }
 
-  const result = fn.apply(null, args);
+  const result = fn(...args);
 
-  // Get memory stats after execution
-  if (window.performance && performance.memory) {
+  if (performance.memory) {
     afterMemory = {
       totalJSHeapSize: performance.memory.totalJSHeapSize,
       usedJSHeapSize: performance.memory.usedJSHeapSize,
@@ -170,101 +159,74 @@ function measureMemoryUsage(fn, args = []) {
   };
 }
 
+// ===== DOM-Specific Performance Utilities =====
+
 /**
- * Object to cache frequently accessed DOM elements or calculations
- * Helps prevent redundant DOM queries
- */
-/**
- * Object to cache frequently accessed DOM elements or calculations
- * Helps prevent redundant DOM queries
- * @type {{
- *   cache: Map<string, Element|Element[]>,
- *   get: (selector: string, root?: Element|Document) => Element|null,
- *   getAll: (selector: string, root?: Element|Document) => Element[],
- *   set: (key: string, element: Element|Element[]) => void,
- *   clear: (key?: string) => void
- * }}
+ * Element cache for reusing queries
+ * Optimizes repeated element lookups
  */
 const ElementCache = {
-  /** @type {Map<string, Element|Element[]>} */
-  cache: new Map(),
+  cache: new Map<string, Element>(),
 
   /**
-   * Get an element from cache or query and cache it
+   * Gets an element from the cache or queries the DOM
    *
-   * @param {string} selector - CSS selector for the element
-   * @param {Element} [root=document] - Root element to query from
-   * @returns {Element|null} The cached or queried element
+   * @param selector - CSS selector
+   * @param root - Root element to query from
+   * @returns Found element or null
    */
-  /**
-   * @param {string} selector - CSS selector for the element
-   * @param {Element|Document} [root=document] - Root element to query from
-   * @returns {Element|null} The cached or queried element
-   */
-  get(selector, root = document) {
-    // Generate a key that incorporates the root element
-    const rootKey = root === document ? 'document' : root.id || 'unknown';
-    const key = `${rootKey}:${selector}`;
+  get(selector: string, root: Element | Document = document): Element | null {
+    const cacheKey = `${selector}:${root === document ? 'doc' : 'elem'}`;
 
-    if (!this.cache.has(key)) {
-      const element = root.querySelector(selector);
-      if (element) {
-        this.cache.set(key, element);
+    if (this.cache.has(cacheKey)) {
+      const cached = this.cache.get(cacheKey)!;
+      // Verify the cached element is still in the document
+      if (document.body.contains(cached)) {
+        return cached;
+      } else {
+        this.cache.delete(cacheKey);
       }
-      return element;
     }
 
-    return this.cache.get(key);
+    const element = root.querySelector(selector);
+    if (element) {
+      this.cache.set(cacheKey, element);
+    }
+
+    return element;
   },
 
   /**
-   * Get all elements matching a selector from cache or query and cache them
+   * Gets all elements matching a selector, with caching
    *
-   * @param {string} selector - CSS selector for the elements
-   * @param {Element} [root=document] - Root element to query from
-   * @returns {Array<Element>} Array of cached or queried elements
+   * @param selector - CSS selector
+   * @param root - Root element to query from
+   * @returns Array of found elements
    */
-  /**
-   * @param {string} selector - CSS selector for the elements
-   * @param {Element|Document} [root=document] - Root element to query from
-   * @returns {Element[]} Array of cached or queried elements
-   */
-  getAll(selector, root = document) {
-    const rootKey = root === document ? 'document' : root.id || 'unknown';
-    const key = `${rootKey}:all:${selector}`;
-
-    if (!this.cache.has(key)) {
-      const elements = Array.from(root.querySelectorAll(selector));
-      this.cache.set(key, elements);
-      return elements;
+  getAll(selector: string, root: Element | Document = document): Element[] {
+    // All queries are not cached as they may change frequently
+    if ('querySelectorAll' in root && root.querySelectorAll) {
+      return Array.from(root.querySelectorAll(selector));
     }
-
-    return this.cache.get(key);
+    return [];
   },
 
   /**
-   * Manually add an element to the cache
+   * Sets an element in the cache
    *
-   * @param {string} key - Key to store the element under
-   * @param {Element} element - Element to cache
+   * @param key - Cache key
+   * @param element - Element to cache
    */
-  /**
-   * @param {string} key - Key to store the element under
-   * @param {Element|Element[]} element - Element to cache
-   */
-  set(key, element) {
+  set(key: string, element: Element): void {
     this.cache.set(key, element);
   },
 
   /**
-   * Clear the entire cache or a specific key
+   * Clears the cache or specific item
    *
-   * @param {string} [key] - Optional key to clear, if not provided, clears entire cache
+   * @param key - Optional key to clear specific item
    */
-  /**
-   * @param {string} [key] - Optional key to clear, if not provided, clears entire cache
-   */
-  clear(key) {
+  clear(key?: string): void {
     if (key) {
       this.cache.delete(key);
     } else {
@@ -274,58 +236,38 @@ const ElementCache = {
 };
 
 /**
- * Batch multiple reads or writes to the DOM to avoid layout thrashing
- */
-/**
- * Batch multiple reads or writes to the DOM to avoid layout thrashing
- * @type {{
- *   reads: Function[],
- *   writes: Function[],
- *   scheduled: boolean,
- *   read: (fn: () => void) => void,
- *   write: (fn: () => void) => void,
- *   schedule: () => void,
- *   process: () => void
- * }}
+ * Batch DOM reading and writing operations for better performance
+ * Based on the principle of minimizing layout thrashing
  */
 const DOMBatch = {
-  /** @type {Function[]} */
-  reads: [],
-  /** @type {Function[]} */
-  writes: [],
-  /** @type {boolean} */
+  reads: [] as (() => void)[],
+  writes: [] as (() => void)[],
   scheduled: false,
 
   /**
-   * Schedule a DOM read operation
+   * Schedules a read operation
    *
-   * @param {Function} fn - Function that reads from the DOM
+   * @param fn - Function that reads from the DOM
    */
-  /**
-   * @param {() => void} fn - Function that reads from the DOM
-   */
-  read(fn) {
+  read(fn: () => void): void {
     this.reads.push(fn);
     this.schedule();
   },
 
   /**
-   * Schedule a DOM write operation
+   * Schedules a write operation
    *
-   * @param {Function} fn - Function that writes to the DOM
+   * @param fn - Function that writes to the DOM
    */
-  /**
-   * @param {() => void} fn - Function that writes to the DOM
-   */
-  write(fn) {
+  write(fn: () => void): void {
     this.writes.push(fn);
     this.schedule();
   },
 
   /**
-   * Schedule DOM batch processing
+   * Schedules the batch processing
    */
-  schedule() {
+  schedule(): void {
     if (!this.scheduled) {
       this.scheduled = true;
       requestAnimationFrame(() => this.process());
@@ -333,43 +275,74 @@ const DOMBatch = {
   },
 
   /**
-   * Process all scheduled DOM operations
+   * Processes all batched operations
    */
-  process() {
-    // Process all reads
-    const reads = this.reads;
-    this.reads = [];
+  process(): void {
+    const reads = this.reads.slice();
+    const writes = this.writes.slice();
 
-    // Execute all read functions first
+    // Clear pending operations
+    this.reads.length = 0;
+    this.writes.length = 0;
+    this.scheduled = false;
+
+    // Execute all reads first
     reads.forEach((fn) => {
       try {
         fn();
-      } catch (e) {
-        console.error('Error in DOMBatch read operation:', e);
+      } catch (error) {
+        console.error('Error in batched read operation:', error);
       }
     });
 
-    // Process all writes
-    const writes = this.writes;
-    this.writes = [];
-
-    // Execute all write functions after reads
+    // Then execute all writes
     writes.forEach((fn) => {
       try {
         fn();
-      } catch (e) {
-        console.error('Error in DOMBatch write operation:', e);
+      } catch (error) {
+        console.error('Error in batched write operation:', error);
       }
     });
-
-    this.scheduled = false;
-
-    // Schedule another frame if more operations were added during processing
-    if (this.reads.length > 0 || this.writes.length > 0) {
-      this.schedule();
-    }
   },
 };
 
-// Public API exports
-export { throttle, debounce, measureExecutionTime, measureMemoryUsage, ElementCache, DOMBatch };
+/**
+ * Configuration objects for performance utilities
+ */
+const Configs = {
+  scroll: {
+    delay: 150,
+    maxWait: 500,
+  },
+  input: {
+    delay: 32, // ~30 FPS
+    maxWait: 100,
+  },
+  keyboard: {
+    delay: 50,
+    maxWait: 200,
+  },
+  mutation: {
+    delay: 50,
+    maxWait: 300,
+  },
+};
+
+// Export the performance utilities
+const PerformanceUtils = {
+  throttle,
+  debounce,
+  measureExecutionTime,
+  measureMemoryUsage,
+  ElementCache,
+  DOMBatch,
+  Configs,
+};
+
+// Browser compatibility check and export
+if (typeof window !== 'undefined') {
+  (window as any).PerformanceUtils = PerformanceUtils;
+}
+
+export { PerformanceUtils };
+export default PerformanceUtils;

@@ -25,43 +25,43 @@ const performanceUtils = window.PerformanceUtils || null;
  * Reference to the TooltipUI instance
  * @type {TooltipUIInterface|null}
  */
-let tooltipUI = null;
+let tooltipUI: any = null; // Will be properly typed once TooltipUIInterface is imported
 
 /**
  * Flag indicating whether event listeners have been initialized
  * @type {boolean}
  */
-let isInitialized = false;
+let isInitialized: boolean = false;
 
 /**
  * Selector for converted text elements that should trigger tooltips
  * @type {string}
  */
-const CONVERTED_TEXT_SELECTOR = '.tg-converted-text';
+const CONVERTED_TEXT_SELECTOR: string = '.tg-converted-text';
 
 /**
  * Attribute containing the original text to display in tooltip
  * @type {string}
  */
-const ORIGINAL_TEXT_ATTR = 'data-original-text';
+const ORIGINAL_TEXT_ATTR: string = 'data-original-text';
 
 /**
  * Cache for throttled mouse move handler
  * @type {Function|null}
  */
-let cachedThrottledMouseMove = null;
+let cachedThrottledMouseMove: ((event: MouseEvent) => void) | null = null;
 
 /**
  * Cache for throttled scroll handler
  * @type {Function|null}
  */
-let cachedThrottledScroll = null;
+let cachedThrottledScroll: (() => void) | null = null;
 
 /**
  * Cache for debounced keyboard handler
  * @type {Function|null}
  */
-let cachedDebouncedKeyboard = null;
+let cachedDebouncedKeyboard: ((event: KeyboardEvent) => void) | null = null;
 
 // ===== PERFORMANCE OPTIMIZATIONS =====
 
@@ -71,19 +71,17 @@ let cachedDebouncedKeyboard = null;
  * @private
  * @param {MouseEvent} event - The mousemove event object
  */
-function handleMouseMoveLogic(event) {
+function handleMouseMoveLogic(event: MouseEvent): void {
   try {
-    const target = event.target;
+    const target = event.target as HTMLElement | null;
 
     // Early exit if target is not valid
-    // @ts-ignore: using target as HTMLElement
-    if (!target || !target.closest) {
+    if (!target || !('closest' in target)) {
       return;
     }
 
     // Check if we're hovering over a converted text element
-    // @ts-ignore: using target as HTMLElement
-    const convertedElement = target.closest(CONVERTED_TEXT_SELECTOR);
+    const convertedElement = target.closest(CONVERTED_TEXT_SELECTOR) as HTMLElement | null;
 
     if (convertedElement) {
       // We're hovering over converted text that hasn't shown tooltip yet
@@ -126,7 +124,7 @@ function handleMouseMoveLogic(event) {
  *
  * @private
  */
-function hideTooltip() {
+function hideTooltip(): void {
   try {
     if (tooltipUI) {
       tooltipUI.hide();
@@ -166,7 +164,7 @@ function hideTooltip() {
  * @private
  * @param {MouseEvent} event - The mouse move event object from DOM
  */
-function handleMouseMove(event) {
+function handleMouseMove(event: MouseEvent): void {
   if (!cachedThrottledMouseMove && performanceUtils) {
     // Create and cache the throttled function
     cachedThrottledMouseMove = performanceUtils.throttle(
@@ -190,7 +188,7 @@ function handleMouseMove(event) {
  *
  * @private
  */
-function handleMouseLeave() {
+function handleMouseLeave(): void {
   try {
     hideTooltip();
 
@@ -214,27 +212,23 @@ function handleMouseLeave() {
  * @private
  * @param {FocusEvent} event - The focus event object from DOM
  */
-function handleFocus(event) {
+function handleFocus(event: FocusEvent): void {
   try {
-    const target = event.target;
+    const target = event.target as HTMLElement | null;
 
     // Check if the focused element is converted text
-    // @ts-ignore: using target as HTMLElement
-    if (target && target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
+    if (target && 'matches' in target && target.matches(CONVERTED_TEXT_SELECTOR)) {
       // Get original text from data attribute
-      // @ts-ignore: using target as HTMLElement
       const originalText = target.getAttribute(ORIGINAL_TEXT_ATTR);
 
       if (originalText && tooltipUI) {
         // Show tooltip for focused element
         tooltipUI.setText(originalText);
-        // @ts-ignore: target is HTMLElement
         tooltipUI.updatePosition(target);
         tooltipUI.show();
 
         // Set up ARIA relationship
         const tooltipId = tooltipUI.getId();
-        // @ts-ignore: target is HTMLElement
         target.setAttribute('aria-describedby', tooltipId);
 
         // Log activity if Logger is available
@@ -261,13 +255,12 @@ function handleFocus(event) {
  * @private
  * @param {FocusEvent} event - The blur event object from DOM
  */
-function handleBlur(event) {
+function handleBlur(event: FocusEvent): void {
   try {
-    const target = event.target;
+    const target = event.target as HTMLElement | null;
 
     // Check if the blurred element was showing a tooltip
-    // @ts-ignore: using target as HTMLElement
-    if (target && target.matches && target.matches(CONVERTED_TEXT_SELECTOR)) {
+    if (target && 'matches' in target && target.matches(CONVERTED_TEXT_SELECTOR)) {
       hideTooltip();
 
       // Log activity if Logger is available
@@ -291,7 +284,7 @@ function handleBlur(event) {
  *
  * @private
  */
-function handleScrollLogic() {
+function handleScrollLogic(): void {
   try {
     hideTooltip();
 
@@ -315,7 +308,7 @@ function handleScrollLogic() {
  *
  * @private
  */
-function handleScroll() {
+function handleScroll(): void {
   if (!cachedThrottledScroll && performanceUtils) {
     // Create and cache the throttled function
     cachedThrottledScroll = performanceUtils.throttle(
@@ -341,27 +334,28 @@ function handleScroll() {
  * @private
  * @param {KeyboardEvent} event - The keyboard event
  */
-function handleKeyboardLogic(event) {
+function handleKeyboardLogic(event: KeyboardEvent): void {
   try {
     // Only handle Escape key for now
     if (event.key === 'Escape' || event.keyCode === 27) {
-      // @ts-ignore: tooltipUI is checked to be non-null in handleKeydown
-      tooltipUI.hide();
+      if (tooltipUI) {
+        tooltipUI.hide();
 
-      // Remove aria-describedby from any elements that had it
-      // @ts-ignore: tooltipUI is checked to be non-null in handleKeydown
-      const tooltipId = tooltipUI.getId();
-      if (tooltipId) {
-        // Find all elements that reference this tooltip
-        // @ts-ignore: TypeScript doesn't recognize that document.querySelectorAll is always available
-        const describedElements = document.querySelectorAll(`[aria-describedby="${tooltipId}"]`);
+        // Remove aria-describedby from any elements that had it
+        const tooltipId = tooltipUI.getId();
+        if (tooltipId) {
+          // Find all elements that reference this tooltip
+          if (document.querySelectorAll) {
+            const describedElements = document.querySelectorAll(
+              `[aria-describedby="${tooltipId}"]`
+            );
 
-        if (describedElements) {
-          Array.from(describedElements).forEach((element) => {
-            if (element && element.removeAttribute) {
-              element.removeAttribute('aria-describedby');
+            if (describedElements) {
+              Array.from(describedElements).forEach((element) => {
+                element.removeAttribute('aria-describedby');
+              });
             }
-          });
+          }
         }
       }
 
@@ -387,7 +381,7 @@ function handleKeyboardLogic(event) {
  * @private
  * @param {KeyboardEvent} event - The keyboard event
  */
-function handleKeydown(event) {
+function handleKeydown(event: KeyboardEvent): void {
   if (!cachedDebouncedKeyboard && performanceUtils) {
     // Create and cache the debounced function
     cachedDebouncedKeyboard = performanceUtils.debounce(
@@ -415,7 +409,7 @@ function handleKeydown(event) {
  * @public
  * @param {TooltipUIInterface} uiModule - The TooltipUI module instance
  */
-function initialize(uiModule) {
+function initialize(uiModule: any): void {
   try {
     // Validate input
     if (!uiModule) {
@@ -471,7 +465,7 @@ function initialize(uiModule) {
  *
  * @public
  */
-function dispose() {
+function dispose(): void {
   try {
     // Remove all event listeners
     document.removeEventListener('mousemove', handleMouseMove);
@@ -509,7 +503,12 @@ function dispose() {
 
 // ===== PUBLIC API =====
 
-export const TooltipManager = {
+interface TooltipManagerInterface {
+  initialize: (uiModule: any) => void;
+  dispose: () => void;
+}
+
+export const TooltipManager: TooltipManagerInterface = {
   initialize: initialize,
   dispose: dispose,
 };

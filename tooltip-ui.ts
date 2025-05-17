@@ -9,6 +9,22 @@
 
 'use strict';
 
+interface TooltipDebugInfo {
+  isCreated: boolean;
+  tooltipElement: {
+    id: string;
+    isVisible: boolean;
+    zIndex: string;
+  } | null;
+  constants: {
+    TOOLTIP_ID: string;
+    TOOLTIP_Z_INDEX: number;
+    TOOLTIP_MAX_WIDTH: number;
+    TOOLTIP_MAX_HEIGHT: number;
+  };
+  browserAdapter?: any;
+}
+
 // ===== CONSTANTS =====
 
 /**
@@ -50,13 +66,13 @@ const TOOLTIP_MAX_HEIGHT = 200;
  * Reference to the tooltip DOM element
  * @type {HTMLElement|null}
  */
-let tooltipElement = null;
+let tooltipElement: HTMLElement | null = null;
 
 /**
  * Flag indicating whether the tooltip has been created
  * @type {boolean}
  */
-let isCreated = false;
+let isCreated: boolean = false;
 
 // ===== PRIVATE HELPER FUNCTIONS =====
 
@@ -66,7 +82,7 @@ let isCreated = false;
  *
  * @private
  */
-function addAccessibilityStyles() {
+function addAccessibilityStyles(): void {
   try {
     // Check if accessibility styles have already been added
     if (document.getElementById('tg-accessibility-styles')) {
@@ -128,7 +144,7 @@ function addAccessibilityStyles() {
  * @private
  * @param {HTMLElement} element - The tooltip element to style
  */
-function applyTooltipStyles(element) {
+function applyTooltipStyles(element: HTMLElement): void {
   try {
     // Check if browser adapter is available
     if (
@@ -217,7 +233,7 @@ function applyTooltipStyles(element) {
  *
  * @public
  */
-function ensureCreated() {
+function ensureCreated(): void {
   // If tooltip already exists, do nothing
   if (isCreated && tooltipElement) {
     return;
@@ -274,7 +290,7 @@ function ensureCreated() {
  * @public
  * @param {string} text - The text to display in the tooltip
  */
-function setText(text) {
+function setText(text: string): void {
   try {
     // Ensure the tooltip element exists
     ensureCreated();
@@ -317,7 +333,7 @@ function setText(text) {
  * @public
  * @param {HTMLElement} targetElement - The element the tooltip should be positioned relative to
  */
-function updatePosition(targetElement) {
+function updatePosition(targetElement: HTMLElement): void {
   try {
     // Ensure the tooltip element exists
     ensureCreated();
@@ -434,7 +450,7 @@ function updatePosition(targetElement) {
  *
  * @public
  */
-function show() {
+function show(): void {
   try {
     // Ensure the tooltip element exists
     ensureCreated();
@@ -475,7 +491,7 @@ function show() {
  *
  * @public
  */
-function hide() {
+function hide(): void {
   try {
     // Check if tooltip exists (no need to create if not)
     if (!tooltipElement) {
@@ -510,7 +526,7 @@ function hide() {
  *
  * @public
  */
-function destroy() {
+function destroy(): void {
   try {
     // Check if tooltip exists
     if (!tooltipElement) {
@@ -546,7 +562,7 @@ function destroy() {
  * @public
  * @returns {string} The ID of the tooltip element
  */
-function getId() {
+function getId(): string {
   // Simply return the ID constant
   // This will be used for aria-describedby attributes
   return TOOLTIP_ID;
@@ -556,19 +572,19 @@ function getId() {
  * Gets debug information about the tooltip component and browser support
  *
  * @public
- * @returns {any} Debug information
+ * @returns {TooltipDebugInfo} Debug information
  */
-function getDebugInfo() {
-  /** @type {any} */
-  const info = {
+function getDebugInfo(): TooltipDebugInfo {
+  const info: TooltipDebugInfo = {
     isCreated: isCreated,
-    tooltipElement: tooltipElement
-      ? {
-          id: tooltipElement.id,
-          isVisible: /** @type {any} */ tooltipElement.style.visibility === 'visible',
-          zIndex: /** @type {any} */ tooltipElement.style.zIndex,
-        }
-      : null,
+    tooltipElement:
+      tooltipElement && tooltipElement.style
+        ? {
+            id: tooltipElement.id,
+            isVisible: tooltipElement.style.visibility === 'visible',
+            zIndex: tooltipElement.style.zIndex,
+          }
+        : null,
     constants: {
       TOOLTIP_ID,
       TOOLTIP_Z_INDEX,
@@ -590,7 +606,18 @@ function getDebugInfo() {
 
 // ===== PUBLIC API =====
 
-export const TooltipUI = {
+interface TooltipUIInterface {
+  ensureCreated: () => void;
+  setText: (text: string) => void;
+  updatePosition: (targetElement: HTMLElement) => void;
+  show: () => void;
+  hide: () => void;
+  destroy: () => void;
+  getId: () => string;
+  getDebugInfo: () => TooltipDebugInfo;
+}
+
+export const TooltipUI: TooltipUIInterface = {
   // Core tooltip methods
   ensureCreated: ensureCreated,
   setText: setText,

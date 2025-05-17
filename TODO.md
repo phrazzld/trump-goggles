@@ -107,7 +107,7 @@
     2. Import paths in `content-consolidated.js` (T006) and other places are updated if necessary.
   - **Depends‑on:** [T001, T002, T003, T004, T005, T006]
 
-- [ ] **T010 · Refactor · P0: add explicit TypeScript type annotations to new modules**
+- [x] **T010 · Refactor · P0: add explicit TypeScript type annotations to new modules**
 
   - **Context:** PLAN.md, CR-02, Step 2
   - **Action:**

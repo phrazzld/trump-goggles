@@ -31,11 +31,6 @@
     "performance-test.js",
     "setup-performance-test.js",
     "dist/**/*",
-    "rollup.config.js",
-    "dom-modifier.ts",
-    "tooltip-ui.ts",
-    "tooltip-manager.ts",
-    "tooltip-browser-adapter.ts",
-    "performance-utils.ts"
+    "rollup.config.js"
   ]
 }

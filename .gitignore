@@ -9,6 +9,7 @@ TODO-*.md
 ci-failure-analysis*.md
 **/glance.md
 REVIEW-CONTEXT.md
+thinktank_*/
 
 # Node and dependencies
 node_modules/

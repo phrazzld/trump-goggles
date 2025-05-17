@@ -283,6 +283,22 @@ interface Window {
   trumpProcessedNodes?: WeakSet<Node>;
   trumpObserver?: MutationObserver;
 
+  // Tooltip modules
+  TooltipManager?: any;
+  TooltipUI?: any;
+  TooltipBrowserAdapter?: any;
+  DOMModifier?: any;
+  PerformanceUtils?: any;
+
   // Legacy globals
   buildTrumpMap?: () => any;
+}
+
+// Extend Performance interface for memory property
+interface Performance {
+  memory?: {
+    totalJSHeapSize: number;
+    usedJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
 }
