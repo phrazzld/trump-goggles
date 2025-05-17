@@ -1,21 +1,51 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "strict": true,
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "lib": ["DOM", "ES2022", "ESNext"],
-    "jsx": "preserve",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "sourceMap": true,
-    "allowSyntheticDefaultImports": true
+    // Target and Module Settings
+    "target": "ES2020",                       // Modern ES target for browser environment
+    "module": "ESNext",                       // ES modules for modern bundlers
+    "moduleResolution": "Bundler",            // Recommended for browser extension bundling
+    "lib": ["DOM", "ES2020", "ESNext"],       // Include DOM APIs for browser extensions
+    
+    // Strict Type Checking (Mandatory)
+    "strict": true,                           // Enable all strict type checking options
+    "noImplicitAny": true,                    // Error on expressions with implicit 'any' type
+    "strictNullChecks": true,                 // Enable strict null checks
+    "strictFunctionTypes": true,              // Enable strict checking of function types
+    "strictBindCallApply": true,              // Enable strict 'bind', 'call', and 'apply' methods
+    "strictPropertyInitialization": true,     // Verify class properties are initialized
+    "noImplicitThis": true,                   // Error on 'this' expressions with implicit 'any' type
+    "useUnknownInCatchVariables": true,       // Default catch clause variables as 'unknown' instead of 'any'
+    "alwaysStrict": true,                     // Parse in strict mode and emit "use strict"
+    
+    // Additional Checks (Recommended by Philosophy)
+    "noUnusedLocals": true,                   // Report errors on unused local variables
+    "noUnusedParameters": true,               // Report errors on unused parameters
+    "noImplicitReturns": true,                // Report error when not all code paths return a value
+    "noFallthroughCasesInSwitch": true,       // Report errors for fallthrough cases in switch statements
+    
+    // Module Interop Options
+    "esModuleInterop": true,                  // Enable interoperability with CommonJS modules
+    "allowSyntheticDefaultImports": true,     // Allow default imports from modules with no default export
+    "isolatedModules": true,                  // Ensure each file can be transpiled independently
+    
+    // File Resolution Options
+    "resolveJsonModule": true,                // Include modules imported with .json extension
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
+    
+    // JavaScript Support
+    "allowJs": true,                          // Allow JavaScript files to be compiled
+    "checkJs": true,                          // Report errors in .js files
+    
+    // Emit Options
+    "noEmit": true,                           // Do not emit outputs (bundler handles this)
+    "sourceMap": true,                        // Generate corresponding .map file
+    "declaration": false,                     // Don't generate .d.ts files (not needed for app)
+    
+    // Skip Type Checking of Declaration Files
+    "skipLibCheck": true,                     // Skip type checking of declaration files
+    
+    // JSX Options (if needed in future)
+    "jsx": "preserve"                         // Preserve JSX for potential future React usage
   },
   "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx"],
   "exclude": [

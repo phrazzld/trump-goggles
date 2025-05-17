@@ -118,7 +118,7 @@
     2. TypeScript compiler runs without type errors.
   - **Depends‑on:** [T009]
 
-- [ ] **T011 · Chore · P0: configure TypeScript for strict mode in tsconfig.json**
+- [x] **T011 · Chore · P0: configure TypeScript for strict mode in tsconfig.json**
 
   - **Context:** PLAN.md, CR-02, Step 4
   - **Action:**
@@ -138,6 +138,31 @@
     1. Build process successfully compiles TypeScript files.
     2. Generated output is functionally equivalent to pre-TypeScript version.
   - **Depends‑on:** [T007, T011]
+
+## TypeScript Strict Mode Fixes
+
+- [ ] **T041 · Fix · P1: fix missing return values in performance-utils.ts**
+
+  - **Context:** TypeScript strict mode errors detected after T011
+  - **Action:**
+    1. Fix `error TS7030: Not all code paths return a value` at line 28
+    2. Fix `error TS7030: Not all code paths return a value` at line 70
+  - **Done‑when:**
+    1. All code paths in affected functions return appropriate values
+    2. TypeScript compiler no longer reports TS7030 errors for this file
+  - **Depends‑on:** [T011]
+
+- [ ] **T042 · Fix · P2: remove unused declarations in tooltip-browser-adapter.ts**
+
+  - **Context:** TypeScript strict mode errors detected after T011
+  - **Action:**
+    1. Remove or use unused `VisibilityEvent` interface at line 41
+    2. Remove or use unused `tooltipId` parameter at line 305
+    3. Remove or use unused `showCallback` parameter at line 306
+  - **Done‑when:**
+    1. No TS6196 or TS6133 errors remain in this file
+    2. All parameters and declarations are either used or removed
+  - **Depends‑on:** [T011]
 
 ## Test Infrastructure Updates
 
