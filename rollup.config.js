@@ -25,9 +25,12 @@ const createConfig = (input, outputName) => ({
   plugins: [
     nodeResolve({
       browser: true,
+      extensions: ['.js', '.ts'],
     }),
     // @ts-ignore
-    commonjs(),
+    commonjs({
+      extensions: ['.js', '.ts'],
+    }),
     production &&
       terser({
         compress: {

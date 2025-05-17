@@ -564,10 +564,10 @@ function getDebugInfo() {
     isCreated: isCreated,
     tooltipElement: tooltipElement
       ? {
-        id: tooltipElement.id,
-        isVisible: /** @type {any} */ (tooltipElement).style.visibility === 'visible',
-        zIndex: /** @type {any} */ (tooltipElement).style.zIndex,
-      }
+          id: tooltipElement.id,
+          isVisible: /** @type {any} */ tooltipElement.style.visibility === 'visible',
+          zIndex: /** @type {any} */ tooltipElement.style.zIndex,
+        }
       : null,
     constants: {
       TOOLTIP_ID,

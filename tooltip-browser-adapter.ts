@@ -42,11 +42,11 @@ function getBrowserInfo() {
   if (window.BrowserDetect) {
     return {
       browser: window.BrowserDetect.getBrowser(),
-      version: /** @type {number | null} */ (window.BrowserDetect.getVersion()),
-      isFirefox: /** @type {() => boolean} */ (window.BrowserDetect.isFirefox)(),
-      isChrome: /** @type {() => boolean} */ (window.BrowserDetect.isChrome)(),
-      isEdge: /** @type {() => boolean} */ (window.BrowserDetect.isEdge)(),
-      isSafari: /** @type {() => boolean} */ (window.BrowserDetect.isSafari)(),
+      version: /** @type {number | null} */ window.BrowserDetect.getVersion(),
+      isFirefox: /** @type {() => boolean} */ window.BrowserDetect.isFirefox(),
+      isChrome: /** @type {() => boolean} */ window.BrowserDetect.isChrome(),
+      isEdge: /** @type {() => boolean} */ window.BrowserDetect.isEdge(),
+      isSafari: /** @type {() => boolean} */ window.BrowserDetect.isSafari(),
     };
   }
 
@@ -288,7 +288,7 @@ function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
 
     document.addEventListener(
       visibilityChangeEvent,
-      /** @type {EventListener} */ (visibilityHandler)
+      /** @type {EventListener} */ visibilityHandler
     );
     handlers.push({
       element: document,
@@ -302,13 +302,13 @@ function registerBrowserEvents(tooltipId, showCallback, hideCallback) {
     hideCallback();
   };
 
-  window.addEventListener('blur', /** @type {EventListener} */ (blurHandler));
+  window.addEventListener('blur', /** @type {EventListener} */ blurHandler);
   handlers.push({ element: window, event: 'blur', handler: blurHandler });
 
   // Return cleanup function
   return function cleanup() {
     handlers.forEach(({ element, event, handler }) => {
-      element.removeEventListener(event, /** @type {EventListener} */ (handler));
+      element.removeEventListener(event, /** @type {EventListener} */ handler);
     });
   };
 }

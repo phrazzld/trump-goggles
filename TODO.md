@@ -93,7 +93,7 @@
     1. Load the extension unpacked in a browser; verify core functionality initializes.
   - **Depends‑on:** [T007]
 
-- [ ] **T009 · Refactor · P0: rename new module .js files to .ts**
+- [x] **T009 · Refactor · P0: rename new module .js files to .ts**
 
   - **Context:** PLAN.md, CR-02, Step 1
   - **Action:**
