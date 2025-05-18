@@ -38,10 +38,6 @@ interface BrowserInfo {
   isSafari: boolean;
 }
 
-interface VisibilityEvent extends Event {
-  hidden?: boolean;
-}
-
 interface PrefixedDocument extends Document {
   webkitHidden?: boolean;
   mozHidden?: boolean;
@@ -302,8 +298,8 @@ interface EventHandlerInfo {
  * @returns Function to remove the event listeners
  */
 function registerBrowserEvents(
-  tooltipId: string,
-  showCallback: () => void,
+  _tooltipId: string,
+  _showCallback: () => void,
   hideCallback: () => void
 ): () => void {
   const visibilityChangeEvent = getVisibilityChangeEvent();

@@ -129,7 +129,7 @@
     2. TypeScript compilation succeeds for all modules.
   - **Depends‑on:** [T009]
 
-- [ ] **T012 · Chore · P0: update build process to handle TypeScript compilation**
+- [x] **T012 · Chore · P0: update build process to handle TypeScript compilation**
   - **Context:** PLAN.md, CR-02, Step 5
   - **Action:**
     1. Update the bundler configuration from T007 to handle TypeScript files.
@@ -141,7 +141,7 @@
 
 ## TypeScript Strict Mode Fixes
 
-- [ ] **T041 · Fix · P1: fix missing return values in performance-utils.ts**
+- [x] **T041 · Fix · P1: fix missing return values in performance-utils.ts**
 
   - **Context:** TypeScript strict mode errors detected after T011
   - **Action:**
@@ -152,7 +152,7 @@
     2. TypeScript compiler no longer reports TS7030 errors for this file
   - **Depends‑on:** [T011]
 
-- [ ] **T042 · Fix · P2: remove unused declarations in tooltip-browser-adapter.ts**
+- [x] **T042 · Fix · P2: remove unused declarations in tooltip-browser-adapter.ts**
 
   - **Context:** TypeScript strict mode errors detected after T011
   - **Action:**

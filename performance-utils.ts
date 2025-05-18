@@ -47,6 +47,7 @@ function throttle<T extends (...args: any[]) => any>(
         timeout = null;
         fn.apply(context, args);
       }, delay - timeSinceLastCall);
+      return undefined;
     }
   };
 }
@@ -81,6 +82,7 @@ function debounce<T extends (...args: any[]) => any>(
     if (callNow) {
       return fn.apply(context, args);
     }
+    return undefined;
   };
 }
 
