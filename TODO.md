@@ -177,7 +177,7 @@
     2. No module re-implementations remain in test files.
   - **Depends‑on:** [T006]
 
-- [ ] **T014 · Test · P0: update test setup to handle ES Modules and TypeScript**
+- [x] **T014 · Test · P0: update test setup to handle ES Modules and TypeScript**
   - **Context:** PLAN.md, CR-03, Step 3
   - **Action:**
     1. Configure test runner to handle ES Module imports.
