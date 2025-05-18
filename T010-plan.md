@@ -3,6 +3,7 @@
 ## Approach
 
 Adopt a "Strict Dependency-Ordered Typing" strategy:
+
 1. Enforce full TypeScript strictness globally
 2. Add explicit type annotations to each module in their order of dependency
 3. Leverage `types.d.ts` and standard DOM types
@@ -13,7 +14,7 @@ Adopt a "Strict Dependency-Ordered Typing" strategy:
 Based on imports and functionality analysis, the typing order will be:
 
 1. **performance-utils.ts** - No internal dependencies, foundational utilities
-2. **tooltip-browser-adapter.ts** - Browser API adapter, used by other modules  
+2. **tooltip-browser-adapter.ts** - Browser API adapter, used by other modules
 3. **dom-modifier.ts** - DOM utilities with text conversion types
 4. **tooltip-ui.ts** - UI component that depends on browser adapter
 5. **tooltip-manager.ts** - Orchestrates tooltips, depends on UI and performance utils
@@ -31,24 +32,29 @@ Based on imports and functionality analysis, the typing order will be:
 For each module, apply these principles:
 
 1. **Public API Typing**
+
    - All exported functions get explicit parameter and return types
    - Use `void` for functions with no return
    - Use `Promise<T>` for async functions
 
 2. **Internal Logic Typing**
+
    - Type all internal variables, constants, and helper functions
    - No implicit `any` allowed
 
 3. **DOM Element Types**
+
    - Use standard TypeScript DOM types: `HTMLElement`, `Event`, `MouseEvent`, etc.
    - Event handlers: `(event: MouseEvent) => void`
 
 4. **Configuration Objects**
+
    - Utilize interfaces from `types.d.ts`
    - Create new interfaces in `types.d.ts` for shared types
    - Use `?` for optional properties
 
 5. **Callbacks and Event Listeners**
+
    - Define clear function signatures
    - Example: `type MutationCallback = (mutations: MutationRecord[], observer: MutationObserver) => void`
 
@@ -59,29 +65,34 @@ For each module, apply these principles:
 ### Phase 3: Specific Module Requirements
 
 #### performance-utils.ts
+
 - Type the `PerformanceUtils` object and all methods
 - Use generic types for throttle/debounce functions
 - Define `MemoryInfo` interface
 - Type ElementCache and DOMBatch properties
 
 #### tooltip-browser-adapter.ts
+
 - Type browser detection results
 - Create interfaces for browser info and feature detection
 - Type style manipulation functions
 - Define event handler cleanup functions
 
 #### dom-modifier.ts
+
 - Use `TextSegmentConversion` interface from `types.d.ts`
-- Type DOM manipulation functions  
+- Type DOM manipulation functions
 - Ensure proper Text node typing
 
 #### tooltip-ui.ts
+
 - Implement `TooltipUIInterface` from `types.d.ts`
 - Type internal state (tooltipElement, isCreated)
 - Type positioning calculations
 - Define debug info structure
 
 #### tooltip-manager.ts
+
 - Implement `TooltipManagerInterface` from `types.d.ts`
 - Type event handlers with proper Event types
 - Type cached functions (throttled/debounced)

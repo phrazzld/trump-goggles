@@ -1,6 +1,7 @@
 // @ts-check
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
 // @ts-ignore
 import terser from '@rollup/plugin-terser';
 // @ts-ignore
@@ -26,6 +27,20 @@ const createConfig = (input, outputName) => ({
     nodeResolve({
       browser: true,
       extensions: ['.js', '.ts'],
+    }),
+    typescript({
+      tsconfig: './tsconfig.json',
+      // Let Rollup handle module resolution and output
+      compilerOptions: {
+        // Override tsconfig options for Rollup
+        module: 'esnext',
+        target: 'es2020',
+        declaration: false,
+        declarationMap: false,
+        composite: false,
+        // Use inline helpers instead of tslib
+        importHelpers: false,
+      },
     }),
     // @ts-ignore
     commonjs({

@@ -18,6 +18,7 @@
 ## Implementation Approach Analysis Prompt:
 
 Analyze the task of adding explicit TypeScript type annotations to the following modules:
+
 - dom-modifier.ts
 - tooltip-ui.ts
 - tooltip-manager.ts
@@ -25,12 +26,14 @@ Analyze the task of adding explicit TypeScript type annotations to the following
 - performance-utils.ts
 
 The goal is to:
+
 1. Add explicit type annotations to all functions, parameters, and return types
 2. Use interfaces from types.d.ts where appropriate
 3. Eliminate all implicit 'any' types
 4. Ensure the TypeScript compiler runs without errors
 
 Consider:
+
 - What interfaces are available in types.d.ts that should be used?
 - How should the modules' public APIs be typed?
 - What are the most appropriate types for event handlers, DOM elements, and configuration objects?
