@@ -166,7 +166,7 @@
 
 ## Test Infrastructure Updates
 
-- [ ] **T013 · Test · P0: refactor tests to import actual modules instead of re-implementations**
+- [x] **T013 · Test · P0: refactor tests to import actual modules instead of re-implementations**
 
   - **Context:** PLAN.md, CR-03, Step 1-2
   - **Action:**

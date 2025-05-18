@@ -3,12 +3,12 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { DOMModifier } from '../../dom-modifier.ts';
 
 describe('DOMModifier', () => {
   let document;
   let window;
   let mockLogger;
-  let DOMModifier;
 
   beforeEach(() => {
     // Set up JSDOM
@@ -24,106 +24,11 @@ describe('DOMModifier', () => {
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
-      protect: vi.fn((fn) => fn()),
+      protect: vi.fn((fn) => fn),
     };
 
     // Attach Logger to window
     window.Logger = mockLogger;
-
-    // Create a mock implementation that matches the interface
-    DOMModifier = {
-      CONVERTED_TEXT_WRAPPER_CLASS: 'tg-converted-text',
-      ORIGINAL_TEXT_DATA_ATTR: 'data-original-text',
-
-      processTextNodeAndWrapSegments: function (textNode, segments) {
-        // Input validation
-        if (!textNode || !textNode.nodeValue || textNode.nodeType !== 3) {
-          mockLogger.debug('DOMModifier: Invalid text node provided', { textNode });
-          return false;
-        }
-
-        if (!segments || !Array.isArray(segments) || segments.length === 0) {
-          mockLogger.debug('DOMModifier: No segments to process', { segments });
-          return false;
-        }
-
-        // Save the parent node reference and original text content
-        const parentNode = textNode.parentNode;
-        const originalContent = textNode.nodeValue;
-
-        if (!parentNode) {
-          mockLogger.debug('DOMModifier: Text node has no parent', { textNode });
-          return false;
-        }
-
-        // Keep track of whether we've made any modifications
-        let modificationsApplied = false;
-
-        try {
-          // Sort segments in reverse order (from end to start) to maintain indices
-          const sortedSegments = [...segments].sort((a, b) => b.startIndex - a.startIndex);
-
-          // Process each segment
-          for (const segment of sortedSegments) {
-            // Validate segment data
-            if (
-              typeof segment.startIndex !== 'number' ||
-              typeof segment.endIndex !== 'number' ||
-              segment.startIndex < 0 ||
-              segment.endIndex > originalContent.length ||
-              segment.startIndex >= segment.endIndex
-            ) {
-              mockLogger.warn('DOMModifier: Invalid segment indices', { segment });
-              continue;
-            }
-
-            // Split the text node at the segment end
-            const afterNode = textNode.splitText(segment.endIndex);
-
-            // Split again at the segment start (relative to the original node)
-            const segmentNode = textNode.splitText(segment.startIndex);
-
-            // Create span element
-            const spanElement = document.createElement('span');
-
-            // Set attributes
-            spanElement.className = this.CONVERTED_TEXT_WRAPPER_CLASS;
-            spanElement.setAttribute(this.ORIGINAL_TEXT_DATA_ATTR, segment.originalText);
-            spanElement.textContent = segment.convertedText;
-            spanElement.setAttribute('tabindex', '0');
-
-            // Mark the span to prevent re-processing by MutationObserverManager
-            spanElement._trumpGogglesProcessed = true;
-
-            // Replace the segment text node with our span
-            parentNode.replaceChild(spanElement, segmentNode);
-
-            // Update the textNode reference to point to the node after our insertion
-            textNode = afterNode;
-
-            // Record that we've made a change
-            modificationsApplied = true;
-
-            // Log debug information
-            mockLogger.debug('DOMModifier: Text segment wrapped', {
-              originalText: segment.originalText,
-              convertedText: segment.convertedText,
-              element: spanElement,
-            });
-          }
-
-          return modificationsApplied;
-        } catch (err) {
-          // Log errors and return false to indicate failure
-          mockLogger.error('DOMModifier: Error during text node processing', {
-            error: err,
-            textNode,
-            segments,
-          });
-          return false;
-        }
-      },
-    };
   });
 
   afterEach(() => {
@@ -142,12 +47,8 @@ describe('DOMModifier', () => {
     ];
   }
 
-  describe('Constants', () => {
-    it('should expose the correct constants', () => {
-      expect(DOMModifier.CONVERTED_TEXT_WRAPPER_CLASS).toBe('tg-converted-text');
-      expect(DOMModifier.ORIGINAL_TEXT_DATA_ATTR).toBe('data-original-text');
-    });
-  });
+  // Constants are no longer exposed directly - they're internal to the module
+  // Remove this describe block since constants are private
 
   describe('processTextNodeAndWrapSegments', () => {
     // Test case for invalid input
@@ -190,12 +91,12 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that a span was created
-      const span = paragraph.querySelector(`.${DOMModifier.CONVERTED_TEXT_WRAPPER_CLASS}`);
+      const span = paragraph.querySelector('.tg-converted-text');
       expect(span).not.toBeNull();
 
       // Check span attributes
       expect(span.textContent).toBe('Agent Orange');
-      expect(span.getAttribute(DOMModifier.ORIGINAL_TEXT_DATA_ATTR)).toBe('Trump');
+      expect(span.getAttribute('data-original-text')).toBe('Trump');
       expect(span.getAttribute('tabindex')).toBe('0');
 
       // Check the paragraph's overall text content - using contains instead of exact match
@@ -239,13 +140,13 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that spans were created
-      const spans = paragraph.querySelectorAll(`.${DOMModifier.CONVERTED_TEXT_WRAPPER_CLASS}`);
+      const spans = paragraph.querySelectorAll('.tg-converted-text');
       expect(spans.length).toBe(2);
 
       // Check that each span has the correct text and attributes
       for (const span of spans) {
         expect(span.textContent).toBe('Agent Orange');
-        expect(span.getAttribute(DOMModifier.ORIGINAL_TEXT_DATA_ATTR)).toBe('Trump');
+        expect(span.getAttribute('data-original-text')).toBe('Trump');
         expect(span.getAttribute('tabindex')).toBe('0');
       }
 
@@ -281,7 +182,7 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that a span was created
-      const span = paragraph.querySelector(`.${DOMModifier.CONVERTED_TEXT_WRAPPER_CLASS}`);
+      const span = paragraph.querySelector('.tg-converted-text');
       expect(span).not.toBeNull();
 
       // Check the paragraph's overall text content
@@ -354,7 +255,7 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that spans were created
-      const spans = paragraph.querySelectorAll(`.${DOMModifier.CONVERTED_TEXT_WRAPPER_CLASS}`);
+      const spans = paragraph.querySelectorAll('.tg-converted-text');
       expect(spans.length).toBe(2);
 
       // Verify span contents
@@ -362,9 +263,9 @@ describe('DOMModifier', () => {
         expect(span.textContent === 'Don' || span.textContent === 'Agent Orange').toBe(true);
 
         if (span.textContent === 'Don') {
-          expect(span.getAttribute(DOMModifier.ORIGINAL_TEXT_DATA_ATTR)).toBe('Donald');
+          expect(span.getAttribute('data-original-text')).toBe('Donald');
         } else if (span.textContent === 'Agent Orange') {
-          expect(span.getAttribute(DOMModifier.ORIGINAL_TEXT_DATA_ATTR)).toBe('Trump');
+          expect(span.getAttribute('data-original-text')).toBe('Trump');
         }
       });
     });
