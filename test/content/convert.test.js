@@ -4,7 +4,10 @@
 import { describe, it, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-// Recreate the necessary functions for testing
+/**
+ * Build a mapping of Trump-style replacements for testing
+ * @returns {TrumpMappingObject} Object with replacement patterns
+ */
 function buildTrumpMap() {
   return {
     // Sample mappings for testing
@@ -44,28 +47,45 @@ function buildTrumpMap() {
 }
 
 // Cache the Trump mappings
+/** @type {TrumpMappingObject} */
 const trumpMap = buildTrumpMap();
+/** @type {string[]} */
 const mapKeys = Object.keys(trumpMap);
 
-// Convert function to test
+/**
+ * Converts text in a node using Trump-style replacements
+ * @param {Text} textNode - The text node to process
+ * @returns {void}
+ */
 function convert(textNode) {
+  if (!textNode || !textNode.nodeValue) return;
+
   // Create a temporary variable to avoid multiple DOM updates
   let replacedText = textNode.nodeValue;
 
   // Apply all replacements to the temporary variable
   mapKeys.forEach(function (key) {
-    replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+    if (key in trumpMap && trumpMap[key].regex instanceof RegExp) {
+      replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+    }
   });
 
   // Update DOM only once after all replacements are done
   textNode.nodeValue = replacedText;
 }
 
-// Helper function to create text nodes for testing
+/**
+ * Creates a text node with the given content for testing
+ * @param {string} text - The text content for the node
+ * @returns {Text} The created text node
+ */
 function createTextNode(text) {
   const dom = new JSDOM('<!DOCTYPE html><p></p>');
   const textNode = dom.window.document.createTextNode(text);
-  dom.window.document.querySelector('p').appendChild(textNode);
+  const paragraph = dom.window.document.querySelector('p');
+  if (paragraph) {
+    paragraph.appendChild(textNode);
+  }
   return textNode;
 }
 

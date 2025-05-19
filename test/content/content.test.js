@@ -5,15 +5,22 @@ import { JSDOM } from 'jsdom';
 // Note: This imports may need adjustment when packaging the extension
 // We're assuming we can directly import from content.js
 
-// Let's create utility functions to test with the same logic as content.js
+/**
+ * Creates a text node with the given content for testing
+ * @param {string} text - The text content for the node
+ * @returns {Text} The created text node
+ */
 function createTextNode(text) {
   const dom = new JSDOM('<!DOCTYPE html><p></p>');
   const textNode = dom.window.document.createTextNode(text);
-  dom.window.document.querySelector('p').appendChild(textNode);
+  dom.window.document.querySelector('p')?.appendChild(textNode);
   return textNode;
 }
 
-// Mock the functions that would be in content.js
+/**
+ * Create a mapping of Trump-style replacements
+ * @returns {TrumpMappingObject} Object with replacement patterns
+ */
 function buildTrumpMap() {
   return {
     cnn: {
@@ -31,20 +38,38 @@ function buildTrumpMap() {
   };
 }
 
+/**
+ * Converts text in a node using Trump-style replacements
+ * @param {Text} textNode - The text node to process
+ * @returns {void}
+ */
 function convert(textNode) {
   const mappings = buildTrumpMap();
   const mapKeys = Object.keys(mappings);
   mapKeys.forEach(function (key) {
-    textNode.nodeValue = textNode.nodeValue.replace(mappings[key].regex, mappings[key].nick);
+    if (textNode.nodeValue && key in mappings) {
+      textNode.nodeValue = textNode.nodeValue.replace(mappings[key].regex, mappings[key].nick);
+    }
   });
 }
 
 describe('Content Script', () => {
   // Setup chrome mock
   beforeEach(() => {
-    chrome.storage.sync.get.mockImplementation((keys, callback) => {
-      callback({});
-    });
+    if (chrome?.storage?.sync?.get) {
+      /** @type {any} */
+      (chrome.storage.sync.get).mockImplementation(
+        /**
+         * Mock implementation of chrome.storage.sync.get
+         * @param {string|string[]|Record<string,any>|null} _keys - Keys to get
+         * @param {(items: Record<string,any>) => void} callback - Callback function
+         * @returns {void}
+         */
+        (_keys, callback) => {
+          callback({});
+        }
+      );
+    }
   });
 
   describe('Text Replacement', () => {

@@ -225,7 +225,7 @@
     2. No implicit any errors
   - **Depends‑on:** [T011]
 
-- [ ] **T046 · Fix · P0: fix TypeScript errors in JavaScript test files**
+- [x] **T046 · Fix · P0: fix TypeScript errors in JavaScript test files**
 
   - **Context:** TypeScript errors in JavaScript test files (.js) when checkJs is enabled
   - **Action:**
