@@ -4,7 +4,7 @@
 
 import { Mock } from 'vitest';
 
-// Declare Vitest globals
+// Declare Vitest globals - augment the existing types
 declare global {
   // Vitest types are already declared by vitest/globals
   const vi: (typeof import('vitest'))['vi'];

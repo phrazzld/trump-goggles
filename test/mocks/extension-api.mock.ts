@@ -10,30 +10,30 @@ import { vi } from 'vitest';
  * @returns {Object} Event listener manager with addListener, removeListener, hasListener methods
  */
 const createEventManager = () => {
-  const listeners = new Set();
+  const listeners = new Set<Function>();
 
   return {
-    addListener: vi.fn((callback) => {
+    addListener: vi.fn((callback: Function) => {
       if (typeof callback === 'function') {
         listeners.add(callback);
       }
     }),
 
-    removeListener: vi.fn((callback) => {
+    removeListener: vi.fn((callback: Function) => {
       if (typeof callback === 'function') {
         listeners.delete(callback);
       }
     }),
 
-    hasListener: vi.fn((callback) => {
+    hasListener: vi.fn((callback: Function) => {
       return listeners.has(callback);
     }),
 
     hasListeners: vi.fn(() => listeners.size > 0),
 
     // Helper for tests to trigger the event
-    trigger: (...args) => {
-      const results = [];
+    trigger: (...args: any[]) => {
+      const results: any[] = [];
       listeners.forEach((listener) => {
         results.push(listener(...args));
       });
@@ -50,13 +50,19 @@ const createEventManager = () => {
   };
 };
 
+interface MockExtensionApiOptions {
+  browserType?: 'chrome' | 'firefox';
+  manifestVersion?: 2 | 3;
+  storageData?: Record<string, any>;
+}
+
 /**
  * Creates a mock for the Chrome extension API
  *
  * @param {Object} options - Configuration options
  * @returns {Object} Mock Chrome extension API
  */
-const createExtensionApiMock = (options = {}) => {
+const createExtensionApiMock = (options: MockExtensionApiOptions = {}) => {
   const {
     browserType = 'chrome', // 'chrome' or 'firefox'
     manifestVersion = 3,
@@ -68,8 +74,8 @@ const createExtensionApiMock = (options = {}) => {
 
   const storage = {
     sync: {
-      get: vi.fn((keys, callback) => {
-        let result = {};
+      get: vi.fn((keys: any, callback?: Function) => {
+        let result: any = {};
 
         if (!keys) {
           // If no keys provided, return all storage data
@@ -151,20 +157,20 @@ const createExtensionApiMock = (options = {}) => {
       _getData: () => ({ ...storageData_ }),
 
       // Helper to set storage data
-      _setData: (data) => {
+      _setData: (data: any) => {
         Object.keys(storageData_).forEach((key) => delete storageData_[key]);
         Object.assign(storageData_, data);
       },
 
       // Helper to trigger storage changes
-      _triggerChanges: (changes) => {
+      _triggerChanges: (changes: any) => {
         storage.sync.onChanged.trigger(changes, 'sync');
       },
     },
 
     // Also add local storage with the same interface
     local: {
-      get: vi.fn((keys, callback) => {
+      get: vi.fn((_keys: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve({});
         }
@@ -174,7 +180,7 @@ const createExtensionApiMock = (options = {}) => {
         }
         return undefined;
       }),
-      set: vi.fn((items, callback) => {
+      set: vi.fn((_items: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -184,7 +190,7 @@ const createExtensionApiMock = (options = {}) => {
         }
         return undefined;
       }),
-      remove: vi.fn((keys, callback) => {
+      remove: vi.fn((_keys: string | string[], callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -194,7 +200,7 @@ const createExtensionApiMock = (options = {}) => {
         }
         return undefined;
       }),
-      clear: vi.fn((callback) => {
+      clear: vi.fn((callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -263,7 +269,7 @@ const createExtensionApiMock = (options = {}) => {
     lastError: null,
 
     // Set last error helper (for testing)
-    _setLastError: (error) => {
+    _setLastError: (error: any) => {
       runtime.lastError = error;
     },
 
@@ -284,7 +290,7 @@ const createExtensionApiMock = (options = {}) => {
   // Mock tabs API
   const tabs = {
     // Query tabs
-    query: vi.fn((queryInfo, callback) => {
+    query: vi.fn((_queryInfo: any, callback?: Function) => {
       const tabs = [
         { id: 1, url: 'https://example.com', title: 'Example', active: true },
         { id: 2, url: 'https://test.com', title: 'Test', active: false },
@@ -390,7 +396,7 @@ const createExtensionApiMock = (options = {}) => {
   if (manifestVersion === 2) {
     // MV2 uses browserAction
     browserAction = {
-      setIcon: vi.fn((details, callback) => {
+      setIcon: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -401,7 +407,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setTitle: vi.fn((details, callback) => {
+      setTitle: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -412,7 +418,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setBadgeText: vi.fn((details, callback) => {
+      setBadgeText: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -423,7 +429,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setBadgeBackgroundColor: vi.fn((details, callback) => {
+      setBadgeBackgroundColor: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -440,7 +446,7 @@ const createExtensionApiMock = (options = {}) => {
   } else {
     // MV3 uses action
     action = {
-      setIcon: vi.fn((details, callback) => {
+      setIcon: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -451,7 +457,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setTitle: vi.fn((details, callback) => {
+      setTitle: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -462,7 +468,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setBadgeText: vi.fn((details, callback) => {
+      setBadgeText: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -473,7 +479,7 @@ const createExtensionApiMock = (options = {}) => {
         return undefined;
       }),
 
-      setBadgeBackgroundColor: vi.fn((details, callback) => {
+      setBadgeBackgroundColor: vi.fn((_details: any, callback?: Function) => {
         if (browserType === 'firefox') {
           return Promise.resolve();
         }
@@ -521,7 +527,7 @@ const createExtensionApiMock = (options = {}) => {
     },
 
     // Helper to switch between Chrome and Firefox behavior
-    _setBrowserType: (_type) => {
+    _setBrowserType: (_type: string) => {
       // This would need to redefine all functions to switch promise vs. callback behavior
       console.warn(
         'Browser type switching is not fully implemented at runtime. Create a new mock instead.'

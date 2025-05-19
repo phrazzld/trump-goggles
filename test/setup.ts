@@ -92,43 +92,42 @@ beforeEach(() => {
   MockExtensionApi._reset();
 
   // Initialize BrowserAdapter for testing
-  if (global.BrowserAdapter && global.BrowserAdapter.initialize) {
-    global.BrowserAdapter.initialize({ debug: false });
+  if ('BrowserAdapter' in global) {
+    (global as any).BrowserAdapter.initialize({ debug: false });
   }
 });
 
 // Helper functions for common text processing operations
-// @ts-expect-error - Adding test globals
 global.createTextNode = (text: string): Text => {
   const node = document.createTextNode(text);
   return node;
 };
 
-// @ts-expect-error - Adding test globals
+// @ts-expect-error - Extending global for test utilities
 global.walk = vi.fn();
-// @ts-expect-error - Adding test globals
+// @ts-expect-error - Extending global for test utilities
 global.convert = vi.fn();
-// @ts-expect-error - Adding test globals
+// @ts-expect-error - Extending global for test utilities
 global.isEditableNode = vi.fn().mockReturnValue(false);
 
 // Expose helper to switch between Chrome and Firefox testing
-// @ts-expect-error - Adding test globals
 global.setupForFirefox = () => {
   // Create Firefox extension API mock
   const firefoxMock = MockExtensionApi; // Reuse existing mock for now
 
   // Update BrowserDetect to simulate Firefox
-  if (global.BrowserDetect) {
-    global.BrowserDetect.getBrowser.mockReturnValue('firefox');
-    global.BrowserDetect.isChrome.mockReturnValue(false);
-    global.BrowserDetect.isFirefox.mockReturnValue(true);
-    global.BrowserDetect.getManifestVersion.mockReturnValue(2);
-    global.BrowserDetect.hasPromiseAPI.mockReturnValue(true);
+  if ('BrowserDetect' in global) {
+    const browserDetect = (global as any).BrowserDetect;
+    browserDetect.getBrowser.mockReturnValue('firefox');
+    browserDetect.isChrome.mockReturnValue(false);
+    browserDetect.isFirefox.mockReturnValue(true);
+    browserDetect.getManifestVersion.mockReturnValue(2);
+    browserDetect.hasPromiseAPI.mockReturnValue(true);
   }
 
   // Update BrowserAdapter to use promise-based API
-  if (global.BrowserAdapter) {
-    global.BrowserAdapter.usesPromises.mockReturnValue(true);
+  if ('BrowserAdapter' in global) {
+    (global as any).BrowserAdapter.usesPromises.mockReturnValue(true);
   }
 
   // Setup browser global for Firefox
@@ -138,20 +137,20 @@ global.setupForFirefox = () => {
   return firefoxMock as unknown as ChromeNamespace;
 };
 
-// @ts-expect-error - Adding test globals
 global.setupForChrome = () => {
   // Update BrowserDetect to simulate Chrome
-  if (global.BrowserDetect) {
-    global.BrowserDetect.getBrowser.mockReturnValue('chrome');
-    global.BrowserDetect.isChrome.mockReturnValue(true);
-    global.BrowserDetect.isFirefox.mockReturnValue(false);
-    global.BrowserDetect.getManifestVersion.mockReturnValue(3);
-    global.BrowserDetect.hasPromiseAPI.mockReturnValue(false);
+  if ('BrowserDetect' in global) {
+    const browserDetect = (global as any).BrowserDetect;
+    browserDetect.getBrowser.mockReturnValue('chrome');
+    browserDetect.isChrome.mockReturnValue(true);
+    browserDetect.isFirefox.mockReturnValue(false);
+    browserDetect.getManifestVersion.mockReturnValue(3);
+    browserDetect.hasPromiseAPI.mockReturnValue(false);
   }
 
   // Update BrowserAdapter to use callback-based API
-  if (global.BrowserAdapter) {
-    global.BrowserAdapter.usesPromises.mockReturnValue(false);
+  if ('BrowserAdapter' in global) {
+    (global as any).BrowserAdapter.usesPromises.mockReturnValue(false);
   }
 
   // Clear Firefox global

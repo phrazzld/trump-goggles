@@ -189,7 +189,7 @@
 
 ## TypeScript Error Fixes
 
-- [~] **T043 · Fix · P0: fix TypeScript errors in test files**
+- [x] **T043 · Fix · P0: fix TypeScript errors in test files**
 
   - **Context:** TypeScript strict mode errors in test files blocking commits
   - **Action:**
@@ -224,6 +224,18 @@
     1. All production code passes TypeScript checks
     2. No implicit any errors
   - **Depends‑on:** [T011]
+
+- [ ] **T046 · Fix · P0: fix TypeScript errors in JavaScript test files**
+
+  - **Context:** TypeScript errors in JavaScript test files (.js) when checkJs is enabled
+  - **Action:**
+    1. Add JSDoc type annotations to test files
+    2. Fix implicit any errors in test functions
+    3. Address type mismatches in test mocks
+  - **Done‑when:**
+    1. All JS test files pass TypeScript checking
+    2. No implicit any errors in test files
+  - **Depends‑on:** [T043]
 
 ## High Priority Fixes
 

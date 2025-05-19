@@ -3,8 +3,9 @@
   "compilerOptions": {
     // Test-specific settings
     "noEmit": true,
-    "types": ["vitest/globals", "jsdom"]
+    "types": ["vitest/globals", "jsdom"],
+    "typeRoots": ["./node_modules/@types", "./test"]
   },
-  "include": ["test/**/*.ts", "test/**/*.js", "test/**/*.tsx", "test/**/*.jsx"],
+  "include": ["test/**/*.ts", "test/**/*.js", "test/**/*.tsx", "test/**/*.jsx", "test/**/*.d.ts"],
   "exclude": []
 }

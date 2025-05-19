@@ -47,11 +47,13 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
     manifest_version: 3,
   }));
 
-  const addIconClickListener = vi.fn((callback) => {
+  // Store callbacks outside the function
+  const iconClickCallbacks: Function[] = [];
+
+  const addIconClickListener = vi.fn((callback: any) => {
     if (typeof callback === 'function') {
       // Store the callback for testing
-      addIconClickListener.callbacks = addIconClickListener.callbacks || [];
-      addIconClickListener.callbacks.push(callback);
+      iconClickCallbacks.push(callback);
       return true;
     }
     return false;
@@ -59,42 +61,43 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
 
   // Helper to simulate icon click
   const simulateIconClick = () => {
-    if (addIconClickListener.callbacks && addIconClickListener.callbacks.length > 0) {
-      addIconClickListener.callbacks.forEach((callback) => callback());
-    }
+    iconClickCallbacks.forEach((callback) => callback());
   };
 
-  const getStorageItem = vi.fn((keys) => Promise.resolve({ [keys]: 'mockValue' }));
-  const setStorageItem = vi.fn((_items) => Promise.resolve());
+  const getStorageItem = vi.fn((keys: any) => Promise.resolve({ [keys]: 'mockValue' }));
+  const setStorageItem = vi.fn((_items: any) => Promise.resolve());
 
-  const sendMessageToTab = vi.fn((tabId, message) =>
+  const sendMessageToTab = vi.fn((tabId: any, message: any) =>
     Promise.resolve({ response: 'mockResponse', tabId, message })
   );
-  const sendMessage = vi.fn((message) => Promise.resolve({ response: 'mockResponse', message }));
+  const sendMessage = vi.fn((message: any) =>
+    Promise.resolve({ response: 'mockResponse', message })
+  );
 
-  const addMessageListener = vi.fn((callback) => {
+  // Store message listener callbacks
+  const messageListenerCallbacks: Function[] = [];
+
+  const addMessageListener = vi.fn((callback: any) => {
     if (typeof callback === 'function') {
       // Store the callback for testing
-      addMessageListener.callbacks = addMessageListener.callbacks || [];
-      addMessageListener.callbacks.push(callback);
+      messageListenerCallbacks.push(callback);
       return true;
     }
     return false;
   });
 
   // Helper to simulate receiving a message
-  const simulateMessage = (message, sender) => {
-    if (addMessageListener.callbacks && addMessageListener.callbacks.length > 0) {
-      return addMessageListener.callbacks.map((callback) => callback(message, sender));
-    }
-    return [];
+  const simulateMessage = (message: any, sender: any) => {
+    return messageListenerCallbacks.map((callback) => callback(message, sender));
   };
 
-  const addInstallListener = vi.fn((callback) => {
+  // Store install listener callbacks
+  const installListenerCallbacks: Function[] = [];
+
+  const addInstallListener = vi.fn((callback: any) => {
     if (typeof callback === 'function') {
       // Store the callback for testing
-      addInstallListener.callbacks = addInstallListener.callbacks || [];
-      addInstallListener.callbacks.push(callback);
+      installListenerCallbacks.push(callback);
       return true;
     }
     return false;
@@ -102,9 +105,7 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
 
   // Helper to simulate installation event
   const simulateInstall = (details = { reason: 'install' }) => {
-    if (addInstallListener.callbacks && addInstallListener.callbacks.length > 0) {
-      addInstallListener.callbacks.forEach((callback) => callback(details));
-    }
+    installListenerCallbacks.forEach((callback) => callback(details));
   };
 
   const getDebugInfo = vi.fn(() => ({
@@ -157,7 +158,7 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
 const MockBrowserAdapter = createBrowserAdapterMock();
 
 // Helper to switch API type
-const switchApiType = (apiType) => {
+const switchApiType = (apiType: string) => {
   MockBrowserAdapter.usesPromises.mockImplementation(() => apiType === API_TYPES.PROMISE);
   MockBrowserAdapter.getDebugInfo.mockImplementation(() => ({
     browser: apiType === API_TYPES.PROMISE ? 'firefox' : 'chrome',
@@ -176,9 +177,10 @@ const switchApiType = (apiType) => {
 };
 
 // Helper to simulate API errors
-const simulateApiError = (methodName, error = new Error('API Error')) => {
-  if (MockBrowserAdapter[methodName] && typeof MockBrowserAdapter[methodName] === 'function') {
-    MockBrowserAdapter[methodName].mockImplementationOnce(() => Promise.reject(error));
+const simulateApiError = (methodName: string, error = new Error('API Error')) => {
+  const method = (MockBrowserAdapter as any)[methodName];
+  if (method && typeof method === 'function') {
+    method.mockImplementationOnce(() => Promise.reject(error));
   }
 };
 

@@ -40,7 +40,7 @@ const createBrowserDetectMock = (browserType = BROWSERS.CHROME, manifestVersion 
   const isSafari = vi.fn(() => browserType === BROWSERS.SAFARI);
   const getVersion = vi.fn(() => 100); // Mock a high version number
   const getManifestVersion = vi.fn(() => manifestVersion);
-  const hasFeature = vi.fn((feature?: string) => true); // Default to true for all features
+  const hasFeature = vi.fn((_feature?: string) => true); // Default to true for all features
   const hasPromiseAPI = vi.fn(() => browserType === BROWSERS.FIREFOX);
   const getDebugInfo = vi.fn(() => ({
     name: browserType,
@@ -87,11 +87,12 @@ const createBrowserDetectMock = (browserType = BROWSERS.CHROME, manifestVersion 
 const MockBrowserDetect = createBrowserDetectMock();
 
 // Helper to switch the mock to a different browser type
-const switchBrowserType = (browserType, manifestVersion) => {
+const switchBrowserType = (browserType: string, manifestVersion: number) => {
   // Reset all mocks
   for (const key in MockBrowserDetect) {
-    if (typeof MockBrowserDetect[key] === 'function' && MockBrowserDetect[key].mockReset) {
-      MockBrowserDetect[key].mockReset();
+    const func = (MockBrowserDetect as any)[key];
+    if (typeof func === 'function' && func.mockReset) {
+      func.mockReset();
     }
   }
 
@@ -121,8 +122,8 @@ const switchBrowserType = (browserType, manifestVersion) => {
 };
 
 // For specific feature testing
-const setFeatureSupport = (featureName, isSupported) => {
-  MockBrowserDetect.hasFeature.mockImplementation((feature) => {
+const setFeatureSupport = (featureName: string, isSupported: boolean) => {
+  MockBrowserDetect.hasFeature.mockImplementation((feature?: string) => {
     if (feature === featureName) {
       return isSupported;
     }
