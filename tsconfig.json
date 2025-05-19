@@ -51,7 +51,6 @@
   "exclude": [
     "node_modules",
     "**/node_modules/*",
-    "test/**/*.js",
     "coverage/**/*",
     "archive/**/*",
     "background-combined.js",

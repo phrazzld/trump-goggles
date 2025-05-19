@@ -2,19 +2,26 @@
  * Test setup file for Trump Goggles
  * This file is loaded by Vitest before running tests
  */
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 import { MockExtensionApi } from './mocks/extension-api.mock';
 import { MockBrowserDetect } from './mocks/browser-detect.mock';
 import { MockBrowserAdapter } from './mocks/browser-adapter.mock';
 
+// Import type only for better type inference
+import type { ChromeNamespace, LocalStorageMock } from './types';
+
 // Setup global extension API mocks
+// @ts-expect-error - Chrome API mock has different shape than full Chrome API
 global.chrome = MockExtensionApi;
 
 // Setup browser global for Firefox tests
+// @ts-expect-error - Browser API is optionally defined
 global.browser = undefined; // Default to undefined, will be set when testing Firefox
 
 // Add mocks for browser-specific modules
+// @ts-expect-error - Adding test globals
 global.BrowserDetect = MockBrowserDetect;
+// @ts-expect-error - Adding test globals
 global.BrowserAdapter = MockBrowserAdapter;
 
 // Mock for console.* methods
@@ -28,7 +35,7 @@ global.console = {
 };
 
 // Mock for window.matchMedia
-global.matchMedia = vi.fn().mockImplementation((query) => ({
+global.matchMedia = vi.fn().mockImplementation((query: string) => ({
   matches: false,
   media: query,
   onchange: null,
@@ -47,20 +54,20 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 }));
 
 // Mock for localStorage
-const localStorageMock = (() => {
-  let store = {};
+const localStorageMock: LocalStorageMock = (() => {
+  let store: Record<string, string> = {};
   return {
-    getItem: vi.fn((key) => store[key] || null),
-    setItem: vi.fn((key, value) => {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
       store[key] = value.toString();
     }),
-    removeItem: vi.fn((key) => {
+    removeItem: vi.fn((key: string) => {
       delete store[key];
     }),
     clear: vi.fn(() => {
       store = {};
     }),
-    key: vi.fn((index) => Object.keys(store)[index] || null),
+    key: vi.fn((index: number) => Object.keys(store)[index] || null),
     get length() {
       return Object.keys(store).length;
     },
@@ -74,7 +81,7 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // Also expose it as a global
-global.localStorage = localStorageMock;
+global.localStorage = localStorageMock as unknown as Storage;
 
 // Helper function to reset all mocks between tests
 beforeEach(() => {
@@ -85,63 +92,71 @@ beforeEach(() => {
   MockExtensionApi._reset();
 
   // Initialize BrowserAdapter for testing
-  if (BrowserAdapter && BrowserAdapter.initialize) {
-    BrowserAdapter.initialize({ debug: false });
+  if (global.BrowserAdapter && global.BrowserAdapter.initialize) {
+    global.BrowserAdapter.initialize({ debug: false });
   }
 });
 
 // Helper functions for common text processing operations
-global.createTextNode = (text) => {
+// @ts-expect-error - Adding test globals
+global.createTextNode = (text: string): Text => {
   const node = document.createTextNode(text);
   return node;
 };
 
+// @ts-expect-error - Adding test globals
 global.walk = vi.fn();
+// @ts-expect-error - Adding test globals
 global.convert = vi.fn();
+// @ts-expect-error - Adding test globals
 global.isEditableNode = vi.fn().mockReturnValue(false);
 
 // Expose helper to switch between Chrome and Firefox testing
+// @ts-expect-error - Adding test globals
 global.setupForFirefox = () => {
   // Create Firefox extension API mock
   const firefoxMock = MockExtensionApi; // Reuse existing mock for now
 
   // Update BrowserDetect to simulate Firefox
-  if (BrowserDetect) {
-    BrowserDetect.getBrowser.mockReturnValue('firefox');
-    BrowserDetect.isChrome.mockReturnValue(false);
-    BrowserDetect.isFirefox.mockReturnValue(true);
-    BrowserDetect.getManifestVersion.mockReturnValue(2);
-    BrowserDetect.hasPromiseAPI.mockReturnValue(true);
+  if (global.BrowserDetect) {
+    global.BrowserDetect.getBrowser.mockReturnValue('firefox');
+    global.BrowserDetect.isChrome.mockReturnValue(false);
+    global.BrowserDetect.isFirefox.mockReturnValue(true);
+    global.BrowserDetect.getManifestVersion.mockReturnValue(2);
+    global.BrowserDetect.hasPromiseAPI.mockReturnValue(true);
   }
 
   // Update BrowserAdapter to use promise-based API
-  if (BrowserAdapter) {
-    BrowserAdapter.usesPromises.mockReturnValue(true);
+  if (global.BrowserAdapter) {
+    global.BrowserAdapter.usesPromises.mockReturnValue(true);
   }
 
   // Setup browser global for Firefox
-  global.browser = firefoxMock;
+  // @ts-expect-error - Browser API assignment
+  global.browser = firefoxMock as unknown as ChromeNamespace;
 
-  return firefoxMock;
+  return firefoxMock as unknown as ChromeNamespace;
 };
 
+// @ts-expect-error - Adding test globals
 global.setupForChrome = () => {
   // Update BrowserDetect to simulate Chrome
-  if (BrowserDetect) {
-    BrowserDetect.getBrowser.mockReturnValue('chrome');
-    BrowserDetect.isChrome.mockReturnValue(true);
-    BrowserDetect.isFirefox.mockReturnValue(false);
-    BrowserDetect.getManifestVersion.mockReturnValue(3);
-    BrowserDetect.hasPromiseAPI.mockReturnValue(false);
+  if (global.BrowserDetect) {
+    global.BrowserDetect.getBrowser.mockReturnValue('chrome');
+    global.BrowserDetect.isChrome.mockReturnValue(true);
+    global.BrowserDetect.isFirefox.mockReturnValue(false);
+    global.BrowserDetect.getManifestVersion.mockReturnValue(3);
+    global.BrowserDetect.hasPromiseAPI.mockReturnValue(false);
   }
 
   // Update BrowserAdapter to use callback-based API
-  if (BrowserAdapter) {
-    BrowserAdapter.usesPromises.mockReturnValue(false);
+  if (global.BrowserAdapter) {
+    global.BrowserAdapter.usesPromises.mockReturnValue(false);
   }
 
   // Clear Firefox global
+  // @ts-expect-error - Browser API assignment
   global.browser = undefined;
 
-  return MockExtensionApi;
+  return MockExtensionApi as unknown as ChromeNamespace;
 };

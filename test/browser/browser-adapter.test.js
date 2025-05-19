@@ -100,7 +100,9 @@ describe('BrowserAdapter Module', () => {
       } catch (error) {
         // Verify error handling
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('API Error');
+        if (error instanceof Error) {
+          expect(error.message).toBe('API Error');
+        }
       }
     });
   });
@@ -249,7 +251,9 @@ describe('BrowserAdapter Module', () => {
       } catch (error) {
         // Verify error handling
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Options page error');
+        if (error instanceof Error) {
+          expect(error.message).toBe('Options page error');
+        }
       }
     });
 
@@ -265,7 +269,9 @@ describe('BrowserAdapter Module', () => {
       } catch (error) {
         // Verify error handling
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Storage error');
+        if (error instanceof Error) {
+          expect(error.message).toBe('Storage error');
+        }
       }
     });
   });

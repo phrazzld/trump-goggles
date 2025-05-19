@@ -100,21 +100,21 @@ function walk(node) {
   }
 
   switch (node.nodeType) {
-  case 1: // Element
-  case 9: // Document
-  case 11: // Document fragment
-    let child = node.firstChild;
-    while (child) {
-      const next = child.nextSibling;
-      walk(child);
-      child = next;
-    }
-    break;
-  case 3: // Text node
-    if (!isEditableNode(node)) {
-      convert(node);
-    }
-    break;
+    case 1: // Element
+    case 9: // Document
+    case 11: // Document fragment
+      let child = node.firstChild;
+      while (child) {
+        const next = child.nextSibling;
+        walk(child);
+        child = next;
+      }
+      break;
+    case 3: // Text node
+      if (!isEditableNode(node)) {
+        convert(node);
+      }
+      break;
   }
 }
 

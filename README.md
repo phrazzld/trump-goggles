@@ -43,6 +43,14 @@ Firefox Add-ons store link will be added soon.
 
 See the [Development](#development) section below for instructions on installing the development version.
 
+### Prerequisites
+
+This project requires pnpm for package management. To install pnpm:
+
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
 ## Examples
 
 Trump Goggles transforms your browsing experience with replacements like:

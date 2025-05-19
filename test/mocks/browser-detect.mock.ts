@@ -40,7 +40,7 @@ const createBrowserDetectMock = (browserType = BROWSERS.CHROME, manifestVersion 
   const isSafari = vi.fn(() => browserType === BROWSERS.SAFARI);
   const getVersion = vi.fn(() => 100); // Mock a high version number
   const getManifestVersion = vi.fn(() => manifestVersion);
-  const hasFeature = vi.fn(() => true); // Default to true for all features
+  const hasFeature = vi.fn((feature?: string) => true); // Default to true for all features
   const hasPromiseAPI = vi.fn(() => browserType === BROWSERS.FIREFOX);
   const getDebugInfo = vi.fn(() => ({
     name: browserType,

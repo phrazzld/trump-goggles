@@ -187,6 +187,44 @@
     2. Test coverage remains equivalent or better.
   - **Depends‑on:** [T013]
 
+## TypeScript Error Fixes
+
+- [~] **T043 · Fix · P0: fix TypeScript errors in test files**
+
+  - **Context:** TypeScript strict mode errors in test files blocking commits
+  - **Action:**
+    1. Fix type errors in test/setup.ts (globals, imports, vitest types)
+    2. Add proper type definitions for test utilities
+    3. Fix mock implementations to match expected interfaces
+  - **Done‑when:**
+    1. All test files pass TypeScript type checking
+    2. Pre-commit hooks pass without --no-verify
+  - **Depends‑on:** [T014]
+
+- [ ] **T044 · Fix · P0: add missing type definitions for dependencies**
+
+  - **Context:** Missing type definitions for jsdom and other test dependencies
+  - **Action:**
+    1. Install @types/jsdom type definitions
+    2. Add any other missing type definitions
+    3. Update tsconfig to properly include test types
+  - **Done‑when:**
+    1. No missing type definition errors
+    2. All imports have proper types
+  - **Depends‑on:** [T014]
+
+- [ ] **T045 · Fix · P1: fix TypeScript errors in production code**
+
+  - **Context:** TypeScript errors in scripts and other production code
+  - **Action:**
+    1. Fix implicit any types in check-package-manager.js
+    2. Address type errors in other JavaScript files
+    3. Add proper type annotations where needed
+  - **Done‑when:**
+    1. All production code passes TypeScript checks
+    2. No implicit any errors
+  - **Depends‑on:** [T011]
+
 ## High Priority Fixes
 
 - [ ] **T015 · Fix · P0: modify TooltipUI to use TooltipBrowserAdapter for styling**

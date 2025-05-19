@@ -129,24 +129,24 @@ const BrowserDetect = (function () {
     let match;
 
     switch (browser) {
-    case BROWSERS.CHROME:
-      match = ua.match(/Chrome\/(\d+)/);
-      break;
-    case BROWSERS.FIREFOX:
-      match = ua.match(/Firefox\/(\d+)/);
-      break;
-    case BROWSERS.EDGE:
-      match = ua.match(/Edg\/(\d+)/);
-      break;
-    case BROWSERS.SAFARI:
-      match = ua.match(/Version\/(\d+)/);
-      break;
-    case BROWSERS.OPERA:
-      match = ua.match(/OPR\/(\d+)/);
-      break;
-    default:
-      detectedVersion = null;
-      return null;
+      case BROWSERS.CHROME:
+        match = ua.match(/Chrome\/(\d+)/);
+        break;
+      case BROWSERS.FIREFOX:
+        match = ua.match(/Firefox\/(\d+)/);
+        break;
+      case BROWSERS.EDGE:
+        match = ua.match(/Edg\/(\d+)/);
+        break;
+      case BROWSERS.SAFARI:
+        match = ua.match(/Version\/(\d+)/);
+        break;
+      case BROWSERS.OPERA:
+        match = ua.match(/OPR\/(\d+)/);
+        break;
+      default:
+        detectedVersion = null;
+        return null;
     }
 
     if (match && match[1]) {
@@ -231,79 +231,79 @@ const BrowserDetect = (function () {
 
     // Check for specific features
     switch (featureName) {
-    case FEATURES.PROMISES:
-      isSupported = typeof Promise !== 'undefined';
-      break;
+      case FEATURES.PROMISES:
+        isSupported = typeof Promise !== 'undefined';
+        break;
 
-    case FEATURES.MUTATION_OBSERVER:
-      isSupported = typeof MutationObserver !== 'undefined';
-      break;
+      case FEATURES.MUTATION_OBSERVER:
+        isSupported = typeof MutationObserver !== 'undefined';
+        break;
 
-    case FEATURES.MATCH_MEDIA:
-      isSupported =
+      case FEATURES.MATCH_MEDIA:
+        isSupported =
           typeof window === 'object' && window !== null && typeof window.matchMedia === 'function';
-      break;
+        break;
 
-    case FEATURES.WEB_REQUEST:
-      // Check for Chrome-style web request API
-      if (
-        typeof chrome === 'object' &&
+      case FEATURES.WEB_REQUEST:
+        // Check for Chrome-style web request API
+        if (
+          typeof chrome === 'object' &&
           chrome !== null &&
           typeof chrome.webRequest === 'object' &&
           chrome.webRequest !== null
-      ) {
-        isSupported = true;
-      }
-      // Also check for Firefox-style web request API
-      else if (
-        typeof browser === 'object' &&
+        ) {
+          isSupported = true;
+        }
+        // Also check for Firefox-style web request API
+        else if (
+          typeof browser === 'object' &&
           browser !== null &&
           // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
           typeof browser.webRequest === 'object' &&
           // @ts-ignore - Firefox WebExtension API not recognized by TypeScript
           browser.webRequest !== null
-      ) {
-        isSupported = true;
-      } else {
-        isSupported = false;
-      }
-      break;
+        ) {
+          isSupported = true;
+        } else {
+          isSupported = false;
+        }
+        break;
 
-    case FEATURES.LOCAL_STORAGE:
-      try {
-        isSupported =
+      case FEATURES.LOCAL_STORAGE:
+        try {
+          isSupported =
             typeof window === 'object' &&
             window !== null &&
             typeof window.localStorage === 'object' &&
             window.localStorage !== null;
 
-        // Test if localStorage is actually available by attempting to use it
-        if (isSupported) {
-          window.localStorage.setItem('__test', '__test');
-          window.localStorage.removeItem('__test');
+          // Test if localStorage is actually available by attempting to use it
+          if (isSupported) {
+            window.localStorage.setItem('__test', '__test');
+            window.localStorage.removeItem('__test');
+          }
+        } catch (/* eslint-disable-line no-unused-vars */ _e) {
+          isSupported = false;
         }
-      } catch (/* eslint-disable-line no-unused-vars */ _e) {
-        isSupported = false;
-      }
-      break;
+        break;
 
-    case FEATURES.SERVICE_WORKER:
-      isSupported =
+      case FEATURES.SERVICE_WORKER:
+        isSupported =
           typeof navigator === 'object' &&
           navigator !== null &&
           typeof navigator.serviceWorker === 'object' &&
           navigator.serviceWorker !== null;
-      break;
+        break;
 
-    case FEATURES.SHADOW_DOM:
-      isSupported =
+      case FEATURES.SHADOW_DOM:
+        isSupported =
           typeof Element === 'function' &&
           Element.prototype &&
           typeof Element.prototype.attachShadow === 'function';
-      break;
+        break;
 
-    default:
-      isSupported = false;
+      default:
+        isSupported = false;
     }
 
     // Cache the result

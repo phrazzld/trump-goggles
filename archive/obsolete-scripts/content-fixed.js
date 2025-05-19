@@ -186,33 +186,33 @@ function walkChunked(rootNode, chunkSize = 50) {
       window.trumpProcessedNodes.add(node);
 
       switch (node.nodeType) {
-      case 1: // Element
-        // Skip script, style, SVG elements
-        const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
-        if (
-          tagName === 'script' ||
+        case 1: // Element
+          // Skip script, style, SVG elements
+          const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
+          if (
+            tagName === 'script' ||
             tagName === 'style' ||
             tagName === 'svg' ||
             node.id === 'trump-goggles-kill-switch'
-        ) {
-          continue;
-        }
-
-        // Add child nodes to processing queue
-        if (node.childNodes && node.childNodes.length) {
-          for (let i = 0; i < node.childNodes.length; i++) {
-            nodesToProcess.push(node.childNodes[i]);
+          ) {
+            continue;
           }
-        }
-        break;
 
-      case 3: // Text node
-        // Only convert if node is not within an editable element and has content
-        if (!isEditableNode(node) && node.nodeValue && node.nodeValue.trim().length > 0) {
-          convert(node);
-          processed++;
-        }
-        break;
+          // Add child nodes to processing queue
+          if (node.childNodes && node.childNodes.length) {
+            for (let i = 0; i < node.childNodes.length; i++) {
+              nodesToProcess.push(node.childNodes[i]);
+            }
+          }
+          break;
+
+        case 3: // Text node
+          // Only convert if node is not within an editable element and has content
+          if (!isEditableNode(node) && node.nodeValue && node.nodeValue.trim().length > 0) {
+            convert(node);
+            processed++;
+          }
+          break;
       }
     }
 
