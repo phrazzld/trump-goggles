@@ -201,7 +201,7 @@
     2. Pre-commit hooks pass without --no-verify
   - **Depends‑on:** [T014]
 
-- [ ] **T044 · Fix · P0: add missing type definitions for dependencies**
+- [x] **T044 · Fix · P0: add missing type definitions for dependencies**
 
   - **Context:** Missing type definitions for jsdom and other test dependencies
   - **Action:**

@@ -45,7 +45,11 @@
     "skipLibCheck": true, // Skip type checking of declaration files
 
     // JSX Options (if needed in future)
-    "jsx": "preserve" // Preserve JSX for potential future React usage
+    "jsx": "preserve", // Preserve JSX for potential future React usage
+
+    // Type Roots
+    "typeRoots": ["./node_modules/@types", "./test"],
+    "types": ["node", "chrome", "jsdom"] // Explicitly include types
   },
   "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx"],
   "exclude": [
