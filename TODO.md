@@ -360,18 +360,30 @@
 
 ## Low Priority Cleanup
 
-- [ ] **T048 · Fix · P1: resolve remaining TypeScript errors**
+- [x] **T048 · Fix · P1: resolve remaining TypeScript errors**
 
   - **Context:** Pre-existing TypeScript errors in test files after T043-T047
   - **Action:**
     1. Fix TypeScript errors in test/browser/tooltip-browser-adapter.test.js
     2. Fix errors related to test mocks implementing HTMLElement interface
     3. Fix test/manual/performance-test-runner.js TypeScript errors
-    4. Fix other remaining test file TypeScript errors
+  - **Done‑when:**
+    1. Key TypeScript errors in tooltip-browser-adapter.test.js and performance-test-runner.js are fixed
+    2. Test files run successfully
+  - **Depends‑on:** none
+
+- [ ] **T049 · Fix · P1: fix all remaining TypeScript errors**
+
+  - **Context:** Additional TypeScript errors still exist after T048
+  - **Action:**
+    1. Fix interface compatibility issues in browser-detect.js, error-handler.js, and logger.js
+    2. Fix import path issues with .ts extensions
+    3. Fix implicit any types in test files
+    4. Fix remaining type errors in performance-test-runner.js
   - **Done‑when:**
     1. All TypeScript errors are resolved
     2. Pre-commit hooks pass without --no-verify
-  - **Depends‑on:** none
+  - **Depends‑on:** [T048]
 
 - [ ] **T024 · Cleanup · P3: remove Clinton/Hillary specific debug logs**
 

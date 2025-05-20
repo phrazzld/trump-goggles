@@ -4,6 +4,61 @@
 
 import { Mock } from 'vitest';
 
+/**
+ * Interface for mock elements used in test files
+ * This allows us to have simplified versions of DOM elements
+ * without having to implement the full HTMLElement interface
+ */
+interface MockHTMLElement {
+  style: Record<string, string>;
+  attributes: Record<string, string>;
+  setAttribute(name: string, value: string): void;
+  getAttribute(name: string): string | null;
+  // Add other methods as needed for testing
+}
+
+/**
+ * Extended Performance interface with memory property
+ * This is used in Chrome but not defined in standard TypeScript DOM lib
+ */
+interface ExtendedPerformance extends Performance {
+  memory?: {
+    jsHeapSizeLimit: number;
+    totalJSHeapSize: number;
+    usedJSHeapSize: number;
+  };
+}
+
+/**
+ * Define test types for type checking
+ * @typedef {'small'|'medium'|'large'|'extreme'} TestSizeType
+ */
+
+/**
+ * Test configuration for performance tests
+ * @typedef {Object} TestConfig
+ * @property {number} paragraphs - Number of paragraphs to generate
+ * @property {number} referencesPerParagraph - Number of references per paragraph
+ */
+
+/**
+ * Performance metrics for different test sizes
+ * @typedef {Object} PerformanceMetrics
+ * @property {number[]} small - Metrics for small test
+ * @property {number[]} medium - Metrics for medium test
+ * @property {number[]} large - Metrics for large test
+ * @property {number[]} extreme - Metrics for extreme test
+ */
+
+/**
+ * All performance metrics
+ * @typedef {Object} AllMetrics
+ * @property {PerformanceMetrics} generationTime - Time to generate content
+ * @property {PerformanceMetrics} processingTime - Time to process content
+ * @property {PerformanceMetrics} tooltipShowTime - Time to show tooltip
+ * @property {PerformanceMetrics} memory - Memory usage
+ */
+
 // Declare Vitest globals - augment the existing types
 declare global {
   // Vitest types are already declared by vitest/globals
@@ -122,9 +177,36 @@ declare global {
     _reset: () => void;
   }
 
+  // Used for tests where we mock global elements
+  interface MockDocumentInterface extends Partial<Document> {
+    createElement?: (tagName: string) => MockHTMLElement;
+    addEventListener?: (...args: any[]) => void;
+    removeEventListener?: (...args: any[]) => void;
+    querySelectorAll?: (selector: string) => NodeListOf<Element>;
+    querySelector?: (selector: string) => Element | null;
+    hidden?: boolean;
+  }
+
   interface Window {
     chrome: ChromeNamespace;
     browser: ChromeNamespace | undefined;
+    performance: ExtendedPerformance;
+    BrowserDetect?: any;
+    Logger?: any;
+    TooltipBrowserAdapter?: any;
+    TextProcessor?: any;
+    DOMProcessor?: any;
+    MutationObserverManager?: any;
+    TrumpMappings?: any;
+    buildTrumpMap?: () => Record<string, string>;
+    trumpGogglesInitialized?: boolean;
+    PerformanceUtils?: any;
+    SecurityUtils?: any;
+    TooltipUI?: any;
+    TooltipManager?: any;
+    TrumpGoggles?: any;
+    ContentGenerator?: any;
+    PerformanceTestRunner?: any;
   }
 
   var chrome: ChromeNamespace;

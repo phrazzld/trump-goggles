@@ -43,22 +43,22 @@ function walk(node) {
   let child, next;
 
   switch (node.nodeType) {
-    case 1: // Element
-    case 9: // Document
-    case 11: // Document fragment
-      child = node.firstChild;
-      while (child) {
-        next = child.nextSibling;
-        walk(child);
-        child = next;
-      }
-      break;
-    case 3: // Text node
-      // Only convert if the node is not within an editable element
-      if (!isEditableNode(node)) {
-        convertMock(node);
-      }
-      break;
+  case 1: // Element
+  case 9: // Document
+  case 11: // Document fragment
+    child = node.firstChild;
+    while (child) {
+      next = child.nextSibling;
+      walk(child);
+      child = next;
+    }
+    break;
+  case 3: // Text node
+    // Only convert if the node is not within an editable element
+    if (!isEditableNode(node)) {
+      convertMock(node);
+    }
+    break;
   }
 }
 

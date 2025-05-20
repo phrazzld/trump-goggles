@@ -4,6 +4,22 @@
  * This script automates performance testing of the Trump Goggles tooltip feature.
  * It creates a test environment, generates test content with varying numbers of
  * convertible text, and measures performance metrics.
+ *
+ * @typedef {Object} TestConfig
+ * @property {number} paragraphs - Number of paragraphs to generate
+ * @property {number} referencesPerParagraph - Number of references per paragraph
+ *
+ * @typedef {Object} PerformanceMetrics
+ * @property {number[]} small - Metrics for small test
+ * @property {number[]} medium - Metrics for medium test
+ * @property {number[]} large - Metrics for large test
+ * @property {number[]} extreme - Metrics for extreme test
+ *
+ * @typedef {Object} AllMetrics
+ * @property {PerformanceMetrics} generationTime - Time to generate content
+ * @property {PerformanceMetrics} processingTime - Time to process content
+ * @property {PerformanceMetrics} tooltipShowTime - Time to show tooltip
+ * @property {PerformanceMetrics} memory - Memory usage
  */
 
 (function () {
@@ -11,6 +27,14 @@
 
   /**
    * Performance Test Configuration
+   * @type {{
+   *   smallTest: TestConfig,
+   *   mediumTest: TestConfig,
+   *   largeTest: TestConfig,
+   *   extremeTest: TestConfig,
+   *   hoverTestCount: number,
+   *   iterations: number
+   * }}
    */
   const config = {
     smallTest: {
@@ -35,6 +59,7 @@
 
   /**
    * Performance metrics to track
+   * @type {AllMetrics}
    */
   const metrics = {
     generationTime: {
@@ -88,8 +113,8 @@
    * Run a single performance test with the given configuration
    *
    * @param {string} testSize - The size label for the test (small, medium, large, extreme)
-   * @param {Object} testConfig - Configuration for the test
-   * @returns {Promise} Promise that resolves when the test is complete
+   * @param {TestConfig} testConfig - Configuration for the test
+   * @returns {Promise<void>} Promise that resolves when the test is complete
    */
   function runTest(testSize, testConfig) {
     return new Promise((resolve, _reject) => {
@@ -108,12 +133,35 @@
 
         // Generate content
         const startGeneration = performance.now();
-        const content = ContentGenerator.generateContent(
-          testConfig.paragraphs,
-          testConfig.referencesPerParagraph
-        );
+
+        // Check if ContentGenerator is available, or create dummy content
+        /** @type {string[]} */
+        let content = [];
+
+        // @ts-ignore - ContentGenerator is loaded separately, may not be in TypeScript
+        if (
+          window.ContentGenerator &&
+          typeof window.ContentGenerator.generateContent === 'function'
+        ) {
+          // @ts-ignore - ContentGenerator is loaded separately, may not be in TypeScript
+          content = window.ContentGenerator.generateContent(
+            testConfig.paragraphs,
+            testConfig.referencesPerParagraph
+          );
+        } else {
+          // Fallback: generate dummy content if ContentGenerator is not available
+          for (let i = 0; i < testConfig.paragraphs; i++) {
+            content.push(`Test paragraph ${i} with Donald Trump reference.`);
+          }
+        }
 
         const testArea = document.getElementById('test-area');
+        if (!testArea) {
+          logMessage('Error: Test area element not found');
+          resolve();
+          return;
+        }
+
         testArea.innerHTML = '';
 
         content.forEach((paragraphText) => {
@@ -147,15 +195,35 @@
 
           if (conversionFound) {
             const processingTime = performance.now() - startProcessing;
-            metrics.processingTime[testSize].push(processingTime);
+            // Use type assertion to ensure TypeScript knows these are valid keys
+            if (
+              testSize === 'small' ||
+              testSize === 'medium' ||
+              testSize === 'large' ||
+              testSize === 'extreme'
+            ) {
+              metrics.processingTime[testSize].push(processingTime);
+            }
 
             // Count conversions
             const conversions = document.querySelectorAll('.tg-converted-text');
             logMessage(`Found ${conversions.length} converted text elements`);
 
-            // Get memory usage if available
+            // Get memory usage if available (Chrome-only feature)
+            // @ts-ignore - performance.memory is a non-standard Chrome extension to the Performance API
             if (performance.memory) {
-              metrics.memory[testSize].push(performance.memory.usedJSHeapSize / (1024 * 1024));
+              // @ts-ignore - Cast to expected type from our ExtendedPerformance interface
+              const memoryUsageMB = performance.memory.usedJSHeapSize / (1024 * 1024);
+
+              // Use type assertion to ensure TypeScript knows these are valid keys
+              if (
+                testSize === 'small' ||
+                testSize === 'medium' ||
+                testSize === 'large' ||
+                testSize === 'extreme'
+              ) {
+                metrics.memory[testSize].push(memoryUsageMB);
+              }
             }
 
             // Disconnect the observer
@@ -212,19 +280,26 @@
    * Simulate hover events to test tooltip performance
    *
    * @param {number} count - Number of hover events to simulate
-   * @param {string} testSize - The size label for the test
-   * @returns {Promise} Promise that resolves when simulation is complete
+   * @param {'small'|'medium'|'large'|'extreme'} testSize - The size label for the test
+   * @returns {Promise<void>} Promise that resolves when simulation is complete
    */
   function simulateHoverEvents(count, testSize) {
     return new Promise((resolve) => {
       // Get all elements containing "Donald Trump"
       const testArea = document.getElementById('test-area');
+      if (!testArea) {
+        logMessage('Error: Test area element not found');
+        resolve();
+        return;
+      }
+
       const paragraphs = testArea.querySelectorAll('p');
+      /** @type {HTMLElement[]} */
       const targetParagraphs = [];
 
       for (const p of paragraphs) {
-        if (p.textContent.includes('Donald Trump')) {
-          targetParagraphs.push(p);
+        if (p.textContent && p.textContent.includes('Donald Trump')) {
+          targetParagraphs.push(/** @type {HTMLElement} */ (p));
         }
       }
 
@@ -237,6 +312,7 @@
       logMessage(`Simulating hover on ${count} elements...`);
 
       // Maintain hover timings
+      /** @type {number[]} */
       const hoverTimings = [];
       let hoverCount = 0;
 
@@ -245,7 +321,16 @@
           // Calculate average and store
           if (hoverTimings.length > 0) {
             const avg = hoverTimings.reduce((sum, time) => sum + time, 0) / hoverTimings.length;
-            metrics.tooltipShowTime[testSize].push(avg);
+
+            // Use type assertion to ensure TypeScript knows these are valid keys
+            if (
+              testSize === 'small' ||
+              testSize === 'medium' ||
+              testSize === 'large' ||
+              testSize === 'extreme'
+            ) {
+              metrics.tooltipShowTime[testSize].push(avg);
+            }
           }
           resolve();
           return;
@@ -311,22 +396,32 @@
   function reportResults() {
     logMessage('=== PERFORMANCE TEST RESULTS ===');
 
-    // Helper to calculate average
+    /**
+     * Helper to calculate average
+     *
+     * @param {number[]} arr - Array of values to average
+     * @returns {string} The formatted average
+     */
     function calculateAverage(arr) {
       if (arr.length === 0) return 'N/A';
       return (arr.reduce((sum, val) => sum + val, 0) / arr.length).toFixed(2);
     }
 
-    // Format time value
+    /**
+     * Format time value
+     *
+     * @param {string|number} ms - Millisecond value or 'N/A'
+     * @returns {string} Formatted time string
+     */
     function formatTime(ms) {
       if (ms === 'N/A') return ms;
-      if (parseFloat(ms) < 1) {
-        return `${(parseFloat(ms) * 1000).toFixed(2)} μs`;
+      if (parseFloat(String(ms)) < 1) {
+        return `${(parseFloat(String(ms)) * 1000).toFixed(2)} μs`;
       }
-      if (parseFloat(ms) < 1000) {
+      if (parseFloat(String(ms)) < 1000) {
         return `${ms} ms`;
       }
-      return `${(parseFloat(ms) / 1000).toFixed(2)} s`;
+      return `${(parseFloat(String(ms)) / 1000).toFixed(2)} s`;
     }
 
     // Generate results table
@@ -382,6 +477,8 @@
 
   /**
    * Log a message to the results log
+   *
+   * @param {string} message - Message to log
    */
   function logMessage(message) {
     const log = document.getElementById('results-log');

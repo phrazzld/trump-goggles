@@ -170,28 +170,28 @@ function walk(node) {
     let child, next;
 
     switch (node.nodeType) {
-      case 1: // Element
-        // Skip script, style, and SVG elements
-        const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
-        if (tagName === 'script' || tagName === 'style' || tagName === 'svg') {
-          return;
-        }
+    case 1: // Element
+      // Skip script, style, and SVG elements
+      const tagName = node.nodeName ? node.nodeName.toLowerCase() : '';
+      if (tagName === 'script' || tagName === 'style' || tagName === 'svg') {
+        return;
+      }
       // Continue to default processing
-      case 9: // Document
-      case 11: // Document fragment
-        child = node.firstChild;
-        while (child) {
-          next = child.nextSibling;
-          walk(child);
-          child = next;
-        }
-        break;
-      case 3: // Text node
-        // Only convert if the node is not within an editable element
-        if (!isEditableNode(node)) {
-          convert(/** @type {Text} */ (node));
-        }
-        break;
+    case 9: // Document
+    case 11: // Document fragment
+      child = node.firstChild;
+      while (child) {
+        next = child.nextSibling;
+        walk(child);
+        child = next;
+      }
+      break;
+    case 3: // Text node
+      // Only convert if the node is not within an editable element
+      if (!isEditableNode(node)) {
+        convert(/** @type {Text} */ (node));
+      }
+      break;
     }
   } catch (error) {
     console.error('Trump Goggles: Error walking node', error);

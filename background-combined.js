@@ -142,23 +142,23 @@ const BrowserDetect = (function () {
 
     try {
       switch (browser) {
-        case BROWSERS.CHROME:
-          version = userAgent.match(/Chrome\/([0-9.]+)/)[1];
-          break;
-        case BROWSERS.FIREFOX:
-          version = userAgent.match(/Firefox\/([0-9.]+)/)[1];
-          break;
-        case BROWSERS.EDGE:
-          version = userAgent.match(/Edg\/([0-9.]+)/)[1];
-          break;
-        case BROWSERS.SAFARI:
-          version = userAgent.match(/Version\/([0-9.]+)/)[1];
-          break;
-        case BROWSERS.OPERA:
-          version = userAgent.match(/OPR\/([0-9.]+)/)[1];
-          break;
-        default:
-          version = 'unknown';
+      case BROWSERS.CHROME:
+        version = userAgent.match(/Chrome\/([0-9.]+)/)[1];
+        break;
+      case BROWSERS.FIREFOX:
+        version = userAgent.match(/Firefox\/([0-9.]+)/)[1];
+        break;
+      case BROWSERS.EDGE:
+        version = userAgent.match(/Edg\/([0-9.]+)/)[1];
+        break;
+      case BROWSERS.SAFARI:
+        version = userAgent.match(/Version\/([0-9.]+)/)[1];
+        break;
+      case BROWSERS.OPERA:
+        version = userAgent.match(/OPR\/([0-9.]+)/)[1];
+        break;
+      default:
+        version = 'unknown';
       }
     } catch (e) {
       console.warn('Error parsing browser version', e);
@@ -208,35 +208,35 @@ const BrowserDetect = (function () {
     let isSupported = false;
 
     switch (feature) {
-      case FEATURES.PROMISES:
-        isSupported = hasPromiseAPI();
-        break;
+    case FEATURES.PROMISES:
+      isSupported = hasPromiseAPI();
+      break;
 
-      case FEATURES.WEB_REQUEST:
-        // Check for Chrome-style web request API
-        if (
-          typeof chrome === 'object' &&
+    case FEATURES.WEB_REQUEST:
+      // Check for Chrome-style web request API
+      if (
+        typeof chrome === 'object' &&
           chrome !== null &&
           typeof chrome.webRequest === 'object' &&
           chrome.webRequest !== null
-        ) {
-          isSupported = true;
-        }
-        // Also check for Firefox-style web request API
-        else if (
-          typeof browser === 'object' &&
+      ) {
+        isSupported = true;
+      }
+      // Also check for Firefox-style web request API
+      else if (
+        typeof browser === 'object' &&
           browser !== null &&
           typeof browser.webRequest === 'object' &&
           browser.webRequest !== null
-        ) {
-          isSupported = true;
-        } else {
-          isSupported = false;
-        }
-        break;
-
-      default:
+      ) {
+        isSupported = true;
+      } else {
         isSupported = false;
+      }
+      break;
+
+    default:
+      isSupported = false;
     }
 
     return isSupported;
