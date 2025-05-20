@@ -7,6 +7,8 @@
  * @version 1.0.0
  */
 
+/// <reference path="./types.d.ts" />
+
 'use strict';
 
 // Import interfaces from types.d.ts
@@ -39,28 +41,37 @@ const ORIGINAL_TEXT_DATA_ATTR: string = 'data-original-text';
  * @returns True if modifications were made, false otherwise
  */
 function innerImplementation(textNode: Text, segments: TextSegmentConversion[]): boolean {
-  const logger = window.Logger || console;
-  const debug =
-    logger === console ? console.log : (msg: string, data?: any) => logger.debug(msg, data);
-  const warn =
-    logger === console ? console.warn : (msg: string, data?: any) => logger.warn(msg, data);
-  const error =
-    logger === console ? console.error : (msg: string, data?: any) => logger.error(msg, data);
-
-  debug('DOMModifier: Starting innerImplementation', {
-    hasTextNode: !!textNode,
-    textNodeType: textNode?.nodeType,
-    segmentsLength: segments?.length,
-  });
+  // Use window.Logger if available, otherwise fall back to console
+  if (window.Logger) {
+    window.Logger.debug('DOMModifier: Starting innerImplementation', {
+      hasTextNode: !!textNode,
+      textNodeType: textNode?.nodeType,
+      segmentsLength: segments?.length,
+    });
+  } else {
+    console.log('DOMModifier: Starting innerImplementation', {
+      hasTextNode: !!textNode,
+      textNodeType: textNode?.nodeType,
+      segmentsLength: segments?.length,
+    });
+  }
 
   // Validate inputs
   if (!textNode || !textNode.nodeValue || textNode.nodeType !== Node.TEXT_NODE) {
-    debug('DOMModifier: Invalid text node provided', { textNode });
+    if (window.Logger) {
+      window.Logger.debug('DOMModifier: Invalid text node provided', { textNode });
+    } else {
+      console.log('DOMModifier: Invalid text node provided', { textNode });
+    }
     return false;
   }
 
   if (!segments || !Array.isArray(segments) || segments.length === 0) {
-    debug('DOMModifier: No segments to process', { segments });
+    if (window.Logger) {
+      window.Logger.debug('DOMModifier: No segments to process', { segments });
+    } else {
+      console.log('DOMModifier: No segments to process', { segments });
+    }
     return false;
   }
 
@@ -68,7 +79,11 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
   const originalText = textNode.nodeValue;
 
   if (!parentNode) {
-    debug('DOMModifier: Text node has no parent', { textNode });
+    if (window.Logger) {
+      window.Logger.debug('DOMModifier: Text node has no parent', { textNode });
+    } else {
+      console.log('DOMModifier: Text node has no parent', { textNode });
+    }
     return false;
   }
 
@@ -88,7 +103,11 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
         segment.endIndex > originalText.length ||
         segment.startIndex >= segment.endIndex
       ) {
-        warn('DOMModifier: Invalid segment indices', { segment });
+        if (window.Logger) {
+          window.Logger.warn('DOMModifier: Invalid segment indices', { segment });
+        } else {
+          console.warn('DOMModifier: Invalid segment indices', { segment });
+        }
         continue;
       }
 
@@ -113,20 +132,36 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
       textNode = afterSegment;
       modified = true;
 
-      debug('DOMModifier: Text segment wrapped', {
-        originalText: segment.originalText,
-        convertedText: segment.convertedText,
-        element: wrapper,
-      });
+      if (window.Logger) {
+        window.Logger.debug('DOMModifier: Text segment wrapped', {
+          originalText: segment.originalText,
+          convertedText: segment.convertedText,
+          element: wrapper,
+        });
+      } else {
+        console.log('DOMModifier: Text segment wrapped', {
+          originalText: segment.originalText,
+          convertedText: segment.convertedText,
+          element: wrapper,
+        });
+      }
     }
 
     return modified;
   } catch (err) {
-    error('DOMModifier: Error during text node processing', {
-      error: err,
-      textNode,
-      segments,
-    });
+    if (window.Logger) {
+      window.Logger.error('DOMModifier: Error during text node processing', {
+        error: err,
+        textNode,
+        segments,
+      });
+    } else {
+      console.error('DOMModifier: Error during text node processing', {
+        error: err,
+        textNode,
+        segments,
+      });
+    }
     return false;
   }
 }
@@ -175,7 +210,7 @@ function processTextNodeAndWrapSegments(
     if (window.Logger) {
       window.Logger.error('DOMModifier: Error processing text node', { error });
     } else {
-      console.error('DOMModifier: Error processing text node', error);
+      console.error('DOMModifier: Error processing text node', { error });
     }
     return false;
   }

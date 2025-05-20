@@ -264,7 +264,7 @@
     2. Proper separation of concerns is maintained.
   - **Depends‑on:** [T002, T004]
 
-- [ ] **T016 · Fix · P0: replace console logging with structured Logger in new modules**
+- [x] **T016 · Fix · P0: replace console logging with structured Logger in new modules**
 
   - **Context:** PLAN.md, CR-05, Step 1-4
   - **Action:**

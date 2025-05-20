@@ -8,6 +8,8 @@
  * @version 1.0.0
  */
 
+/// <reference path="./types.d.ts" />
+
 'use strict';
 
 /**
@@ -293,7 +295,11 @@ const DOMBatch = {
       try {
         fn();
       } catch (error) {
-        console.error('Error in batched read operation:', error);
+        if (window.Logger) {
+          window.Logger.error('PerformanceUtils: Error in batched read operation', { error });
+        } else {
+          console.error('PerformanceUtils: Error in batched read operation', { error });
+        }
       }
     });
 
@@ -302,7 +308,11 @@ const DOMBatch = {
       try {
         fn();
       } catch (error) {
-        console.error('Error in batched write operation:', error);
+        if (window.Logger) {
+          window.Logger.error('PerformanceUtils: Error in batched write operation', { error });
+        } else {
+          console.error('PerformanceUtils: Error in batched write operation', { error });
+        }
       }
     });
   },
