@@ -290,7 +290,7 @@
     1. Add tests for proper cleanup.
   - **Depends‑on:** [T003]
 
-- [ ] **T018 · Fix · P1: remove ineffective element caching from TooltipManager**
+- [x] **T018 · Fix · P1: remove ineffective element caching from TooltipManager**
 
   - **Context:** PLAN.md, CR-07, Step 1-2
   - **Action:**

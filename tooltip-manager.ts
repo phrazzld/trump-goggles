@@ -7,7 +7,6 @@
  *
  * Performance optimizations include:
  * - Throttled event handlers to reduce excessive calculations
- * - Element caching to avoid repeated DOM queries
  * - Batched DOM operations to minimize reflows
  *
  * @version 1.1.0
