@@ -227,7 +227,7 @@
 
 - [x] **T046 · Fix · P0: fix TypeScript errors in JavaScript test files**
 
-- [ ] **T047 · Fix · P2: fix window object type errors in tooltip-ui.ts**
+- [x] **T047 · Fix · P2: fix window object type errors in tooltip-ui.ts**
 
   - **Context:** TypeScript errors related to window object access for globals
   - **Action:**

@@ -9,11 +9,9 @@
  * @version 1.0.0
  */
 
-'use strict';
+/// <reference path="./types.d.ts" />
 
-// Add a comment to skip TypeScript checking for window globals (Logger and TooltipBrowserAdapter) 
-// since they're already declared in types.d.ts, but TypeScript shows errors when trying to use them
-// @ts-ignore
+'use strict';
 
 interface TooltipDebugInfo {
   isCreated: boolean;
