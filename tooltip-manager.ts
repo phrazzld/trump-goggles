@@ -19,6 +19,20 @@
 // This allows graceful degradation when the utils are not loaded
 const performanceUtils = window.PerformanceUtils || null;
 
+/**
+ * Interface for storing event handler information to ensure proper cleanup
+ */
+interface EventHandlerInfo {
+  /** The element the event listener is attached to */
+  element: Document | Window;
+  /** The event type (e.g., 'mousemove', 'scroll') */
+  event: string;
+  /** The actual handler function reference passed to addEventListener */
+  handler: EventListener;
+  /** Optional event listener options */
+  options?: boolean | AddEventListenerOptions;
+}
+
 // ===== MODULE STATE =====
 
 /**
@@ -44,6 +58,12 @@ const CONVERTED_TEXT_SELECTOR: string = '.tg-converted-text';
  * @type {string}
  */
 const ORIGINAL_TEXT_ATTR: string = 'data-original-text';
+
+/**
+ * Store all active event handlers to ensure proper cleanup
+ * @type {Array<EventHandlerInfo>}
+ */
+const activeEventHandlers: EventHandlerInfo[] = [];
 
 /**
  * Cache for throttled mouse move handler
@@ -403,6 +423,41 @@ function handleKeydown(event: KeyboardEvent): void {
 // ===== PUBLIC API =====
 
 /**
+ * Helper function to add and track event listeners
+ *
+ * @private
+ * @param element - The element to attach the listener to (document or window)
+ * @param eventType - The event type to listen for
+ * @param handler - The event handler function
+ * @param options - Optional addEventListener options
+ */
+function addTrackedEventListener(
+  element: Document | Window,
+  eventType: string,
+  handler: any, // Use any to avoid TypeScript event handler compatibility issues
+  options?: boolean | AddEventListenerOptions
+): void {
+  // Add the event listener
+  element.addEventListener(eventType, handler as EventListener, options);
+
+  // Store the reference for later cleanup
+  activeEventHandlers.push({
+    element,
+    event: eventType,
+    handler: handler as EventListener,
+    options,
+  });
+
+  // Log if available
+  if (window.Logger && typeof window.Logger.debug === 'function') {
+    window.Logger.debug('TooltipManager: Added tracked event listener', {
+      element: element === document ? 'document' : 'window',
+      event: eventType,
+    });
+  }
+}
+
+/**
  * Initializes the TooltipManager with event listeners
  * Sets up all necessary event delegation for tooltip functionality
  *
@@ -430,14 +485,51 @@ function initialize(uiModule: any): void {
     // Ensure tooltip element is created before we start
     tooltipUI.ensureCreated();
 
+    // Create and cache throttled/debounced handlers if needed
+    if (performanceUtils) {
+      // Create throttled mouse move handler if not already cached
+      if (!cachedThrottledMouseMove) {
+        cachedThrottledMouseMove = performanceUtils.throttle(
+          handleMouseMoveLogic,
+          // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+          performanceUtils.Configs.input || { delay: 32 }
+        );
+      }
+
+      // Create throttled scroll handler if not already cached
+      if (!cachedThrottledScroll) {
+        cachedThrottledScroll = performanceUtils.throttle(
+          handleScrollLogic,
+          // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+          performanceUtils.Configs.scroll || { delay: 150 }
+        );
+      }
+
+      // Create debounced keyboard handler if not already cached
+      if (!cachedDebouncedKeyboard) {
+        cachedDebouncedKeyboard = performanceUtils.debounce(
+          handleKeyboardLogic,
+          // @ts-ignore: TypeScript doesn't recognize PerformanceUtilsInterface.Configs
+          performanceUtils.Configs.keyboard || { delay: 50 }
+        );
+      }
+    }
+
     // Set up event listeners with proper options for performance
     // Note: using passive where possible to improve scroll performance
-    document.addEventListener('mousemove', handleMouseMove, { passive: true });
-    document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
-    document.addEventListener('focusin', handleFocus, { passive: true });
-    document.addEventListener('focusout', handleBlur, { passive: true });
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-    document.addEventListener('keydown', handleKeydown, { passive: false }); // Not passive - we might preventDefault
+
+    // Use the throttled/debounced handlers where available
+    const mouseMoveHandler = cachedThrottledMouseMove || handleMouseMove;
+    const scrollHandler = cachedThrottledScroll || handleScroll;
+    const keyboardHandler = cachedDebouncedKeyboard || handleKeydown;
+
+    // Add tracked event listeners
+    addTrackedEventListener(document, 'mousemove', mouseMoveHandler, { passive: true });
+    addTrackedEventListener(document, 'mouseleave', handleMouseLeave, { passive: true });
+    addTrackedEventListener(document, 'focusin', handleFocus, { passive: true });
+    addTrackedEventListener(document, 'focusout', handleBlur, { passive: true });
+    addTrackedEventListener(window, 'scroll', scrollHandler, { passive: true, capture: true });
+    addTrackedEventListener(document, 'keydown', keyboardHandler, { passive: false }); // Not passive - we might preventDefault
 
     // Update initialization flag
     isInitialized = true;
@@ -467,13 +559,23 @@ function initialize(uiModule: any): void {
  */
 function dispose(): void {
   try {
-    // Remove all event listeners
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseleave', handleMouseLeave);
-    document.removeEventListener('focusin', handleFocus);
-    document.removeEventListener('focusout', handleBlur);
-    window.removeEventListener('scroll', handleScroll);
-    document.removeEventListener('keydown', handleKeydown);
+    // Remove all tracked event listeners
+    if (activeEventHandlers.length > 0) {
+      if (window.Logger && typeof window.Logger.debug === 'function') {
+        window.Logger.debug('TooltipManager: Removing event listeners', {
+          count: activeEventHandlers.length,
+        });
+      }
+
+      // Remove each event listener using the exact same function references
+      for (const { element, event, handler, options } of activeEventHandlers) {
+        // For capture/once/passive options, we need to ensure the same options object is used
+        element.removeEventListener(event, handler, options);
+      }
+
+      // Clear the array
+      activeEventHandlers.length = 0;
+    }
 
     // Destroy the tooltip UI element
     if (tooltipUI) {

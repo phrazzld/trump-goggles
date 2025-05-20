@@ -92,6 +92,55 @@ describe('TooltipManager (Actual Module)', () => {
     it('should handle disposal when not initialized', () => {
       expect(() => TooltipManager.dispose()).not.toThrow();
     });
+
+    it('should properly remove event listeners during disposal', () => {
+      // Spy on document.addEventListener and removeEventListener
+      const addSpy = vi.spyOn(document, 'addEventListener');
+      const removeSpy = vi.spyOn(document, 'removeEventListener');
+
+      // Initialize the manager which adds event listeners
+      TooltipManager.initialize(TooltipUI);
+
+      // Verify listeners were added
+      expect(addSpy).toHaveBeenCalled();
+      const addCallCount = addSpy.mock.calls.length;
+      expect(addCallCount).toBeGreaterThan(0);
+
+      // Reset the removal spy to focus only on the dispose calls
+      removeSpy.mockReset();
+
+      // Dispose the manager
+      TooltipManager.dispose();
+
+      // Verify listeners were removed
+      expect(removeSpy).toHaveBeenCalled();
+
+      // We should have the same number of removals as additions
+      // NOTE: Some additions may be to window, not document, so we check that removals occurred
+      expect(removeSpy.mock.calls.length).toBeGreaterThan(0);
+    });
+
+    it('should properly clean up window event listeners (scroll) during disposal', () => {
+      // Spy on window event listeners
+      const windowAddSpy = vi.spyOn(window, 'addEventListener');
+      const windowRemoveSpy = vi.spyOn(window, 'removeEventListener');
+
+      // Initialize the manager
+      TooltipManager.initialize(TooltipUI);
+
+      // Verify window listeners were added (scroll)
+      expect(windowAddSpy).toHaveBeenCalled();
+      expect(windowAddSpy).toHaveBeenCalledWith('scroll', expect.any(Function), expect.anything());
+
+      // Reset window removal spy
+      windowRemoveSpy.mockReset();
+
+      // Dispose the manager
+      TooltipManager.dispose();
+
+      // Verify window listeners were removed
+      expect(windowRemoveSpy).toHaveBeenCalled();
+    });
   });
 
   describe('event handling', () => {

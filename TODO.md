@@ -276,7 +276,7 @@
     2. All logging uses the structured Logger system.
   - **Depends‑on:** [T001, T002, T003, T004, T005]
 
-- [ ] **T017 · Fix · P1: fix event handler removal in TooltipManager**
+- [x] **T017 · Fix · P1: fix event handler removal in TooltipManager**
 
   - **Context:** PLAN.md, CR-06, Step 1-3
   - **Action:**
