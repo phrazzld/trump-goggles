@@ -360,6 +360,19 @@
 
 ## Low Priority Cleanup
 
+- [ ] **T048 · Fix · P1: resolve remaining TypeScript errors**
+
+  - **Context:** Pre-existing TypeScript errors in test files after T043-T047
+  - **Action:**
+    1. Fix TypeScript errors in test/browser/tooltip-browser-adapter.test.js
+    2. Fix errors related to test mocks implementing HTMLElement interface
+    3. Fix test/manual/performance-test-runner.js TypeScript errors
+    4. Fix other remaining test file TypeScript errors
+  - **Done‑when:**
+    1. All TypeScript errors are resolved
+    2. Pre-commit hooks pass without --no-verify
+  - **Depends‑on:** none
+
 - [ ] **T024 · Cleanup · P3: remove Clinton/Hillary specific debug logs**
 
   - **Context:** PLAN.md, CR-13
