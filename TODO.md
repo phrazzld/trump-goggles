@@ -347,7 +347,7 @@
     2. Tests verify the new marking approach.
   - **Depends‑on:** [T001]
 
-- [ ] **T023 · Fix · P2: store cleanup function as private variable in TooltipManager**
+- [x] **T023 · Fix · P2: store cleanup function as private variable in TooltipManager**
   - **Context:** PLAN.md, CR-12, Step 1-3
   - **Action:**
     1. Store cleanup function as private module variable.

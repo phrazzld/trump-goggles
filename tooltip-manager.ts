@@ -65,6 +65,13 @@ const ORIGINAL_TEXT_ATTR: string = 'data-original-text';
 const activeEventHandlers: EventHandlerInfo[] = [];
 
 /**
+ * Private cleanup function reference stored in module scope
+ * Used to ensure proper cleanup when the tooltip manager is disposed
+ * @type {Function|null}
+ */
+let cleanupFunction: (() => void) | null = null;
+
+/**
  * Cache for throttled mouse move handler
  * @type {Function|null}
  */
@@ -540,6 +547,53 @@ function initialize(uiModule: any): void {
     addTrackedEventListener(window, 'scroll', scrollHandler, { passive: true, capture: true });
     addTrackedEventListener(document, 'keydown', keyboardHandler, { passive: false }); // Not passive - we might preventDefault
 
+    // Store cleanup function in module-private variable
+    cleanupFunction = () => {
+      try {
+        // Remove all tracked event listeners
+        if (activeEventHandlers.length > 0) {
+          if (window.Logger && typeof window.Logger.debug === 'function') {
+            window.Logger.debug('TooltipManager: Removing event listeners', {
+              count: activeEventHandlers.length,
+            });
+          }
+
+          // Remove each event listener using the exact same function references
+          for (const { element, event, handler, options } of activeEventHandlers) {
+            // For capture/once/passive options, we need to ensure the same options object is used
+            element.removeEventListener(event, handler, options);
+          }
+
+          // Clear the array
+          activeEventHandlers.length = 0;
+        }
+
+        // Destroy the tooltip UI element
+        if (tooltipUI) {
+          tooltipUI.destroy();
+        }
+
+        // Reset module state
+        tooltipUI = null;
+        isInitialized = false;
+        cachedThrottledMouseMove = null;
+        cachedThrottledScroll = null;
+        cachedDebouncedKeyboard = null;
+
+        // Log disposal
+        if (window.Logger && typeof window.Logger.info === 'function') {
+          window.Logger.info('TooltipManager: Disposed successfully');
+        }
+      } catch (error) {
+        // Log disposal errors
+        if (window.Logger && typeof window.Logger.error === 'function') {
+          window.Logger.error('TooltipManager: Error during disposal', { error });
+        } else {
+          console.error('TooltipManager: Error during disposal', error);
+        }
+      }
+    };
+
     // Update initialization flag
     isInitialized = true;
 
@@ -568,39 +622,23 @@ function initialize(uiModule: any): void {
  */
 function dispose(): void {
   try {
-    // Remove all tracked event listeners
-    if (activeEventHandlers.length > 0) {
+    // Call the private cleanup function if it exists
+    if (cleanupFunction) {
+      cleanupFunction();
+      
+      // After cleanup, clear the reference to the function itself
+      cleanupFunction = null;
+    } else {
+      // If no cleanup function exists (perhaps initialize wasn't called),
+      // log a debug message but don't treat as an error
       if (window.Logger && typeof window.Logger.debug === 'function') {
-        window.Logger.debug('TooltipManager: Removing event listeners', {
-          count: activeEventHandlers.length,
-        });
+        window.Logger.debug('TooltipManager: No cleanup function to call during dispose');
       }
-
-      // Remove each event listener using the exact same function references
-      for (const { element, event, handler, options } of activeEventHandlers) {
-        // For capture/once/passive options, we need to ensure the same options object is used
-        element.removeEventListener(event, handler, options);
+      
+      // Log successful disposal even without cleanup function
+      if (window.Logger && typeof window.Logger.info === 'function') {
+        window.Logger.info('TooltipManager: Disposed successfully');
       }
-
-      // Clear the array
-      activeEventHandlers.length = 0;
-    }
-
-    // Destroy the tooltip UI element
-    if (tooltipUI) {
-      tooltipUI.destroy();
-    }
-
-    // Reset module state
-    tooltipUI = null;
-    isInitialized = false;
-    cachedThrottledMouseMove = null;
-    cachedThrottledScroll = null;
-    cachedDebouncedKeyboard = null;
-
-    // Log disposal
-    if (window.Logger && typeof window.Logger.info === 'function') {
-      window.Logger.info('TooltipManager: Disposed successfully');
     }
   } catch (error) {
     // Log disposal errors
