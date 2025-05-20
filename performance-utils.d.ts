@@ -24,21 +24,23 @@ interface PerformanceUtilsInterface {
     beforeMemory: MemoryInfo | null;
     afterMemory: MemoryInfo | null;
   };
-  ElementCache: {
-    cache: Map<string, Element>;
-    get(selector: string, root?: Element | Document): Element | null;
-    getAll(selector: string, root?: Element | Document): Element[];
-    set(key: string, element: Element): void;
-    clear(key?: string): void;
-  };
-  DOMBatch: {
-    reads: Function[];
-    writes: Function[];
-    scheduled: boolean;
-    read(fn: () => void): void;
-    write(fn: () => void): void;
-    schedule(): void;
-    process(): void;
+  Configs: {
+    scroll: {
+      delay: number;
+      maxWait: number;
+    };
+    input: {
+      delay: number;
+      maxWait: number;
+    };
+    keyboard: {
+      delay: number;
+      maxWait: number;
+    };
+    mutation: {
+      delay: number;
+      maxWait: number;
+    };
   };
 }
 

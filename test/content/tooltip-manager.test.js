@@ -34,6 +34,8 @@ describe('TooltipManager (Actual Module)', () => {
     window.PerformanceUtils = {
       throttle: vi.fn((fn) => fn),
       debounce: vi.fn((fn) => fn),
+      // Note: DOMBatch has been removed from performance-utils.ts as part of T021
+      // but we still mock it here for backward compatibility with tests
       DOMBatch: {
         read: vi.fn((callback) => callback()),
         write: vi.fn((callback) => callback()),

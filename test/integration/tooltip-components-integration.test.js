@@ -44,6 +44,8 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
     // Mock performance utils for throttling
     mockPerformanceUtils = {
       throttle: vi.fn((fn) => fn), // Simple pass-through mock
+      // Note: DOMBatch has been removed from performance-utils.ts as part of T021
+      // but we still mock it here for backward compatibility with tests
       DOMBatch: {
         read: vi.fn((callback) => callback()),
         write: vi.fn((callback) => callback()),

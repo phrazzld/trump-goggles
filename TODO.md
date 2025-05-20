@@ -324,7 +324,7 @@
     2. Security considerations are documented.
   - **Depends‑on:** [T001]
 
-- [ ] **T021 · Refactor · P2: remove unused ElementCache and DOMBatch from performance-utils**
+- [x] **T021 · Refactor · P2: remove unused ElementCache and DOMBatch from performance-utils**
 
   - **Context:** PLAN.md, CR-10, Step 1-3
   - **Action:**
