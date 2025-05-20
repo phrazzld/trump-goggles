@@ -7,6 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 
+/** @type {string[]} */
 const EXCLUDED_DIRS = [
   'node_modules',
   '.git',
@@ -17,6 +18,7 @@ const EXCLUDED_DIRS = [
   '.github', // GitHub workflows might have references in comments
 ];
 
+/** @type {string[]} */
 const EXCLUDED_FILES = [
   'pnpm-lock.yaml',
   '.npmrc',
@@ -25,6 +27,7 @@ const EXCLUDED_FILES = [
   'enforce-pnpm.yml', // This file explains the replacements
 ];
 
+/** @type {RegExp[]} */
 const PACKAGE_MANAGER_PATTERNS = [
   /\bnpm install/g,
   /\bnpm run/g,
@@ -43,8 +46,23 @@ const PACKAGE_MANAGER_PATTERNS = [
   /\byarn remove/g,
 ];
 
+/**
+ * Represents a violation of pnpm enforcement
+ * @typedef {Object} Violation
+ * @property {string} file - Path to the file with the violation
+ * @property {string} pattern - The pattern that was matched
+ * @property {string[]} matches - The matches found in the file
+ * @property {string} [message] - Optional message for lockfile violations
+ */
+
+/**
+ * Checks a file for package manager pattern violations
+ * @param {string} filePath - Path to the file to check
+ * @returns {Violation[]} Array of violations found in the file
+ */
 function checkFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
+  /** @type {Violation[]} */
   const violations = [];
 
   PACKAGE_MANAGER_PATTERNS.forEach((pattern) => {
@@ -61,6 +79,12 @@ function checkFile(filePath) {
   return violations;
 }
 
+/**
+ * Recursively walks a directory and checks files for violations
+ * @param {string} dir - Directory path to walk
+ * @param {Violation[]} violations - Accumulator for violations found
+ * @returns {Violation[]} Array of all violations found
+ */
 function walkDirectory(dir, violations = []) {
   const files = fs.readdirSync(dir);
 
@@ -102,14 +126,19 @@ function walkDirectory(dir, violations = []) {
   return violations;
 }
 
-// Check for npm or yarn lockfiles
+/**
+ * Checks for npm or yarn lockfiles
+ * @returns {Violation[]} Array of lockfile violations
+ */
 function checkLockfiles() {
+  /** @type {Violation[]} */
   const violations = [];
 
   if (fs.existsSync('package-lock.json')) {
     violations.push({
       file: 'package-lock.json',
       pattern: 'npm lockfile',
+      matches: ['package-lock.json'],
       message: 'Found package-lock.json. Please remove it and use pnpm-lock.yaml',
     });
   }
@@ -118,6 +147,7 @@ function checkLockfiles() {
     violations.push({
       file: 'yarn.lock',
       pattern: 'yarn lockfile',
+      matches: ['yarn.lock'],
       message: 'Found yarn.lock. Please remove it and use pnpm-lock.yaml',
     });
   }
@@ -128,6 +158,7 @@ function checkLockfiles() {
 // Main execution
 console.log('Checking for npm/yarn usage...\n');
 
+/** @type {Violation[]} */
 const violations = [...walkDirectory('.'), ...checkLockfiles()];
 
 if (violations.length === 0) {

@@ -213,7 +213,7 @@
     2. All imports have proper types
   - **Depends‑on:** [T014]
 
-- [ ] **T045 · Fix · P1: fix TypeScript errors in production code**
+- [x] **T045 · Fix · P1: fix TypeScript errors in production code**
 
   - **Context:** TypeScript errors in scripts and other production code
   - **Action:**
