@@ -58,7 +58,7 @@ const TrumpGoggles = (function () {
     window.Logger.configure({
       enabled: true,
       debug: DEBUG,
-      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.WARN,
+      minLevel: DEBUG ? window.Logger.LEVELS.DEBUG : window.Logger.LEVELS.INFO,
       prefix: 'TrumpGoggles',
       useTimestamps: true,
       enhancedDisplay: true,

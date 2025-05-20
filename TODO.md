@@ -301,7 +301,7 @@
     2. Code is simplified and tests pass.
   - **Depends‑on:** [T003]
 
-- [ ] **T019 · Fix · P1: set production logging level to INFO**
+- [x] **T019 · Fix · P1: set production logging level to INFO**
   - **Context:** PLAN.md, CR-08, Step 1
   - **Action:**
     1. Change `minLevel` to `window.Logger.LEVELS.INFO` in production mode in `content-consolidated.js`.
