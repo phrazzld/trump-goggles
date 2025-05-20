@@ -1333,6 +1333,17 @@ interface TooltipBrowserAdapterInterface {
 }
 
 // Window extensions
+/**
+ * SecurityUtils interface for utility functions related to security
+ */
+interface SecurityUtilsInterface {
+  /**
+   * Escapes HTML special characters in a string to prevent XSS in contexts
+   * where the string might be interpreted as HTML (e.g., log viewers)
+   */
+  escapeHTML: (str: string | null | undefined) => string;
+}
+
 interface Window {
   trumpVersion?: string;
   trumpGogglesInitialized?: boolean;
@@ -1353,6 +1364,7 @@ interface Window {
   TooltipUI?: TooltipUIInterface;
   TooltipManager?: TooltipManagerInterface;
   TooltipBrowserAdapter?: TooltipBrowserAdapterInterface;
+  SecurityUtils?: SecurityUtilsInterface;
   tooltipManagerBrowserEventsCleanup?: Function;
   TrumpGoggles?: any;
 

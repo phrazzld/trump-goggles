@@ -312,7 +312,7 @@
 
 ## Medium Priority Improvements
 
-- [ ] **T020 · Fix · P2: review and secure originalText handling for XSS**
+- [x] **T020 · Fix · P2: review and secure originalText handling for XSS**
 
   - **Context:** PLAN.md, CR-09, Step 1-4
   - **Action:**

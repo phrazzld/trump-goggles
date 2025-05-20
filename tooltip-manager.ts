@@ -119,8 +119,13 @@ function handleMouseMoveLogic(event: MouseEvent): void {
 
         // Log activity if Logger is available
         if (window.Logger && typeof window.Logger.debug === 'function') {
+          // Use escapeHTML if available, otherwise log a subset of characters
+          const safeText = window.SecurityUtils?.escapeHTML 
+            ? window.SecurityUtils.escapeHTML(originalText.substring(0, 30))
+            : originalText.substring(0, 30);
+          
           window.Logger.debug('TooltipManager: Showing tooltip', {
-            originalText: originalText.substring(0, 30),
+            originalText: safeText,
           });
         }
       }
@@ -252,8 +257,13 @@ function handleFocus(event: FocusEvent): void {
 
         // Log activity if Logger is available
         if (window.Logger && typeof window.Logger.debug === 'function') {
+          // Use escapeHTML if available, otherwise log a subset of characters
+          const safeText = window.SecurityUtils?.escapeHTML 
+            ? window.SecurityUtils.escapeHTML(originalText.substring(0, 30))
+            : originalText.substring(0, 30);
+          
           window.Logger.debug('TooltipManager: Showing tooltip on focus', {
-            originalText: originalText.substring(0, 30),
+            originalText: safeText,
           });
         }
       }
