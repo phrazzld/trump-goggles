@@ -147,7 +147,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
             spanElement.setAttribute('tabindex', '0');
 
             // Mark to prevent reprocessing
-            spanElement._trumpGogglesProcessed = true;
+            spanElement.setAttribute('data-tg-processed', 'true');
 
             // Replace the segment node with span
             parentNode.replaceChild(spanElement, segmentNode);

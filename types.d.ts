@@ -842,7 +842,7 @@ declare namespace chrome.runtime {
 
 // DOM extensions
 interface Node {
-  _trumpGogglesProcessed?: boolean;
+  // _trumpProcessed is still needed for text nodes as they can't have data attributes
   _trumpProcessed?: boolean;
   id?: string;
   nodeType: number;
@@ -855,13 +855,12 @@ interface Node {
 }
 
 interface Text {
-  _trumpGogglesProcessed?: boolean;
+  // _trumpProcessed is still needed for text nodes as they can't have data attributes
   _trumpProcessed?: boolean;
 }
 
 interface ParentNode {
-  _trumpGogglesProcessed?: boolean;
-  _trumpProcessed?: boolean;
+  // No custom properties needed - using data-tg-processed attribute instead
 }
 
 /**

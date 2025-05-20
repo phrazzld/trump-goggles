@@ -335,7 +335,7 @@
     2. Type definitions are updated accordingly.
   - **Depends‑on:** [T005]
 
-- [ ] **T022 · Fix · P2: standardize on data-tg-processed for marking processed elements**
+- [x] **T022 · Fix · P2: standardize on data-tg-processed for marking processed elements**
 
   - **Context:** PLAN.md, CR-11, Step 1-3
   - **Action:**

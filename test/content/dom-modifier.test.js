@@ -103,8 +103,8 @@ describe('DOMModifier', () => {
       expect(paragraph.textContent).toContain('Agent Orange');
       expect(paragraph.textContent).toContain('announced a new policy today');
 
-      // Check that the span has the _trumpGogglesProcessed property
-      expect(span._trumpGogglesProcessed).toBe(true);
+      // Check that the span has the data-tg-processed attribute
+      expect(span.getAttribute('data-tg-processed')).toBe('true');
     });
 
     // Test case for multiple segments

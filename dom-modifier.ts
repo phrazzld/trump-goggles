@@ -123,7 +123,7 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
       wrapper.setAttribute('tabindex', '0'); // Make focusable for accessibility
 
       // Mark as processed
-      (wrapper as any)._trumpGogglesProcessed = true;
+      wrapper.setAttribute('data-tg-processed', 'true');
 
       // Replace the segment node with the wrapper
       parentNode.replaceChild(wrapper, segmentNode);

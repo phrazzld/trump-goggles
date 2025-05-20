@@ -36,7 +36,7 @@ const DOMProcessor = (function () {
   ];
 
   // Element attribute used to mark processed nodes
-  const PROCESSED_ATTR = 'data-trump-processed';
+  const PROCESSED_ATTR = 'data-tg-processed';
 
   // ===== NODE TRACKING =====
 
@@ -213,37 +213,37 @@ const DOMProcessor = (function () {
 
       // Handle different node types
       switch (node.nodeType) {
-        case 1: // Element node
-          // Skip element if it matches our filter criteria
-          if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
-            continue;
+      case 1: // Element node
+        // Skip element if it matches our filter criteria
+        if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
+          continue;
+        }
+
+        // Mark element as processed
+        markProcessed(node);
+
+        // Add child nodes to stack in reverse order (to maintain document order when popping)
+        if (node.childNodes && node.childNodes.length) {
+          for (let i = node.childNodes.length - 1; i >= 0; i--) {
+            stack.push(node.childNodes[i]);
           }
+        }
+        break;
 
-          // Mark element as processed
-          markProcessed(node);
+      case 3: // Text node
+        // Skip empty text nodes or those within editable elements
+        if (!node.nodeValue || node.nodeValue.trim() === '' || isEditableNode(node)) {
+          continue;
+        }
 
-          // Add child nodes to stack in reverse order (to maintain document order when popping)
-          if (node.childNodes && node.childNodes.length) {
-            for (let i = node.childNodes.length - 1; i >= 0; i--) {
-              stack.push(node.childNodes[i]);
-            }
-          }
-          break;
+        // Process the text node with the callback
+        if (typeof textNodeCallback === 'function') {
+          textNodeCallback(node);
+        }
 
-        case 3: // Text node
-          // Skip empty text nodes or those within editable elements
-          if (!node.nodeValue || node.nodeValue.trim() === '' || isEditableNode(node)) {
-            continue;
-          }
-
-          // Process the text node with the callback
-          if (typeof textNodeCallback === 'function') {
-            textNodeCallback(node);
-          }
-
-          // Mark text node as processed
-          markProcessed(node);
-          break;
+        // Mark text node as processed
+        markProcessed(node);
+        break;
       }
     }
   }
@@ -311,38 +311,38 @@ const DOMProcessor = (function () {
 
           // Handle different node types
           switch (node.nodeType) {
-            case 1: // Element node
-              // Skip element if it matches our filter criteria
-              if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
-                continue;
+          case 1: // Element node
+            // Skip element if it matches our filter criteria
+            if (shouldSkipElement(/** @type {Element} */ (node), skipTags)) {
+              continue;
+            }
+
+            // Mark element as processed
+            markProcessed(node);
+
+            // Add child nodes to stack in reverse order
+            if (node.childNodes && node.childNodes.length) {
+              for (let i = node.childNodes.length - 1; i >= 0; i--) {
+                nodesToProcess.push(node.childNodes[i]);
               }
+            }
+            break;
 
-              // Mark element as processed
-              markProcessed(node);
+          case 3: // Text node
+            // Skip empty text nodes or those within editable elements
+            if (!node.nodeValue || node.nodeValue.trim() === '' || isEditableNode(node)) {
+              continue;
+            }
 
-              // Add child nodes to stack in reverse order
-              if (node.childNodes && node.childNodes.length) {
-                for (let i = node.childNodes.length - 1; i >= 0; i--) {
-                  nodesToProcess.push(node.childNodes[i]);
-                }
-              }
-              break;
+            // Process the text node with the callback
+            if (typeof textNodeCallback === 'function') {
+              textNodeCallback(node);
+              processed++;
+            }
 
-            case 3: // Text node
-              // Skip empty text nodes or those within editable elements
-              if (!node.nodeValue || node.nodeValue.trim() === '' || isEditableNode(node)) {
-                continue;
-              }
-
-              // Process the text node with the callback
-              if (typeof textNodeCallback === 'function') {
-                textNodeCallback(node);
-                processed++;
-              }
-
-              // Mark text node as processed
-              markProcessed(node);
-              break;
+            // Mark text node as processed
+            markProcessed(node);
+            break;
           }
         }
 
