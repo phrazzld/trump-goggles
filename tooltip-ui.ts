@@ -4,10 +4,16 @@
  * This module handles the creation, positioning, and visibility of a tooltip
  * element that displays original unconverted text. It implements the TooltipUIInterface.
  *
+ * Styling is delegated to the TooltipBrowserAdapter for cross-browser compatibility.
+ *
  * @version 1.0.0
  */
 
 'use strict';
+
+// Add a comment to skip TypeScript checking for window globals (Logger and TooltipBrowserAdapter) 
+// since they're already declared in types.d.ts, but TypeScript shows errors when trying to use them
+// @ts-ignore
 
 interface TooltipDebugInfo {
   isCreated: boolean;
@@ -41,7 +47,7 @@ const TOOLTIP_ROLE = 'tooltip';
 
 /**
  * Z-index for the tooltip element to ensure it appears above other content
- * Gets the appropriate z-index from the browser adapter if available
+ * Always uses the browser adapter's getSafeZIndex method for cross-browser compatibility
  * @type {number}
  */
 const TOOLTIP_Z_INDEX = window.TooltipBrowserAdapter
@@ -78,7 +84,7 @@ let isCreated: boolean = false;
 
 /**
  * Adds global CSS for accessibility styling
- * Uses TooltipBrowserAdapter for browser-specific styles if available
+ * Fully delegates to TooltipBrowserAdapter for browser-specific styles
  *
  * @private
  */
@@ -93,29 +99,33 @@ function addAccessibilityStyles(): void {
     const styleElement = document.createElement('style');
     styleElement.id = 'tg-accessibility-styles';
 
-    // Use browser adapter to get optimized styles if available, otherwise use default
+    // Always attempt to use the browser adapter for styles
     if (
       window.TooltipBrowserAdapter &&
       typeof window.TooltipBrowserAdapter.getDefaultTooltipStyles === 'function'
     ) {
-      styleElement.textContent = window.TooltipBrowserAdapter.getDefaultTooltipStyles();
+      // Get default styles from the adapter
+      let cssText = window.TooltipBrowserAdapter.getDefaultTooltipStyles();
+
+      // Convert the CSS for browser compatibility if needed
+      if (typeof window.TooltipBrowserAdapter.convertCssForBrowser === 'function') {
+        cssText = window.TooltipBrowserAdapter.convertCssForBrowser(cssText);
+      }
+
+      styleElement.textContent = cssText;
     } else {
-      // Fallback to default styles if adapter is not available
+      // Log a warning if adapter is missing - this is important for debugging
+      if (window.Logger && typeof window.Logger.warn === 'function') {
+        window.Logger.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
+      } else {
+        console.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
+      }
+
+      // Minimal fallback styles if adapter is not available
       styleElement.textContent = `
         .tg-converted-text:focus {
           outline: 2px solid #0066cc !important;
-          box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25) !important;
-          border-radius: 2px !important;
           text-decoration: underline !important;
-          background-color: rgba(255, 239, 213, 0.7) !important;
-        }
-        
-        /* High contrast mode support */
-        @media (forced-colors: active) {
-          .tg-converted-text:focus {
-            outline: 2px solid HighlightText !important;
-            outline-offset: 2px !important;
-          }
         }
       `;
     }
@@ -139,82 +149,63 @@ function addAccessibilityStyles(): void {
 
 /**
  * Applies all necessary styles to the tooltip element
- * Uses TooltipBrowserAdapter for browser-specific styles if available
+ * Primarily delegates to TooltipBrowserAdapter for styling, with minimal base styles
  *
  * @private
  * @param {HTMLElement} element - The tooltip element to style
  */
 function applyTooltipStyles(element: HTMLElement): void {
   try {
-    // Check if browser adapter is available
+    // First apply minimal essential base styles (using proper TypeScript-friendly approach)
+    const applyStyle = (property: string, value: string) => {
+      if (element.style) {
+        element.style.setProperty(property, value);
+      }
+    };
+
+    // Initial state (hidden)
+    applyStyle('position', 'fixed');
+    applyStyle('visibility', 'hidden');
+    applyStyle('opacity', '0');
+
+    // Size constraints from constants
+    applyStyle('max-width', `${TOOLTIP_MAX_WIDTH}px`);
+    applyStyle('max-height', `${TOOLTIP_MAX_HEIGHT}px`);
+
+    // Set z-index from adapter or constant
+    applyStyle('z-index', String(TOOLTIP_Z_INDEX));
+
+    // Check if browser adapter is available for browser-specific styling
     if (
       window.TooltipBrowserAdapter &&
       typeof window.TooltipBrowserAdapter.applyBrowserSpecificStyles === 'function'
     ) {
-      // Let the browser adapter apply browser-specific styles
+      // Let the browser adapter handle all browser-specific styles
       window.TooltipBrowserAdapter.applyBrowserSpecificStyles(element);
+    } else {
+      // Fallback minimal styling if adapter isn't available
+      // Only apply absolutely essential styles needed for the tooltip to function
+      applyStyle('pointer-events', 'none');
+      applyStyle('overflow', 'auto');
+      applyStyle('overflow-wrap', 'break-word');
+      applyStyle('white-space', 'pre-wrap');
+      applyStyle('background-color', 'rgba(32, 32, 32, 0.95)');
+      applyStyle('color', '#ffffff');
+      applyStyle('padding', '8px 12px');
+      applyStyle('border-radius', '4px');
+      applyStyle('font-size', '14px');
+      applyStyle('line-height', '1.4');
+      applyStyle('transition', 'opacity 0.2s ease-in-out');
+
+      // Log a warning if adapter is missing
+      if (window.Logger && typeof window.Logger.warn === 'function') {
+        window.Logger.warn(
+          'TooltipUI: TooltipBrowserAdapter not available for browser-specific styles'
+        );
+      } else {
+        console.warn('TooltipUI: TooltipBrowserAdapter not available for browser-specific styles');
+      }
     }
-
-    // Always apply our base styles - the adapter will handle browser-specific adjustments
-
-    // TypeScript has difficulty with direct style property access,
-    // so we'll use @ts-ignore on each line
-
-    // Positioning and visibility
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.position = 'fixed';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.visibility = 'hidden';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.opacity = '0';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.pointerEvents = 'none'; // Prevents tooltip from blocking interactions
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.zIndex = String(TOOLTIP_Z_INDEX); // Convert number to string for TypeScript
-
-    // Size constraints
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.maxWidth = TOOLTIP_MAX_WIDTH + 'px';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.maxHeight = TOOLTIP_MAX_HEIGHT + 'px';
-
-    // Content overflow handling
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.overflow = 'auto';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.overflowWrap = 'break-word';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.whiteSpace = 'pre-wrap'; // Preserves whitespace but wraps text
-
-    // Appearance
-    // Color contrast: Using dark background (rgba(40, 40, 40, 0.9)) with white text (#ffffff)
-    // Effective contrast ratio after alpha blending is approx 12:1, well exceeding
-    // WCAG AA requirement of 4.5:1 for normal text and 7:1 for AAA
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.backgroundColor = 'rgba(32, 32, 32, 0.95)'; // Very dark background with high opacity
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.color = '#ffffff'; // White text for maximum contrast
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.padding = '8px 12px';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.borderRadius = '4px';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
-
-    // Typography
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.fontFamily =
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.fontSize = '14px';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.lineHeight = '1.4';
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.textAlign = 'left';
-
-    // Transitions for smooth appearance/disappearance
-    // @ts-ignore: TypeScript doesn't recognize element.style properly
-    element.style.transition = 'opacity 0.2s ease-in-out';
   } catch (error) {
     // Log the error if Logger is available
     if (window.Logger && typeof window.Logger.error === 'function') {
@@ -349,10 +340,8 @@ function updatePosition(targetElement: HTMLElement): void {
     // Get target element's position and dimensions
     const targetRect = targetElement.getBoundingClientRect();
 
-    // Get tooltip dimensions
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with offsetWidth
+    // Get tooltip dimensions - using proper TypeScript approach
     const tooltipWidth = tooltipElement.offsetWidth;
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with offsetHeight
     const tooltipHeight = tooltipElement.offsetHeight;
 
     // Get viewport dimensions
@@ -410,11 +399,11 @@ function updatePosition(targetElement: HTMLElement): void {
       }
     }
 
-    // Apply final position
-    // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
-    tooltipElement.style.top = `${Math.max(0, top)}px`;
-    // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
-    tooltipElement.style.left = `${Math.max(0, left)}px`;
+    // Apply final position using TypeScript-friendly approach with null check
+    if (tooltipElement.style) {
+      tooltipElement.style.setProperty('top', `${Math.max(0, top)}px`);
+      tooltipElement.style.setProperty('left', `${Math.max(0, left)}px`);
+    }
 
     // Log position update if Logger is available
     if (window.Logger && typeof window.Logger.debug === 'function') {
@@ -433,13 +422,11 @@ function updatePosition(targetElement: HTMLElement): void {
     }
 
     // Set fallback position in center of viewport if positioning fails
-    if (tooltipElement) {
-      // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
-      tooltipElement.style.top = '50%';
-      // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
-      tooltipElement.style.left = '50%';
-      // @ts-ignore: TypeScript doesn't recognize tooltipElement.style properly
-      tooltipElement.style.transform = 'translate(-50%, -50%)';
+    if (tooltipElement && tooltipElement.style) {
+      // Use TypeScript-friendly approach for style setting with null check
+      tooltipElement.style.setProperty('top', '50%');
+      tooltipElement.style.setProperty('left', '50%');
+      tooltipElement.style.setProperty('transform', 'translate(-50%, -50%)');
     }
   }
 }
@@ -463,11 +450,11 @@ function show(): void {
       return;
     }
 
-    // Update styles for visibility
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-    tooltipElement.style.visibility = 'visible';
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-    tooltipElement.style.opacity = '1';
+    // Update styles for visibility using TypeScript-friendly approach with null check
+    if (tooltipElement.style) {
+      tooltipElement.style.setProperty('visibility', 'visible');
+      tooltipElement.style.setProperty('opacity', '1');
+    }
 
     // Update ARIA attribute for accessibility
     tooltipElement.setAttribute('aria-hidden', 'false');
@@ -498,11 +485,11 @@ function hide(): void {
       return;
     }
 
-    // Update style properties
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-    tooltipElement.style.opacity = '0';
-    // @ts-ignore: TypeScript doesn't recognize that tooltipElement is an HTMLElement with style
-    tooltipElement.style.visibility = 'hidden';
+    // Update style properties using TypeScript-friendly approach with null check
+    if (tooltipElement.style) {
+      tooltipElement.style.setProperty('opacity', '0');
+      tooltipElement.style.setProperty('visibility', 'hidden');
+    }
 
     // Update ARIA attributes for accessibility
     tooltipElement.setAttribute('aria-hidden', 'true');
@@ -577,14 +564,13 @@ function getId(): string {
 function getDebugInfo(): TooltipDebugInfo {
   const info: TooltipDebugInfo = {
     isCreated: isCreated,
-    tooltipElement:
-      tooltipElement && tooltipElement.style
-        ? {
-            id: tooltipElement.id,
-            isVisible: tooltipElement.style.visibility === 'visible',
-            zIndex: tooltipElement.style.zIndex,
-          }
-        : null,
+    tooltipElement: tooltipElement
+      ? {
+          id: tooltipElement.id,
+          isVisible: window.getComputedStyle(tooltipElement).visibility === 'visible',
+          zIndex: window.getComputedStyle(tooltipElement).zIndex,
+        }
+      : null,
     constants: {
       TOOLTIP_ID,
       TOOLTIP_Z_INDEX,

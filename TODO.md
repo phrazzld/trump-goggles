@@ -227,6 +227,19 @@
 
 - [x] **T046 · Fix · P0: fix TypeScript errors in JavaScript test files**
 
+- [ ] **T047 · Fix · P2: fix window object type errors in tooltip-ui.ts**
+
+  - **Context:** TypeScript errors related to window object access for globals
+  - **Action:**
+    1. Address type errors in tooltip-ui.ts related to window.Logger and window.TooltipBrowserAdapter
+    2. Fix the type checking approach without suppressing errors
+    3. Create a proper solution that works with the project's types.d.ts
+  - **Done‑when:**
+    1. tooltip-ui.ts passes TypeScript type checking
+    2. No TS2339 property does not exist errors
+    3. No need for ts-ignore comments
+  - **Depends‑on:** [T015]
+
   - **Context:** TypeScript errors in JavaScript test files (.js) when checkJs is enabled
   - **Action:**
     1. Add JSDoc type annotations to test files
@@ -239,7 +252,7 @@
 
 ## High Priority Fixes
 
-- [ ] **T015 · Fix · P0: modify TooltipUI to use TooltipBrowserAdapter for styling**
+- [x] **T015 · Fix · P0: modify TooltipUI to use TooltipBrowserAdapter for styling**
 
   - **Context:** PLAN.md, CR-04, Step 1-3
   - **Action:**
