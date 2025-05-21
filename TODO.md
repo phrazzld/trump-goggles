@@ -407,7 +407,7 @@
     2. Type issues are properly resolved.
   - **Depends‑on:** [T010]
 
-- [ ] **T026 · Docs · P3: restore AUTHORS.md file**
+- [x] **T026 · Docs · P3: restore AUTHORS.md file**
 
   - **Context:** PLAN.md, CR-15
   - **Action:**
