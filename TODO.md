@@ -418,7 +418,7 @@
     2. Content is up to date.
   - **Depends‑on:** none
 
-- [ ] **T027 · Docs · P3: restore cross-browser-compatibility-report.md file**
+- [x] **T027 · Docs · P3: restore cross-browser-compatibility-report.md file**
 
   - **Context:** PLAN.md, CR-16
   - **Action:**
