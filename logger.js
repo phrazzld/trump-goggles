@@ -380,13 +380,13 @@ const Logger = (function () {
    *
    * @public
    * @template T
-   * @param {(...args: any[]) => T} fn - The function to protect
+   * @template R
+   * @param {(...args: T[]) => R} fn - The function to protect
    * @param {string} context - Description of the operation
-   * @param {T} [fallback] - Optional fallback value to return on error
-   * @returns {(...args: any[]) => T} Protected function
+   * @param {R} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: T[]) => R} Protected function
    */
   function protect(fn, context, fallback) {
-    // @ts-ignore: Function type compatibility issue
     return createErrorBoundary(fn, context, fallback);
   }
 
@@ -395,13 +395,13 @@ const Logger = (function () {
    *
    * @public
    * @template T
-   * @param {(...args: any[]) => Promise<T>} fn - The async function to protect
+   * @template R
+   * @param {(...args: T[]) => Promise<R>} fn - The async function to protect
    * @param {string} context - Description of the operation
-   * @param {T} [fallback] - Optional fallback value to return on error
-   * @returns {(...args: any[]) => Promise<T>} Protected async function
+   * @param {R} [fallback] - Optional fallback value to return on error
+   * @returns {(...args: T[]) => Promise<R>} Protected async function
    */
   function protectAsync(fn, context, fallback) {
-    // @ts-ignore: Function type compatibility issue
     return createAsyncErrorBoundary(fn, context, fallback);
   }
 
@@ -413,7 +413,6 @@ const Logger = (function () {
    * @returns {TimerInterface} Timer object with stop method
    */
   function time(operationName) {
-    // @ts-ignore: Return type compatibility issue
     return createPerformanceTimer(operationName);
   }
 
@@ -421,7 +420,7 @@ const Logger = (function () {
    * Gets statistics about logger usage
    *
    * @public
-   * @returns {Object} Statistics object
+   * @returns {LoggerStats} Statistics object
    */
   function getStats() {
     return { ...stats };
@@ -447,11 +446,21 @@ const Logger = (function () {
   }
 
   /**
+   * Timer interface for performance measurement
    * @typedef {Object} TimerInterface
-   * @property {(status?: string, data?: any) => number} stop - Stops the timer and returns elapsed time
+   * @property {(status?: string, additionalData?: any) => number} stop - Stops the timer and returns elapsed time in milliseconds
    */
 
   /**
+   * Logger statistics object
+   * @typedef {Object} LoggerStats
+   * @property {Record<string, number>} counts - Count of logs by level
+   * @property {string|null} lastError - Last error message
+   * @property {Date|null} lastErrorTime - Time of last error
+   */
+
+  /**
+   * Logger interface for the Logger module
    * @typedef {Object} LoggerInterface
    * @property {(options?: object) => object} configure - Configure the logger
    * @property {() => void} enableDebugMode - Enable debug mode
@@ -460,10 +469,10 @@ const Logger = (function () {
    * @property {(message: string, data?: any) => void} info - Log info message
    * @property {(message: string, data?: any) => void} warn - Log warning message
    * @property {(message: string, data?: any) => void} error - Log error message
-   * @property {<T>(fn: Function, context: string, fallback?: T) => Function} protect - Wrap function with error boundary
-   * @property {<T>(fn: Function, context: string, fallback?: T) => Function} protectAsync - Wrap async function with error boundary
+   * @property {<T, R>(fn: (...args: T[]) => R, context: string, fallback?: R) => (...args: T[]) => R} protect - Wrap function with error boundary
+   * @property {<T, R>(fn: (...args: T[]) => Promise<R>, context: string, fallback?: R) => (...args: T[]) => Promise<R>} protectAsync - Wrap async function with error boundary
    * @property {(operationName: string) => TimerInterface} time - Create performance timer
-   * @property {() => object} getStats - Get logger statistics
+   * @property {() => LoggerStats} getStats - Get logger statistics
    * @property {() => void} resetStats - Reset logger statistics
    * @property {{ DEBUG: string, INFO: string, WARN: string, ERROR: string }} LEVELS - Log levels constants
    */

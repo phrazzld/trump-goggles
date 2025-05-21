@@ -4,26 +4,19 @@
  * This script automates performance testing of the Trump Goggles tooltip feature.
  * It creates a test environment, generates test content with varying numbers of
  * convertible text, and measures performance metrics.
- *
- * @typedef {Object} TestConfig
- * @property {number} paragraphs - Number of paragraphs to generate
- * @property {number} referencesPerParagraph - Number of references per paragraph
- *
- * @typedef {Object} PerformanceMetrics
- * @property {number[]} small - Metrics for small test
- * @property {number[]} medium - Metrics for medium test
- * @property {number[]} large - Metrics for large test
- * @property {number[]} extreme - Metrics for extreme test
- *
- * @typedef {Object} AllMetrics
- * @property {PerformanceMetrics} generationTime - Time to generate content
- * @property {PerformanceMetrics} processingTime - Time to process content
- * @property {PerformanceMetrics} tooltipShowTime - Time to show tooltip
- * @property {PerformanceMetrics} memory - Memory usage
  */
 
 (function () {
   'use strict';
+
+  /**
+   * Type guard for test sizes
+   * @param {string} val - Value to check
+   * @returns {val is 'small' | 'medium' | 'large' | 'extreme'} True if value is a valid test size
+   */
+  function isValidTestSize(val) {
+    return val === 'small' || val === 'medium' || val === 'large' || val === 'extreme';
+  }
 
   /**
    * Performance Test Configuration
@@ -171,7 +164,12 @@
         });
 
         const generationTime = performance.now() - startGeneration;
-        metrics.generationTime[testSize].push(generationTime);
+
+        // Use isValidTestSize function for type safety
+
+        if (isValidTestSize(testSize)) {
+          metrics.generationTime[testSize].push(generationTime);
+        }
 
         // Measure processing time
         const startProcessing = performance.now();
@@ -183,7 +181,13 @@
           for (const mutation of mutations) {
             if (mutation.addedNodes.length > 0) {
               for (const node of mutation.addedNodes) {
-                if (node.classList && node.classList.contains('tg-converted-text')) {
+                // Check if node is an Element before checking classList
+                if (
+                  node.nodeType === 1 &&
+                  node instanceof Element &&
+                  node.classList &&
+                  node.classList.contains('tg-converted-text')
+                ) {
                   conversionFound = true;
                   break;
                 }
@@ -195,18 +199,15 @@
 
           if (conversionFound) {
             const processingTime = performance.now() - startProcessing;
-            // Use type assertion to ensure TypeScript knows these are valid keys
-            if (
-              testSize === 'small' ||
-              testSize === 'medium' ||
-              testSize === 'large' ||
-              testSize === 'extreme'
-            ) {
+            // Use isValidTestSize function for type safety
+
+            if (isValidTestSize(testSize)) {
               metrics.processingTime[testSize].push(processingTime);
             }
 
             // Count conversions
-            const conversions = document.querySelectorAll('.tg-converted-text');
+            // Ensure document is defined before calling querySelectorAll
+            const conversions = document ? document.querySelectorAll('.tg-converted-text') : [];
             logMessage(`Found ${conversions.length} converted text elements`);
 
             // Get memory usage if available (Chrome-only feature)
@@ -215,13 +216,8 @@
               // @ts-ignore - Cast to expected type from our ExtendedPerformance interface
               const memoryUsageMB = performance.memory.usedJSHeapSize / (1024 * 1024);
 
-              // Use type assertion to ensure TypeScript knows these are valid keys
-              if (
-                testSize === 'small' ||
-                testSize === 'medium' ||
-                testSize === 'large' ||
-                testSize === 'extreme'
-              ) {
+              // Use isValidTestSize function for type safety
+              if (isValidTestSize(testSize)) {
                 metrics.memory[testSize].push(memoryUsageMB);
               }
             }
@@ -293,7 +289,11 @@
         return;
       }
 
-      const paragraphs = testArea.querySelectorAll('p');
+      // Safe access to querySelectorAll
+      const paragraphs =
+        testArea && typeof testArea.querySelectorAll === 'function'
+          ? testArea.querySelectorAll('p')
+          : [];
       /** @type {HTMLElement[]} */
       const targetParagraphs = [];
 
@@ -322,13 +322,9 @@
           if (hoverTimings.length > 0) {
             const avg = hoverTimings.reduce((sum, time) => sum + time, 0) / hoverTimings.length;
 
-            // Use type assertion to ensure TypeScript knows these are valid keys
-            if (
-              testSize === 'small' ||
-              testSize === 'medium' ||
-              testSize === 'large' ||
-              testSize === 'extreme'
-            ) {
+            // Use isValidTestSize function for type safety
+
+            if (isValidTestSize(testSize)) {
               metrics.tooltipShowTime[testSize].push(avg);
             }
           }

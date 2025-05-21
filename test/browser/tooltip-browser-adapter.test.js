@@ -16,6 +16,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  */
 
 /**
+ * Interface for our mock Document object
+ * @typedef {Object} MockDocumentInterface
+ * @property {(tagName: string) => SimpleMockElement} createElement - Create element function
+ * @property {Function} addEventListener - Add event listener function
+ * @property {Function} removeEventListener - Remove event listener function
+ * @property {boolean} hidden - Whether document is hidden
+ */
+
+/**
  * Mock DOM Element for testing
  * Implements a simplified version of element with just what we need
  * @implements {SimpleMockElement}

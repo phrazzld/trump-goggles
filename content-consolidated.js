@@ -207,18 +207,6 @@ const TrumpGoggles = (function () {
               mapKeys
             );
 
-            // Debug logging to see what's happening
-            if (
-              textNode.nodeValue.toLowerCase().includes('clinton') ||
-              textNode.nodeValue.toLowerCase().includes('hillary')
-            ) {
-              // DEBUG: Found Clinton/Hillary text
-              // text: textNode.nodeValue
-              // segmentsLength: segments length
-              // trumpMapKeys: first 5 keys
-              // trumpMapHasHillary: yes/no
-            }
-
             // If segments are found, process the text node with DOMModifier
             if (segments && segments.length > 0) {
               window.Logger.debug(

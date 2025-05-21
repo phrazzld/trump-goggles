@@ -243,12 +243,6 @@ const TextProcessor = (function () {
       .replace(/\\b/g, '') // Remove word boundaries
       .replace(/\\\./g, '.'); // Unescape dots
 
-    // Log for Hillary pattern
-    if (source.includes('Hillary') || source.includes('Clinton')) {
-      // DEBUG: Extracting keyTerms from pattern
-      // source: source, original: regex.source
-    }
-
     // First extract the content from groups and replace groups with their content
     const flattenedSource = source.replace(/\((?:\?:)?([^)]+)\)/g, '$1');
 
@@ -270,12 +264,6 @@ const TextProcessor = (function () {
 
     // Filter out duplicates
     const result = terms.filter((term, index, self) => self.indexOf(term) === index);
-
-    // Log the result for Hillary pattern
-    if (source.includes('Hillary') || source.includes('Clinton')) {
-      // DEBUG: Extracted keyTerms
-      // result: keyTerms array
-    }
 
     return result;
   }
@@ -365,11 +353,6 @@ const TextProcessor = (function () {
         );
 
         if (!hasKeyTerm) {
-          // Log when we bail out on Hillary/Clinton text
-          if (lowerText.includes('clinton') || lowerText.includes('hillary')) {
-            // DEBUG: Bailing out due to missing keyTerms
-            // text, keyTerms, and patternRegex
-          }
           return segments;
         }
       }
@@ -383,12 +366,6 @@ const TextProcessor = (function () {
       // Find all matches
       let match;
       while ((match = regex.exec(text)) !== null) {
-        // Log matches for Hillary/Clinton
-        if (text.toLowerCase().includes('clinton') || text.toLowerCase().includes('hillary')) {
-          // DEBUG: Found match in text
-          // text, match, pattern, nick
-        }
-
         // Create segment info
         segments.push({
           originalText: match[0],
@@ -721,14 +698,6 @@ const TextProcessor = (function () {
 
     // Skip processing with early bailout optimization
     if (!isLikelyToContainMatches(textNodeContent, replacementMap, mapKeys)) {
-      // Log early bailout for Clinton/Hillary texts (DEBUG)
-      if (
-        textNodeContent.toLowerCase().includes('clinton') ||
-        textNodeContent.toLowerCase().includes('hillary')
-      ) {
-        // DEBUG: Early bailout optimization working correctly for text with partial Clinton/Hillary matches
-        // console.log('Early bailout for text containing Clinton/Hillary:', textNodeContent);
-      }
       return segments;
     }
 

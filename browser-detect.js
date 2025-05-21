@@ -446,10 +446,27 @@ const BrowserDetect = (function () {
   }
 
   /**
+   * The debug info object with a standardized structure
+   * @typedef {Object} BrowserDebugInfo
+   * @property {string} name - The browser name
+   * @property {number|null} version - The browser version
+   * @property {number} manifestVersion - The manifest version
+   * @property {string} userAgent - The user agent string
+   * @property {Object} features - Features supported by the browser
+   * @property {boolean} features.promises - Whether Promises are supported
+   * @property {boolean} features.mutationObserver - Whether MutationObserver is supported
+   * @property {boolean} features.matchMedia - Whether matchMedia is supported
+   * @property {boolean} features.webRequest - Whether webRequest is supported
+   * @property {boolean} features.localStorage - Whether localStorage is supported
+   * @property {boolean} features.serviceWorker - Whether serviceWorker is supported
+   * @property {boolean} features.shadowDom - Whether shadowDom is supported
+   */
+
+  /**
    * Gets all browser information for debugging
    *
    * @public
-   * @returns {Object} Browser information
+   * @returns {BrowserDebugInfo} Browser information
    */
   function getDebugInfo() {
     return {
@@ -469,7 +486,7 @@ const BrowserDetect = (function () {
     };
   }
 
-  // Return the public API
+  // Return the public API that matches BrowserDetectInterface
   return {
     // Browser information
     getBrowser: getBrowser,

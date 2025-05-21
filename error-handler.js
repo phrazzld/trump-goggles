@@ -314,10 +314,19 @@ const ErrorHandler = (function () {
   }
 
   /**
+   * Error statistics object
+   * @typedef {Object} ErrorStats
+   * @property {number} errorCount - Total number of errors recorded
+   * @property {number} recentErrors - Number of recent errors in history
+   * @property {boolean} isEnabled - Whether error handling is enabled
+   * @property {number} maxErrors - Maximum number of errors before disabling
+   */
+
+  /**
    * Get error statistics
    *
    * @public
-   * @returns {Object} Error statistics
+   * @returns {ErrorStats} Error statistics
    */
   function getStats() {
     return {

@@ -372,7 +372,7 @@
     2. Test files run successfully
   - **Depends‑on:** none
 
-- [ ] **T049 · Fix · P1: fix all remaining TypeScript errors**
+- [x] **T049 · Fix · P1: fix all remaining TypeScript errors**
 
   - **Context:** Additional TypeScript errors still exist after T048
   - **Action:**
@@ -385,7 +385,7 @@
     2. Pre-commit hooks pass without --no-verify
   - **Depends‑on:** [T048]
 
-- [ ] **T024 · Cleanup · P3: remove Clinton/Hillary specific debug logs**
+- [x] **T024 · Cleanup · P3: remove Clinton/Hillary specific debug logs**
 
   - **Context:** PLAN.md, CR-13
   - **Action:**
