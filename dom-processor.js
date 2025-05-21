@@ -36,7 +36,7 @@ const DOMProcessor = (function () {
   ];
 
   // Element attribute used to mark processed nodes
-  const PROCESSED_ATTR = 'data-trump-processed';
+  const PROCESSED_ATTR = 'data-tg-processed';
 
   // ===== NODE TRACKING =====
 

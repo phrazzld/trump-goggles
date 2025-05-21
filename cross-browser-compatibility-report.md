@@ -87,6 +87,36 @@ The extension's core functionality relies on:
 2. **chrome.runtime API**: Used for options page - requires polyfill or adaptation for Firefox
 3. **chrome.storage API**: Mentioned in code but not actively used - would require adaptation for Firefox
 
+### TooltipBrowserAdapter
+
+The extension uses a dedicated `TooltipBrowserAdapter` module to handle browser-specific differences and ensure consistent behavior across browsers. Key features include:
+
+1. **Browser Detection**: Uses feature detection primarily, with user agent detection as fallback
+2. **Feature Support Detection**:
+   - Checks support for high z-index values (some browsers limit maximum values)
+   - Detects pointer-events CSS property support
+   - Verifies CSS transitions support
+   - Determines appropriate visibility change event names
+
+3. **Browser-Specific Style Adjustments**:
+   - Firefox: Applies backface-visibility and transform properties to fix subpixel rendering issues
+   - Safari: Uses vendor-prefixed properties for transforms and transitions
+   - Edge: Handles legacy Edge (pre-Chromium) with MS-prefixed properties
+   - Provides high contrast mode support for accessibility
+
+4. **CSS Adaptation**:
+   - Converts CSS to be compatible with different browser engines
+   - Adds Firefox-specific focus styles
+   - Adds Safari-prefixed properties
+   - Ensures proper z-index handling across browsers
+
+5. **Event Handling**:
+   - Manages page visibility events across browsers
+   - Provides consistent cleanup functions for event listeners
+   - Handles cross-browser window blur events
+
+This approach allows the tooltip functionality to work consistently across all supported browsers while adapting to their specific implementations and behaviors.
+
 ## Test Results
 
 ### Chrome
@@ -96,6 +126,7 @@ The extension's core functionality relies on:
 - **Editable Fields**: ✅ Correctly skips editable elements
 - **Dynamic Content**: ✅ MutationObserver handles dynamic content
 - **Performance**: ✅ Good performance with optimizations
+- **Tooltip**: ✅ Displays correctly with proper positioning and styles
 
 ### Firefox
 
@@ -104,6 +135,7 @@ The extension's core functionality relies on:
 - **Editable Fields**: ✅ Correctly skips editable elements
 - **Dynamic Content**: ✅ MutationObserver works with Firefox
 - **Performance**: ✅ Similar performance to Chrome
+- **Tooltip**: ✅ Works with Firefox-specific style adjustments from TooltipBrowserAdapter
 
 ### Edge
 
@@ -112,6 +144,7 @@ The extension's core functionality relies on:
 - **Editable Fields**: ✅ Correctly skips editable elements
 - **Dynamic Content**: ✅ MutationObserver handles dynamic content
 - **Performance**: ✅ Similar performance to Chrome
+- **Tooltip**: ✅ Displays correctly (uses Chromium standards for modern Edge)
 
 ## Recommendations for Full Cross-Browser Support
 
@@ -147,6 +180,15 @@ No significant changes required for Edge compatibility.
 - Implement feature detection rather than browser detection where possible
 - Consider adding automated cross-browser testing
 
+## Current Implementation
+
+The project currently implements both recommended approaches:
+
+1. **Browser Detection Module**: `browser-detect.js` provides comprehensive browser and feature detection 
+2. **Browser Adapter Module**: `tooltip-browser-adapter.ts` handles browser-specific style and behavior adaptations
+3. **Browser API Polyfill**: `background-polyfill.js` provides compatibility between Chrome and Firefox APIs
+4. **Browser-Specific Builds**: `build-browser-extensions.sh` generates tailored versions for each browser
+
 ## Testing Methodology
 
 ### Test Environment
@@ -167,5 +209,7 @@ No significant changes required for Edge compatibility.
 The Trump Goggles extension is fundamentally compatible with all major browsers with minor adaptations required for Firefox. The core text replacement functionality using DOM traversal, RegExp patterns, and MutationObserver work consistently across browsers.
 
 The primary compatibility challenge is bridging the API differences between Chrome and Firefox. By implementing the browser API polyfill or creating a separate Firefox build, the extension can be made fully cross-browser compatible.
+
+The `TooltipBrowserAdapter` module provides a robust solution for handling browser-specific differences in tooltip styling, events, and DOM APIs. This approach ensures consistent behavior and appearance across Chrome, Firefox, Edge, and potentially other browsers.
 
 Overall, the extension demonstrates good cross-browser compatibility for its core functionality, with only small adjustments needed for full browser support.

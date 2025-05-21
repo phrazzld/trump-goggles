@@ -842,7 +842,7 @@ declare namespace chrome.runtime {
 
 // DOM extensions
 interface Node {
-  _trumpGogglesProcessed?: boolean;
+  // _trumpProcessed is still needed for text nodes as they can't have data attributes
   _trumpProcessed?: boolean;
   id?: string;
   nodeType: number;
@@ -855,13 +855,12 @@ interface Node {
 }
 
 interface Text {
-  _trumpGogglesProcessed?: boolean;
+  // _trumpProcessed is still needed for text nodes as they can't have data attributes
   _trumpProcessed?: boolean;
 }
 
 interface ParentNode {
-  _trumpGogglesProcessed?: boolean;
-  _trumpProcessed?: boolean;
+  // No custom properties needed - using data-tg-processed attribute instead
 }
 
 /**
@@ -1027,6 +1026,20 @@ interface TrumpMappingsInterface {
 /**
  * TextProcessor interface for the TextProcessor module
  */
+/**
+ * Text segment conversion information for a portion of text that needs to be converted
+ */
+interface TextSegmentConversion {
+  /** The original text before conversion */
+  readonly originalText: string;
+  /** The converted text to display */
+  readonly convertedText: string;
+  /** Starting index within the original text node */
+  readonly startIndex: number;
+  /** Ending index within the original text node */
+  readonly endIndex: number;
+}
+
 interface TextProcessorInterface {
   // Core text processing methods
   processText: (
@@ -1047,6 +1060,21 @@ interface TextProcessorInterface {
     mapKeys: string[],
     options?: ProcessOptions
   ) => boolean | Promise<boolean>;
+
+  /**
+   * Processes a text node content and returns an array of segments that need conversion.
+   * Does NOT modify the DOM.
+   *
+   * @param textNodeContent - The text content to process
+   * @param replacementMap - The map of replacements to apply
+   * @param mapKeys - The keys of the replacement map to use
+   * @returns An array of text segments that need conversion
+   */
+  identifyConversableSegments?: (
+    textNodeContent: string,
+    replacementMap: ReplacementMap,
+    mapKeys: string[]
+  ) => TextSegmentConversion[];
 
   // Pattern optimization
   precompilePatterns: (replacementMap: ReplacementMap) => ReplacementMap;
@@ -1121,7 +1149,200 @@ interface ReplacementMap {
   [key: string]: TrumpMapping;
 }
 
+/**
+ * DOMModifier interface for modifying DOM elements with text conversions
+ */
+interface DOMModifierInterface {
+  /**
+   * Processes a text node, replacing segments based on conversion info.
+   * Wraps converted segments in spans with data attributes.
+   * Returns true if modifications were made, false otherwise.
+   *
+   * @param textNode - The text node to process
+   * @param segments - The segments to convert and wrap
+   * @returns True if modifications were made, false otherwise
+   */
+  processTextNodeAndWrapSegments(textNode: Text, segments: TextSegmentConversion[]): boolean;
+}
+
+/**
+ * TooltipUI interface for managing tooltip DOM element
+ */
+interface TooltipUIInterface {
+  /**
+   * Ensures the tooltip DOM element is created and ready.
+   */
+  ensureCreated(): void;
+
+  /**
+   * Sets the text content of the tooltip. Must use textContent for security.
+   *
+   * @param text - The text to display in the tooltip
+   */
+  setText(text: string): void;
+
+  /**
+   * Calculates and applies the tooltip's position relative to the target element,
+   * avoiding viewport overflow.
+   *
+   * @param targetElement - The element the tooltip should be positioned relative to
+   */
+  updatePosition(targetElement: HTMLElement): void;
+
+  /**
+   * Makes the tooltip visible and updates ARIA attributes.
+   */
+  show(): void;
+
+  /**
+   * Hides the tooltip and updates ARIA attributes.
+   */
+  hide(): void;
+
+  /**
+   * Removes the tooltip element from the DOM.
+   */
+  destroy(): void;
+
+  /**
+   * Returns the ID of the tooltip element for ARIA linking.
+   *
+   * @returns The ID of the tooltip element
+   */
+  getId(): string;
+
+  /**
+   * Gets debug information about the tooltip component and browser support.
+   *
+   * @returns Debug information object
+   */
+  getDebugInfo?(): {
+    isCreated: boolean;
+    tooltipElement: {
+      id: string;
+      isVisible: boolean;
+      zIndex: string;
+    } | null;
+    constants: {
+      TOOLTIP_ID: string;
+      TOOLTIP_Z_INDEX: number;
+      TOOLTIP_MAX_WIDTH: number;
+      TOOLTIP_MAX_HEIGHT: number;
+    };
+    browserAdapter?: {
+      browser: string;
+      version: number | null;
+      features: {
+        highZIndex: boolean;
+        pointerEvents: boolean;
+        transitions: boolean;
+        visibilityAPI: boolean;
+      };
+      appliedStyles: {
+        zIndex: number;
+        transitionProperty: string;
+      };
+    };
+  };
+}
+
+/**
+ * TooltipManager interface for managing tooltip lifecycle and events
+ */
+interface TooltipManagerInterface {
+  /**
+   * Initializes event listeners and dependencies.
+   *
+   * @param tooltipUI - The TooltipUI instance to use
+   */
+  initialize(tooltipUI: TooltipUIInterface): void;
+
+  /**
+   * Cleans up event listeners and resources.
+   */
+  dispose(): void;
+}
+
+/**
+ * TooltipBrowserAdapter interface for browser-specific tooltip adaptations
+ */
+interface TooltipBrowserAdapterInterface {
+  /**
+   * Gets the appropriate z-index value based on browser support
+   *
+   * @returns The appropriate z-index value
+   */
+  getSafeZIndex(): number;
+
+  /**
+   * Applies browser-specific styles to the tooltip element
+   *
+   * @param tooltipElement - The tooltip element to style
+   */
+  applyBrowserSpecificStyles(tooltipElement: HTMLElement): void;
+
+  /**
+   * Converts a CSS string to be compatible with the current browser
+   *
+   * @param cssText - The CSS text to convert
+   * @returns Browser-compatible CSS text
+   */
+  convertCssForBrowser(cssText: string): string;
+
+  /**
+   * Registers browser-specific event listeners
+   *
+   * @param tooltipElement - The tooltip element ID or element
+   * @param showCallback - Callback to show the tooltip
+   * @param hideCallback - Callback to hide the tooltip
+   * @returns Function to remove the event listeners
+   */
+  registerBrowserEvents(
+    tooltipId: string,
+    showCallback: Function,
+    hideCallback: Function
+  ): Function;
+
+  /**
+   * Gets the default tooltip styles as a string adjusted for the current browser
+   *
+   * @returns CSS styles for the tooltip
+   */
+  getDefaultTooltipStyles(): string;
+
+  /**
+   * Gets browser compatibility information for debugging
+   *
+   * @returns Browser compatibility information
+   */
+  getDebugInfo(): {
+    browser: string;
+    version: number | null;
+    features: {
+      highZIndex: boolean;
+      pointerEvents: boolean;
+      transitions: boolean;
+      visibilityAPI: boolean;
+    };
+    appliedStyles: {
+      zIndex: number;
+      transitionProperty: string;
+    };
+  };
+}
+
 // Window extensions
+/**
+ * SecurityUtils interface for utility functions related to security
+ */
+interface SecurityUtilsInterface {
+  /**
+   * Escapes HTML special characters in a string to prevent XSS in contexts
+   * where the string might be interpreted as HTML (e.g., log viewers)
+   */
+  escapeHTML: (str: string | null | undefined) => string;
+}
+
 interface Window {
   trumpVersion?: string;
   trumpGogglesInitialized?: boolean;
@@ -1136,8 +1357,15 @@ interface Window {
   BrowserAdapter?: BrowserAdapterInterface;
   TrumpMappings?: TrumpMappingsInterface;
   DOMProcessor?: any;
+  DOMModifier?: DOMModifierInterface;
   TextProcessor?: TextProcessorInterface;
   MutationObserverManager?: MutationObserverManagerInterface;
+  TooltipUI?: TooltipUIInterface;
+  TooltipManager?: TooltipManagerInterface;
+  TooltipBrowserAdapter?: TooltipBrowserAdapterInterface;
+  SecurityUtils?: SecurityUtilsInterface;
+  PerformanceUtils?: PerformanceUtilsInterface;
+  tooltipManagerBrowserEventsCleanup?: Function;
   TrumpGoggles?: any;
 
   // Legacy functions
@@ -1173,4 +1401,68 @@ interface Error {
   columnNumber?: number;
   code?: string;
   reason?: any;
+}
+
+/**
+ * Document interface extensions
+ */
+interface Document {
+  querySelectorAll(selectors: string): NodeListOf<Element>;
+}
+
+/**
+ * PerformanceUtils interface for the PerformanceUtils module
+ */
+interface PerformanceUtilsInterface {
+  throttle: <T extends (...args: any[]) => any>(
+    fn: T,
+    delay: number | { delay: number; maxWait?: number }
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  debounce: <T extends (...args: any[]) => any>(
+    fn: T,
+    delay: number | { delay: number; maxWait?: number },
+    immediate?: boolean
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  measureExecutionTime: <T extends (...args: any[]) => any>(
+    fn: T,
+    ...args: Parameters<T>
+  ) => { result: ReturnType<T>; executionTime: number };
+
+  measureMemoryUsage: <T extends (...args: any[]) => any>(
+    fn: T,
+    ...args: Parameters<T>
+  ) => {
+    result: ReturnType<T>;
+    beforeMemory: {
+      totalJSHeapSize: number;
+      usedJSHeapSize: number;
+      jsHeapSizeLimit?: number;
+    } | null;
+    afterMemory: {
+      totalJSHeapSize: number;
+      usedJSHeapSize: number;
+      jsHeapSizeLimit?: number;
+    } | null;
+  };
+
+  Configs: {
+    scroll: {
+      delay: number;
+      maxWait: number;
+    };
+    input: {
+      delay: number;
+      maxWait: number;
+    };
+    keyboard: {
+      delay: number;
+      maxWait: number;
+    };
+    mutation: {
+      delay: number;
+      maxWait: number;
+    };
+  };
 }

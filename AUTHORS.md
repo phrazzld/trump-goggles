@@ -6,7 +6,7 @@ This document lists the authors and contributors to the Trump Goggles project.
 
 Maintainers have administrative access to the repository and are responsible for reviewing and merging pull requests.
 
-- [Original Author] - Project creator and lead maintainer
+- [Phaedrus](https://github.com/phrazzld) - Project creator and lead maintainer
 
 ## Contributors
 

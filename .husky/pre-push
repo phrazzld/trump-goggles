@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check for npm or yarn usage in staged files
+INVALID_COMMANDS=$(git diff --cached --name-only -z | xargs -0 grep -l "npm install\|npm run\|yarn add\|yarn install\|yarn run" 2>/dev/null || true)
+
+if [ ! -z "$INVALID_COMMANDS" ]; then
+  echo "Error: Found npm or yarn commands in staged files. Please use pnpm instead:"
+  echo "$INVALID_COMMANDS"
+  echo ""
+  echo "Replace:"
+  echo "  npm install → pnpm install"
+  echo "  npm run → pnpm run"
+  echo "  yarn add → pnpm add"
+  echo "  yarn install → pnpm install"
+  echo "  yarn run → pnpm run"
+  exit 1
+fi

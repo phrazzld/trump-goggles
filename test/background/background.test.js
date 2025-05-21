@@ -24,6 +24,7 @@ describe('Background Script', () => {
     expect(addListenerMock).toHaveBeenCalledTimes(1);
 
     // Get the callback function (the one we just registered)
+    // @ts-expect-error - vitest mock property exists at runtime
     const clickCallback = addListenerMock.mock.calls[0][0];
 
     // Simulate clicking the browser action
