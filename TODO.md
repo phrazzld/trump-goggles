@@ -429,7 +429,7 @@
     2. Content reflects current cross-browser approach.
   - **Depends‑on:** none
 
-- [ ] **T028 · Fix · P3: add newline to end of PLAN.md**
+- [x] **T028 · Fix · P3: add newline to end of PLAN.md**
 
   - **Context:** PLAN.md, CR-17
   - **Action:**
