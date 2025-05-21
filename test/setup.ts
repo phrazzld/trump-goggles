@@ -11,18 +11,14 @@ import { MockBrowserAdapter } from './mocks/browser-adapter.mock';
 import type { ChromeNamespace, LocalStorageMock } from './types';
 
 // Setup global extension API mocks
-// @ts-expect-error - Chrome API mock has different shape than full Chrome API
-global.chrome = MockExtensionApi;
+(global as any).chrome = MockExtensionApi;
 
 // Setup browser global for Firefox tests
-// @ts-expect-error - Browser API is optionally defined
-global.browser = undefined; // Default to undefined, will be set when testing Firefox
+(global as any).browser = undefined; // Default to undefined, will be set when testing Firefox
 
 // Add mocks for browser-specific modules
-// @ts-expect-error - Adding test globals
-global.BrowserDetect = MockBrowserDetect;
-// @ts-expect-error - Adding test globals
-global.BrowserAdapter = MockBrowserAdapter;
+(global as any).BrowserDetect = MockBrowserDetect;
+(global as any).BrowserAdapter = MockBrowserAdapter;
 
 // Mock for console.* methods
 global.console = {
@@ -103,12 +99,9 @@ global.createTextNode = (text: string): Text => {
   return node;
 };
 
-// @ts-expect-error - Extending global for test utilities
-global.walk = vi.fn();
-// @ts-expect-error - Extending global for test utilities
-global.convert = vi.fn();
-// @ts-expect-error - Extending global for test utilities
-global.isEditableNode = vi.fn().mockReturnValue(false);
+(global as any).walk = vi.fn();
+(global as any).convert = vi.fn();
+(global as any).isEditableNode = vi.fn().mockReturnValue(false);
 
 // Expose helper to switch between Chrome and Firefox testing
 global.setupForFirefox = () => {
@@ -131,8 +124,7 @@ global.setupForFirefox = () => {
   }
 
   // Setup browser global for Firefox
-  // @ts-expect-error - Browser API assignment
-  global.browser = firefoxMock as unknown as ChromeNamespace;
+  (global as any).browser = firefoxMock as unknown as ChromeNamespace;
 
   return firefoxMock as unknown as ChromeNamespace;
 };
@@ -154,8 +146,7 @@ global.setupForChrome = () => {
   }
 
   // Clear Firefox global
-  // @ts-expect-error - Browser API assignment
-  global.browser = undefined;
+  (global as any).browser = undefined;
 
   return MockExtensionApi as unknown as ChromeNamespace;
 };

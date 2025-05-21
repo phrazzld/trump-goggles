@@ -14,9 +14,13 @@
   - Fix type mismatches between JSDOM's window object and the real Window interface
   - Ensure all test files pass TypeScript checks with the test-specific configuration
   
-- [ ] T052: Fix TypeScript errors in bundled scripts
+- [x] T052: Fix TypeScript errors in bundled scripts
   - Fix variable redeclaration errors (Logger, TrumpMappings)
   - Address implicit any types in utility scripts
   - Ensure proper type checking for all bundled scripts
+- [ ] T053: Fix remaining TypeScript errors in extensions and mocks
+  - Resolve errors in extension-api.mock.ts
+  - Update extension mock types and interfaces
+  - Fix TypeScript compatibility issues in browser modules
   
-Note: A significant portion of the TypeScript errors have been fixed, especially the most critical ones related to DOMWindow vs Window type issues, NodeList conversion issues, and boolean index errors. Some non-critical TypeScript errors are still present but will be addressed incrementally in T051 and T052.
+Note: A significant portion of the TypeScript errors have been fixed, especially the most critical ones related to DOMWindow vs Window type issues, NodeList conversion issues, and boolean index errors. Some non-critical TypeScript errors are still present but will be addressed incrementally in T051 and T053.
