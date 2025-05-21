@@ -1,4 +1,3 @@
-// @ts-nocheck - Disable type checking for this file
 /**
  * TooltipManager Module - Responsible for managing tooltip interactions
  *
@@ -11,31 +10,53 @@
  * - Batched DOM operations to minimize reflows
  *
  * @version 1.1.0
- *
- * IMPORTANT NOTE ABOUT TYPE CHECKING:
- * This file previously used many @ts-ignore comments which have been removed.
- *
- * Since this module uses properties like window.Logger, window.PerformanceUtils, etc.
- * that TypeScript doesn't recognize on the Window interface, we would need to add
- * individual @ts-ignore comments to each occurrence (hundreds of them).
- *
- * Instead, we're using a special directive that tells TypeScript to skip type checking
- * this file altogether. This is a temporary solution and not ideal.
- *
- * A better long-term solution would be to:
- * 1. Use proper dependency injection instead of global window properties
- * 2. Use import statements for modules instead of accessing them from window
- * 3. Define proper interfaces for all dependencies
  */
 
 'use strict';
 
-// Include reference to types for editor tooling even though we're not type-checking
+// Include the reference to types for editor tooling
 /// <reference path="./types.d.ts" />
+// Import dependencies properly instead of using global window properties
+import { escapeHTML } from './security-utils';
 
-// Check if performance utils are available
-// This allows graceful degradation when the utils are not loaded
-const performanceUtils = window.PerformanceUtils || null;
+// Define interfaces for strict type checking
+interface TooltipUIInterface {
+  ensureCreated: () => void;
+  setText: (text: string) => void;
+  updatePosition: (element: HTMLElement) => void;
+  show: () => void;
+  hide: () => void;
+  destroy: () => void;
+  getId: () => string;
+  getDebugInfo?: () => any;
+}
+
+interface LoggerInterface {
+  debug: (message: string, data?: any) => void;
+  info: (message: string, data?: any) => void;
+  warn: (message: string, data?: any) => void;
+  error: (message: string, data?: any) => void;
+  LEVELS?: Record<string, string>;
+}
+
+interface PerformanceUtilsInterface {
+  throttle: <T extends (...args: any[]) => any>(
+    fn: T,
+    options: { delay: number; maxWait?: number } | number
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  debounce: <T extends (...args: any[]) => any>(
+    fn: T,
+    options: { delay: number; maxWait?: number } | number
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  Configs?: {
+    input?: { delay: number; maxWait?: number };
+    scroll?: { delay: number; maxWait?: number };
+    keyboard?: { delay: number; maxWait?: number };
+    mutation?: { delay: number; maxWait?: number };
+  };
+}
 
 /**
  * Interface for storing event handler information to ensure proper cleanup
@@ -51,60 +72,73 @@ interface EventHandlerInfo {
   options?: boolean | AddEventListenerOptions;
 }
 
+// Default throttle/debounce option configurations
+const DEFAULT_CONFIGS = {
+  input: { delay: 32 }, // ~2 frames at 60fps
+  scroll: { delay: 150 },
+  keyboard: { delay: 50 },
+};
+
+// Window interface extension is defined in types.d.ts
+
+// Get Logger from window for backward compatibility
+// Will be properly injected in a future refactor
+// This avoids the need to update all call sites at once
+const getLogger = (): LoggerInterface | undefined => {
+  return window.Logger;
+};
+
+// Get PerformanceUtils from window for backward compatibility
+// Will be properly injected in a future refactor
+const getPerformanceUtils = (): PerformanceUtilsInterface | null => {
+  return window.PerformanceUtils || null;
+};
+
 // ===== MODULE STATE =====
 
 /**
  * Reference to the TooltipUI instance
- * @type {TooltipUIInterface|null}
  */
-let tooltipUI: any = null; // Will be properly typed once TooltipUIInterface is imported
+let tooltipUI: TooltipUIInterface | null = null;
 
 /**
  * Flag indicating whether event listeners have been initialized
- * @type {boolean}
  */
 let isInitialized: boolean = false;
 
 /**
  * Selector for converted text elements that should trigger tooltips
- * @type {string}
  */
 const CONVERTED_TEXT_SELECTOR: string = '.tg-converted-text';
 
 /**
  * Attribute containing the original text to display in tooltip
- * @type {string}
  */
 const ORIGINAL_TEXT_ATTR: string = 'data-original-text';
 
 /**
  * Store all active event handlers to ensure proper cleanup
- * @type {Array<EventHandlerInfo>}
  */
 const activeEventHandlers: EventHandlerInfo[] = [];
 
 /**
  * Private cleanup function reference stored in module scope
  * Used to ensure proper cleanup when the tooltip manager is disposed
- * @type {Function|null}
  */
 let cleanupFunction: (() => void) | null = null;
 
 /**
  * Cache for throttled mouse move handler
- * @type {Function|null}
  */
 let cachedThrottledMouseMove: ((event: MouseEvent) => void) | null = null;
 
 /**
  * Cache for throttled scroll handler
- * @type {Function|null}
  */
 let cachedThrottledScroll: (() => void) | null = null;
 
 /**
  * Cache for debounced keyboard handler
- * @type {Function|null}
  */
 let cachedDebouncedKeyboard: ((event: KeyboardEvent) => void) | null = null;
 
@@ -144,13 +178,12 @@ function handleMouseMoveLogic(event: MouseEvent): void {
         convertedElement.setAttribute('aria-describedby', tooltipId);
 
         // Log activity if Logger is available
-        if (window.Logger && typeof window.Logger.debug === 'function') {
-          // Use escapeHTML if available, otherwise log a subset of characters
-          const safeText = window.SecurityUtils?.escapeHTML
-            ? window.SecurityUtils.escapeHTML(originalText.substring(0, 30))
-            : originalText.substring(0, 30);
+        const logger = getLogger();
+        if (logger && typeof logger.debug === 'function') {
+          // Use escapeHTML to sanitize logging output
+          const safeText = escapeHTML(originalText.substring(0, 30));
 
-          window.Logger.debug('TooltipManager: Showing tooltip', {
+          logger.debug('TooltipManager: Showing tooltip', {
             originalText: safeText,
           });
         }
@@ -161,8 +194,9 @@ function handleMouseMoveLogic(event: MouseEvent): void {
     }
   } catch (error) {
     // Log any errors during mousemove handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error in mousemove handler', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error in mousemove handler', { error });
     } else {
       console.error('TooltipManager: Error in mousemove handler', error);
     }
@@ -196,8 +230,9 @@ function hideTooltip(): void {
     }
   } catch (error) {
     // Log any errors during tooltip hiding
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error hiding tooltip', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error hiding tooltip', { error });
     } else {
       console.error('TooltipManager: Error hiding tooltip', error);
     }
@@ -214,12 +249,12 @@ function hideTooltip(): void {
  * @param {MouseEvent} event - The mouse move event object from DOM
  */
 function handleMouseMove(event: MouseEvent): void {
+  const performanceUtils = getPerformanceUtils();
+
   if (!cachedThrottledMouseMove && performanceUtils) {
     // Create and cache the throttled function
-    cachedThrottledMouseMove = performanceUtils.throttle(
-      handleMouseMoveLogic,
-      performanceUtils.Configs.input || { delay: 32 }
-    );
+    const config = performanceUtils.Configs?.input || DEFAULT_CONFIGS.input;
+    cachedThrottledMouseMove = performanceUtils.throttle(handleMouseMoveLogic, config);
   }
 
   if (cachedThrottledMouseMove) {
@@ -241,13 +276,15 @@ function handleMouseLeave(): void {
     hideTooltip();
 
     // Log mouse leave if Logger is available
-    if (window.Logger && typeof window.Logger.debug === 'function') {
-      window.Logger.debug('TooltipManager: Mouse left document, hiding tooltip');
+    const logger = getLogger();
+    if (logger && typeof logger.debug === 'function') {
+      logger.debug('TooltipManager: Mouse left document, hiding tooltip');
     }
   } catch (error) {
     // Log any errors during mouse leave handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error in mouseleave handler', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error in mouseleave handler', { error });
     } else {
       console.error('TooltipManager: Error in mouseleave handler', error);
     }
@@ -280,13 +317,12 @@ function handleFocus(event: FocusEvent): void {
         target.setAttribute('aria-describedby', tooltipId);
 
         // Log activity if Logger is available
-        if (window.Logger && typeof window.Logger.debug === 'function') {
-          // Use escapeHTML if available, otherwise log a subset of characters
-          const safeText = window.SecurityUtils?.escapeHTML
-            ? window.SecurityUtils.escapeHTML(originalText.substring(0, 30))
-            : originalText.substring(0, 30);
+        const logger = getLogger();
+        if (logger && typeof logger.debug === 'function') {
+          // Use escapeHTML for log safety
+          const safeText = escapeHTML(originalText.substring(0, 30));
 
-          window.Logger.debug('TooltipManager: Showing tooltip on focus', {
+          logger.debug('TooltipManager: Showing tooltip on focus', {
             originalText: safeText,
           });
         }
@@ -294,8 +330,9 @@ function handleFocus(event: FocusEvent): void {
     }
   } catch (error) {
     // Log any errors during focus handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error in focus handler', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error in focus handler', { error });
     } else {
       console.error('TooltipManager: Error in focus handler', error);
     }
@@ -317,14 +354,16 @@ function handleBlur(event: FocusEvent): void {
       hideTooltip();
 
       // Log activity if Logger is available
-      if (window.Logger && typeof window.Logger.debug === 'function') {
-        window.Logger.debug('TooltipManager: Hiding tooltip on blur');
+      const logger = getLogger();
+      if (logger && typeof logger.debug === 'function') {
+        logger.debug('TooltipManager: Hiding tooltip on blur');
       }
     }
   } catch (error) {
     // Log any errors during blur handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error in blur handler', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error in blur handler', { error });
     } else {
       console.error('TooltipManager: Error in blur handler', error);
     }
@@ -342,13 +381,15 @@ function handleScrollLogic(): void {
     hideTooltip();
 
     // Log scroll if debug level logging is enabled
-    if (window.Logger && typeof window.Logger.debug === 'function') {
-      window.Logger.debug('TooltipManager: Hiding tooltip due to scroll');
+    const logger = getLogger();
+    if (logger && typeof logger.debug === 'function') {
+      logger.debug('TooltipManager: Hiding tooltip due to scroll');
     }
   } catch (error) {
     // Log any errors during scroll handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error in scroll handler', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error in scroll handler', { error });
     } else {
       console.error('TooltipManager: Error in scroll handler', error);
     }
@@ -362,12 +403,12 @@ function handleScrollLogic(): void {
  * @private
  */
 function handleScroll(): void {
+  const performanceUtils = getPerformanceUtils();
+
   if (!cachedThrottledScroll && performanceUtils) {
     // Create and cache the throttled function
-    cachedThrottledScroll = performanceUtils.throttle(
-      handleScrollLogic,
-      performanceUtils.Configs.scroll || { delay: 150 }
-    );
+    const config = performanceUtils.Configs?.scroll || DEFAULT_CONFIGS.scroll;
+    cachedThrottledScroll = performanceUtils.throttle(handleScrollLogic, config);
   }
 
   if (cachedThrottledScroll) {
@@ -412,14 +453,16 @@ function handleKeyboardLogic(event: KeyboardEvent): void {
       }
 
       // Log escape key dismissal if debug logging is enabled
-      if (window.Logger && typeof window.Logger.debug === 'function') {
-        window.Logger.debug('TooltipManager: Dismissed tooltip with Escape key');
+      const logger = getLogger();
+      if (logger && typeof logger.debug === 'function') {
+        logger.debug('TooltipManager: Dismissed tooltip with Escape key');
       }
     }
   } catch (error) {
     // Log any errors during keyboard handling
-    if (window.Logger) {
-      window.Logger.error('TooltipManager: Error during keyboard dismissal', { error });
+    const logger = getLogger();
+    if (logger) {
+      logger.error('TooltipManager: Error during keyboard dismissal', { error });
     } else {
       console.error('TooltipManager: Error during keyboard dismissal', error);
     }
@@ -434,12 +477,12 @@ function handleKeyboardLogic(event: KeyboardEvent): void {
  * @param {KeyboardEvent} event - The keyboard event
  */
 function handleKeydown(event: KeyboardEvent): void {
+  const performanceUtils = getPerformanceUtils();
+
   if (!cachedDebouncedKeyboard && performanceUtils) {
     // Create and cache the debounced function
-    cachedDebouncedKeyboard = performanceUtils.debounce(
-      handleKeyboardLogic,
-      performanceUtils.Configs.keyboard || { delay: 50 }
-    );
+    const config = performanceUtils.Configs?.keyboard || DEFAULT_CONFIGS.keyboard;
+    cachedDebouncedKeyboard = performanceUtils.debounce(handleKeyboardLogic, config);
   }
 
   if (cachedDebouncedKeyboard) {
@@ -465,23 +508,24 @@ function handleKeydown(event: KeyboardEvent): void {
 function addTrackedEventListener(
   element: Document | Window,
   eventType: string,
-  handler: any, // Use any to avoid TypeScript event handler compatibility issues
+  handler: EventListener,
   options?: boolean | AddEventListenerOptions
 ): void {
   // Add the event listener
-  element.addEventListener(eventType, handler as EventListener, options);
+  element.addEventListener(eventType, handler, options);
 
   // Store the reference for later cleanup
   activeEventHandlers.push({
     element,
     event: eventType,
-    handler: handler as EventListener,
+    handler,
     options,
   });
 
   // Log if available
-  if (window.Logger && typeof window.Logger.debug === 'function') {
-    window.Logger.debug('TooltipManager: Added tracked event listener', {
+  const logger = getLogger();
+  if (logger && typeof logger.debug === 'function') {
+    logger.debug('TooltipManager: Added tracked event listener', {
       element: element === document ? 'document' : 'window',
       event: eventType,
     });
@@ -495,7 +539,7 @@ function addTrackedEventListener(
  * @public
  * @param {TooltipUIInterface} uiModule - The TooltipUI module instance
  */
-function initialize(uiModule: any): void {
+function initialize(uiModule: TooltipUIInterface): void {
   try {
     // Validate input
     if (!uiModule) {
@@ -504,8 +548,9 @@ function initialize(uiModule: any): void {
 
     // Prevent multiple initializations
     if (isInitialized) {
-      if (window.Logger && typeof window.Logger.warn === 'function') {
-        window.Logger.warn('TooltipManager: Already initialized');
+      const logger = getLogger();
+      if (logger && typeof logger.warn === 'function') {
+        logger.warn('TooltipManager: Already initialized');
       }
       return;
     }
@@ -516,30 +561,26 @@ function initialize(uiModule: any): void {
     // Ensure tooltip element is created before we start
     tooltipUI.ensureCreated();
 
+    const performanceUtils = getPerformanceUtils();
+
     // Create and cache throttled/debounced handlers if needed
     if (performanceUtils) {
       // Create throttled mouse move handler if not already cached
       if (!cachedThrottledMouseMove) {
-        cachedThrottledMouseMove = performanceUtils.throttle(
-          handleMouseMoveLogic,
-          performanceUtils.Configs.input || { delay: 32 }
-        );
+        const inputConfig = performanceUtils.Configs?.input || DEFAULT_CONFIGS.input;
+        cachedThrottledMouseMove = performanceUtils.throttle(handleMouseMoveLogic, inputConfig);
       }
 
       // Create throttled scroll handler if not already cached
       if (!cachedThrottledScroll) {
-        cachedThrottledScroll = performanceUtils.throttle(
-          handleScrollLogic,
-          performanceUtils.Configs.scroll || { delay: 150 }
-        );
+        const scrollConfig = performanceUtils.Configs?.scroll || DEFAULT_CONFIGS.scroll;
+        cachedThrottledScroll = performanceUtils.throttle(handleScrollLogic, scrollConfig);
       }
 
       // Create debounced keyboard handler if not already cached
       if (!cachedDebouncedKeyboard) {
-        cachedDebouncedKeyboard = performanceUtils.debounce(
-          handleKeyboardLogic,
-          performanceUtils.Configs.keyboard || { delay: 50 }
-        );
+        const keyboardConfig = performanceUtils.Configs?.keyboard || DEFAULT_CONFIGS.keyboard;
+        cachedDebouncedKeyboard = performanceUtils.debounce(handleKeyboardLogic, keyboardConfig);
       }
     }
 
@@ -552,20 +593,28 @@ function initialize(uiModule: any): void {
     const keyboardHandler = cachedDebouncedKeyboard || handleKeydown;
 
     // Add tracked event listeners
-    addTrackedEventListener(document, 'mousemove', mouseMoveHandler, { passive: true });
+    addTrackedEventListener(document, 'mousemove', mouseMoveHandler as EventListener, {
+      passive: true,
+    });
     addTrackedEventListener(document, 'mouseleave', handleMouseLeave, { passive: true });
-    addTrackedEventListener(document, 'focusin', handleFocus, { passive: true });
-    addTrackedEventListener(document, 'focusout', handleBlur, { passive: true });
-    addTrackedEventListener(window, 'scroll', scrollHandler, { passive: true, capture: true });
-    addTrackedEventListener(document, 'keydown', keyboardHandler, { passive: false }); // Not passive - we might preventDefault
+    addTrackedEventListener(document, 'focusin', handleFocus as EventListener, { passive: true });
+    addTrackedEventListener(document, 'focusout', handleBlur as EventListener, { passive: true });
+    addTrackedEventListener(window, 'scroll', scrollHandler as EventListener, {
+      passive: true,
+      capture: true,
+    });
+    addTrackedEventListener(document, 'keydown', keyboardHandler as EventListener, {
+      passive: false,
+    }); // Not passive - we might preventDefault
 
     // Store cleanup function in module-private variable
     cleanupFunction = () => {
       try {
         // Remove all tracked event handlers
         if (activeEventHandlers.length > 0) {
-          if (window.Logger && typeof window.Logger.debug === 'function') {
-            window.Logger.debug('TooltipManager: Removing event listeners', {
+          const logger = getLogger();
+          if (logger && typeof logger.debug === 'function') {
+            logger.debug('TooltipManager: Removing event listeners', {
               count: activeEventHandlers.length,
             });
           }
@@ -593,13 +642,15 @@ function initialize(uiModule: any): void {
         cachedDebouncedKeyboard = null;
 
         // Log disposal
-        if (window.Logger && typeof window.Logger.info === 'function') {
-          window.Logger.info('TooltipManager: Disposed successfully');
+        const logger = getLogger();
+        if (logger && typeof logger.info === 'function') {
+          logger.info('TooltipManager: Disposed successfully');
         }
       } catch (error) {
         // Log disposal errors
-        if (window.Logger && typeof window.Logger.error === 'function') {
-          window.Logger.error('TooltipManager: Error during disposal', { error });
+        const logger = getLogger();
+        if (logger && typeof logger.error === 'function') {
+          logger.error('TooltipManager: Error during disposal', { error });
         } else {
           console.error('TooltipManager: Error during disposal', error);
         }
@@ -610,13 +661,15 @@ function initialize(uiModule: any): void {
     isInitialized = true;
 
     // Log successful initialization
-    if (window.Logger && typeof window.Logger.info === 'function') {
-      window.Logger.info('TooltipManager: Initialized successfully');
+    const logger = getLogger();
+    if (logger && typeof logger.info === 'function') {
+      logger.info('TooltipManager: Initialized successfully');
     }
   } catch (error) {
     // Log initialization errors
-    if (window.Logger && typeof window.Logger.error === 'function') {
-      window.Logger.error('TooltipManager: Initialization failed', { error });
+    const logger = getLogger();
+    if (logger && typeof logger.error === 'function') {
+      logger.error('TooltipManager: Initialization failed', { error });
     } else {
       console.error('TooltipManager: Initialization failed', error);
     }
@@ -643,19 +696,21 @@ function dispose(): void {
     } else {
       // If no cleanup function exists (perhaps initialize wasn't called),
       // log a debug message but don't treat as an error
-      if (window.Logger && typeof window.Logger.debug === 'function') {
-        window.Logger.debug('TooltipManager: No cleanup function to call during dispose');
+      const logger = getLogger();
+      if (logger && typeof logger.debug === 'function') {
+        logger.debug('TooltipManager: No cleanup function to call during dispose');
       }
 
       // Log successful disposal even without cleanup function
-      if (window.Logger && typeof window.Logger.info === 'function') {
-        window.Logger.info('TooltipManager: Disposed successfully');
+      if (logger && typeof logger.info === 'function') {
+        logger.info('TooltipManager: Disposed successfully');
       }
     }
   } catch (error) {
     // Log disposal errors
-    if (window.Logger && typeof window.Logger.error === 'function') {
-      window.Logger.error('TooltipManager: Error during disposal', { error });
+    const logger = getLogger();
+    if (logger && typeof logger.error === 'function') {
+      logger.error('TooltipManager: Error during disposal', { error });
     } else {
       console.error('TooltipManager: Error during disposal', error);
     }
@@ -664,8 +719,11 @@ function dispose(): void {
 
 // ===== PUBLIC API =====
 
-interface TooltipManagerInterface {
-  initialize: (uiModule: any) => void;
+/**
+ * TooltipManager interface - Public API for the tooltip manager
+ */
+export interface TooltipManagerInterface {
+  initialize: (uiModule: TooltipUIInterface) => void;
   dispose: () => void;
 }
 
@@ -673,5 +731,11 @@ export const TooltipManager: TooltipManagerInterface = {
   initialize: initialize,
   dispose: dispose,
 };
+
+// For backward compatibility with global window access
+// This is needed until all instances are updated to use imports
+if (typeof window !== 'undefined') {
+  window.TooltipManager = TooltipManager;
+}
 
 export default TooltipManager;

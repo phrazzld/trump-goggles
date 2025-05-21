@@ -1364,6 +1364,7 @@ interface Window {
   TooltipManager?: TooltipManagerInterface;
   TooltipBrowserAdapter?: TooltipBrowserAdapterInterface;
   SecurityUtils?: SecurityUtilsInterface;
+  PerformanceUtils?: PerformanceUtilsInterface;
   tooltipManagerBrowserEventsCleanup?: Function;
   TrumpGoggles?: any;
 
@@ -1400,4 +1401,68 @@ interface Error {
   columnNumber?: number;
   code?: string;
   reason?: any;
+}
+
+/**
+ * Document interface extensions
+ */
+interface Document {
+  querySelectorAll(selectors: string): NodeListOf<Element>;
+}
+
+/**
+ * PerformanceUtils interface for the PerformanceUtils module
+ */
+interface PerformanceUtilsInterface {
+  throttle: <T extends (...args: any[]) => any>(
+    fn: T,
+    delay: number | { delay: number; maxWait?: number }
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  debounce: <T extends (...args: any[]) => any>(
+    fn: T,
+    delay: number | { delay: number; maxWait?: number },
+    immediate?: boolean
+  ) => (...args: Parameters<T>) => ReturnType<T> | undefined;
+
+  measureExecutionTime: <T extends (...args: any[]) => any>(
+    fn: T,
+    ...args: Parameters<T>
+  ) => { result: ReturnType<T>; executionTime: number };
+
+  measureMemoryUsage: <T extends (...args: any[]) => any>(
+    fn: T,
+    ...args: Parameters<T>
+  ) => {
+    result: ReturnType<T>;
+    beforeMemory: {
+      totalJSHeapSize: number;
+      usedJSHeapSize: number;
+      jsHeapSizeLimit?: number;
+    } | null;
+    afterMemory: {
+      totalJSHeapSize: number;
+      usedJSHeapSize: number;
+      jsHeapSizeLimit?: number;
+    } | null;
+  };
+
+  Configs: {
+    scroll: {
+      delay: number;
+      maxWait: number;
+    };
+    input: {
+      delay: number;
+      maxWait: number;
+    };
+    keyboard: {
+      delay: number;
+      maxWait: number;
+    };
+    mutation: {
+      delay: number;
+      maxWait: number;
+    };
+  };
 }

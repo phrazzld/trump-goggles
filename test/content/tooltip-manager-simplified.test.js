@@ -47,6 +47,13 @@ describe('TooltipManager (Simplified)', () => {
     // Mock performance utils
     mockPerformanceUtils = {
       throttle: vi.fn((fn) => fn), // For simplicity, return the function unchanged
+      debounce: vi.fn((fn) => fn), // Add debounce function
+      Configs: {
+        // Add Configs object
+        input: { delay: 32 },
+        scroll: { delay: 150 },
+        keyboard: { delay: 50 },
+      },
       // Note: DOMBatch has been removed from performance-utils.ts as part of T021
       // but we still mock it here for backward compatibility with tests
       DOMBatch: {

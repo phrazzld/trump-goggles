@@ -34,6 +34,12 @@ describe('TooltipManager (Actual Module)', () => {
     window.PerformanceUtils = {
       throttle: vi.fn((fn) => fn),
       debounce: vi.fn((fn) => fn),
+      Configs: {
+        // Add Configs object
+        input: { delay: 32 },
+        scroll: { delay: 150 },
+        keyboard: { delay: 50 },
+      },
       // Note: DOMBatch has been removed from performance-utils.ts as part of T021
       // but we still mock it here for backward compatibility with tests
       DOMBatch: {

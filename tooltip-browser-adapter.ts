@@ -10,6 +10,37 @@
 
 'use strict';
 
+// Define interfaces for browser modules
+interface BrowserDetectInterface {
+  // Core methods for browser detection
+  getBrowser: () => string;
+  getVersion: () => number | null;
+  isFirefox: () => boolean;
+  isChrome: () => boolean;
+  isEdge?: () => boolean;
+  isSafari?: () => boolean;
+}
+
+interface TooltipBrowserAdapterInterface {
+  getSafeZIndex: () => number;
+  applyBrowserSpecificStyles: (element: HTMLElement) => void;
+  convertCssForBrowser: (cssText: string) => string;
+  registerBrowserEvents: (
+    tooltipId: string,
+    showCallback: () => void,
+    hideCallback: () => void
+  ) => () => void;
+  getDefaultTooltipStyles: () => string;
+  getDebugInfo: () => object;
+}
+
+// Rather than extending the global Window interface directly,
+// we'll use module-level type declarations
+type ExtendedWindow = Window & {
+  BrowserDetect?: BrowserDetectInterface;
+  TooltipBrowserAdapter?: TooltipBrowserAdapterInterface;
+};
+
 // ===== CONSTANTS =====
 
 /**
@@ -28,6 +59,15 @@ const MAX_SAFE_Z_INDEX: number = 2147483647;
 const VISIBILITY_PREFIXES: string[] = ['', 'webkit', 'moz', 'ms', 'o'];
 
 // ===== TYPE DEFINITIONS =====
+
+// Declare CSS properties that aren't standard in TypeScript's DOM definitions
+// Use a type rather than an interface to avoid issues with readonly properties
+type CSSStyleDeclarationWithVendorProps = CSSStyleDeclaration & {
+  webkitBackfaceVisibility?: string;
+  webkitTransform?: string;
+  msTransform?: string;
+  [key: string]: string | number | CSSRule | ((s: string) => string) | (() => string) | undefined;
+};
 
 interface BrowserInfo {
   browser: string;
@@ -54,14 +94,17 @@ interface PrefixedDocument extends Document {
  * @returns Browser information
  */
 function getBrowserInfo(): BrowserInfo {
-  if (window.BrowserDetect) {
+  // Check if BrowserDetect is available on window
+  const extendedWindow = window as ExtendedWindow;
+  const browserDetect = extendedWindow.BrowserDetect;
+  if (browserDetect) {
     return {
-      browser: window.BrowserDetect.getBrowser(),
-      version: window.BrowserDetect.getVersion() as number | null,
-      isFirefox: window.BrowserDetect.isFirefox(),
-      isChrome: window.BrowserDetect.isChrome(),
-      isEdge: window.BrowserDetect.isEdge ? window.BrowserDetect.isEdge() : false,
-      isSafari: window.BrowserDetect.isSafari ? window.BrowserDetect.isSafari() : false,
+      browser: browserDetect.getBrowser(),
+      version: browserDetect.getVersion(),
+      isFirefox: browserDetect.isFirefox(),
+      isChrome: browserDetect.isChrome(),
+      isEdge: typeof browserDetect.isEdge === 'function' ? browserDetect.isEdge() : false,
+      isSafari: typeof browserDetect.isSafari === 'function' ? browserDetect.isSafari() : false,
     };
   }
 
@@ -101,11 +144,15 @@ function getBrowserInfo(): BrowserInfo {
 function hasHighZIndexSupport(): boolean {
   try {
     const testElement = document.createElement('div');
-    if (testElement.style) {
-      testElement.style.zIndex = String(MAX_SAFE_Z_INDEX);
+    const style = testElement.style;
+
+    // Check if style exists before accessing properties
+    if (style) {
+      style.zIndex = String(MAX_SAFE_Z_INDEX);
+      const computedZIndex = parseInt(window.getComputedStyle(testElement).zIndex || '0', 10);
+      return computedZIndex === MAX_SAFE_Z_INDEX;
     }
-    const computedZIndex = parseInt(window.getComputedStyle(testElement).zIndex || '0', 10);
-    return computedZIndex === MAX_SAFE_Z_INDEX;
+    return false;
   } catch {
     return false;
   }
@@ -119,7 +166,10 @@ function hasHighZIndexSupport(): boolean {
  */
 function hasPointerEventsSupport(): boolean {
   const testElement = document.createElement('div');
-  return Boolean(testElement.style && 'pointerEvents' in testElement.style);
+  const style = testElement.style;
+
+  // Check if style exists before checking for property
+  return Boolean(style && 'pointerEvents' in style);
 }
 
 /**
@@ -130,11 +180,11 @@ function hasPointerEventsSupport(): boolean {
  */
 function hasTransitionSupport(): boolean {
   const testElement = document.createElement('div');
+  const style = testElement.style;
+
+  // Check if style exists before checking for properties
   return Boolean(
-    testElement.style &&
-      ('transition' in testElement.style ||
-        'webkitTransition' in testElement.style ||
-        'MozTransition' in testElement.style)
+    style && ('transition' in style || 'webkitTransition' in style || 'MozTransition' in style)
   );
 }
 
@@ -186,13 +236,14 @@ function getSafeZIndex(): number {
  */
 function getTransitionProperty(): string {
   const testElement = document.createElement('div');
+  const style = testElement.style;
 
-  if (testElement.style) {
-    if ('transition' in testElement.style) {
+  if (style) {
+    if ('transition' in style) {
       return 'transition';
-    } else if ('webkitTransition' in testElement.style) {
+    } else if ('webkitTransition' in style) {
       return 'webkitTransition';
-    } else if ('MozTransition' in testElement.style) {
+    } else if ('MozTransition' in style) {
       return 'MozTransition';
     }
   }
@@ -208,25 +259,37 @@ function getTransitionProperty(): string {
  */
 function applyBrowserSpecificStyles(element: HTMLElement): void {
   const browser = getBrowserInfo();
+  const style = element.style as CSSStyleDeclarationWithVendorProps;
+
+  // Only proceed if style is available
+  if (!style) {
+    return;
+  }
 
   // Firefox adjustments
-  if (browser.isFirefox && element.style) {
+  if (browser.isFirefox) {
     // Firefox may have issues with subpixel rendering
-    element.style.backfaceVisibility = 'hidden';
-    element.style.transform = 'translateZ(0)';
+    style.backfaceVisibility = 'hidden';
+    style.transform = 'translateZ(0)';
   }
 
   // Safari adjustments
-  if (browser.isSafari && element.style) {
+  if (browser.isSafari) {
     // Safari may need prefixed properties
-    (element.style as any).webkitBackfaceVisibility = 'hidden';
-    (element.style as any).webkitTransform = 'translateZ(0)';
+    if (style.webkitBackfaceVisibility !== undefined) {
+      style.webkitBackfaceVisibility = 'hidden';
+    }
+    if (style.webkitTransform !== undefined) {
+      style.webkitTransform = 'translateZ(0)';
+    }
   }
 
   // Edge (legacy) adjustments
   if (browser.isEdge && browser.version && browser.version < 80) {
     // Legacy Edge specific adjustments
-    (element.style as any).msTransform = 'translateZ(0)';
+    if (style.msTransform !== undefined) {
+      style.msTransform = 'translateZ(0)';
+    }
   }
 
   // Check for pointer-events support
@@ -239,16 +302,29 @@ function applyBrowserSpecificStyles(element: HTMLElement): void {
   // Apply appropriate transition property
   const transitionProp = getTransitionProperty();
   if (transitionProp !== 'transition') {
-    (element.style as any)[transitionProp] = 'opacity 0.2s ease-in-out';
+    try {
+      // Set the custom transition property using safe approach
+      // Use explicit verification and assignment to handle read-only properties
+      if (transitionProp === 'webkitTransition' && style.webkitTransition !== undefined) {
+        style.webkitTransition = 'opacity 0.2s ease-in-out';
+      } else if (transitionProp === 'MozTransition' && 'MozTransition' in style) {
+        // Cast to any to avoid TypeScript errors with read-only properties
+        (style as any).MozTransition = 'opacity 0.2s ease-in-out';
+      }
+    } catch (err) {
+      // Fallback: if we can't set the prefixed property, use the standard one
+      if (style.transition !== undefined) {
+        style.transition = 'opacity 0.2s ease-in-out';
+      }
+    }
+  } else if (style.transition !== undefined) {
+    // Set standard transition property
+    style.transition = 'opacity 0.2s ease-in-out';
   }
 
   // High contrast mode support
-  if (
-    window.matchMedia &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches &&
-    element.style
-  ) {
-    element.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    style.borderColor = 'rgba(255, 255, 255, 0.1)';
   }
 }
 
@@ -440,7 +516,8 @@ export const TooltipBrowserAdapter = {
 
 // Browser compatibility export
 if (typeof window !== 'undefined') {
-  window.TooltipBrowserAdapter = TooltipBrowserAdapter;
+  // Safely assign to window object using our ExtendedWindow type
+  (window as ExtendedWindow).TooltipBrowserAdapter = TooltipBrowserAdapter;
 }
 
 export default TooltipBrowserAdapter;
