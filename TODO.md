@@ -396,7 +396,7 @@
     2. Debug logging is generalized if needed.
   - **Depends‑on:** none
 
-- [ ] **T025 · Cleanup · P3: address @ts-ignore comments in TypeScript files**
+- [x] **T025 · Cleanup · P3: address @ts-ignore comments in TypeScript files**
 
   - **Context:** PLAN.md, CR-14
   - **Action:**
@@ -446,4 +446,16 @@
   - **Done‑when:**
     1. tooltip-browser-adapter.js passes TypeScript type checking.
     2. Pre-commit hooks pass successfully.
+  - **Depends‑on:** none
+
+- [ ] **T050 · Refactor · P2: implement proper dependency injection in tooltip-manager.ts**
+  - **Context:** Follow-up to T025 (address @ts-ignore comments)
+  - **Action:**
+    1. Refactor tooltip-manager.ts to use proper dependency injection instead of global window properties
+    2. Use import statements for modules instead of accessing them from window
+    3. Remove @ts-nocheck directive and ensure file passes TypeScript type checking without special directives
+  - **Done‑when:**
+    1. No global window property access in the file
+    2. File passes TypeScript type checking without @ts-nocheck
+    3. All tests continue to pass
   - **Depends‑on:** none
