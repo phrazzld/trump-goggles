@@ -30,7 +30,7 @@ const createBrowserAdapterMock = (apiType = API_TYPES.CALLBACK) => {
     return true;
   });
 
-  const getAPI = vi.fn(() => global.chrome);
+  const getAPI = vi.fn(() => (global as any).chrome);
   const usesPromises = vi.fn(() => apiType === API_TYPES.PROMISE);
 
   const promisify = vi.fn((apiFunction, ...args) => {

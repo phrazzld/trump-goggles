@@ -3,7 +3,8 @@
  * This module provides common test functions to simplify test writing
  */
 import { JSDOM } from 'jsdom';
-import type { MockLogger, TrumpMapping } from '../types/mocks';
+import { vi } from 'vitest';
+import type { MockLogger } from '../types/mocks';
 
 // Define missing mutation record type
 type MutationRecordType = 'childList' | 'attributes' | 'characterData';
@@ -17,7 +18,7 @@ type MutationRecordType = 'childList' | 'attributes' | 'characterData';
  */
 export function createMockDocument(
   html = '<html><body></body></html>',
-  options: JSDOM.ConstructorOptions = {}
+  options: any = {}
 ): { window: Window & typeof globalThis; document: Document } {
   const dom = new JSDOM(html, {
     url: 'https://example.org/',

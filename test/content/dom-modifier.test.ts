@@ -6,17 +6,17 @@ import { JSDOM } from 'jsdom';
 import { DOMModifier } from '../../dom-modifier';
 
 describe('DOMModifier', () => {
-  let document;
-  let window;
-  let mockLogger;
+  let document: Document;
+  let window: Window & typeof globalThis;
+  let mockLogger: any;
 
   beforeEach(() => {
     // Set up JSDOM
     const jsdom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    window = jsdom.window;
+    window = jsdom.window as unknown as Window & typeof globalThis;
     document = window.document;
-    global.document = document;
-    global.window = window;
+    (global as any).document = document;
+    (global as any).window = window;
 
     // Mock the Logger
     mockLogger = {
@@ -24,7 +24,20 @@ describe('DOMModifier', () => {
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
-      protect: vi.fn((fn) => fn),
+      protect: vi.fn((fn: any) => fn),
+      configure: vi.fn(),
+      enableDebugMode: vi.fn(),
+      disableDebugMode: vi.fn(),
+      protectAsync: vi.fn((fn: any) => fn),
+      time: vi.fn(),
+      getStats: vi.fn(),
+      resetStats: vi.fn(),
+      LEVELS: {
+        DEBUG: 'debug',
+        INFO: 'info',
+        WARN: 'warn',
+        ERROR: 'error',
+      },
     };
 
     // Attach Logger to window
@@ -36,7 +49,7 @@ describe('DOMModifier', () => {
   });
 
   // Helper function to create test segments
-  function createTestSegments(textContent) {
+  function createTestSegments(textContent: string) {
     return [
       {
         originalText: 'Trump',
@@ -53,7 +66,7 @@ describe('DOMModifier', () => {
   describe('processTextNodeAndWrapSegments', () => {
     // Test case for invalid input
     it('should return false for invalid text node', () => {
-      const result = DOMModifier.processTextNodeAndWrapSegments(null, []);
+      const result = DOMModifier.processTextNodeAndWrapSegments(null as any, []);
       expect(result).toBe(false);
       expect(mockLogger.debug).toHaveBeenCalledWith('DOMModifier: Invalid text node provided', {
         textNode: null,
@@ -94,17 +107,17 @@ describe('DOMModifier', () => {
       const span = paragraph.querySelector('.tg-converted-text');
       expect(span).not.toBeNull();
 
-      // Check span attributes
-      expect(span.textContent).toBe('Agent Orange');
-      expect(span.getAttribute('data-original-text')).toBe('Trump');
-      expect(span.getAttribute('tabindex')).toBe('0');
+      // Check span attributes (assert non-null after checking)
+      expect(span!.textContent).toBe('Agent Orange');
+      expect(span!.getAttribute('data-original-text')).toBe('Trump');
+      expect(span!.getAttribute('tabindex')).toBe('0');
 
       // Check the paragraph's overall text content - using contains instead of exact match
       expect(paragraph.textContent).toContain('Agent Orange');
       expect(paragraph.textContent).toContain('announced a new policy today');
 
       // Check that the span has the data-tg-processed attribute
-      expect(span.getAttribute('data-tg-processed')).toBe('true');
+      expect(span!.getAttribute('data-tg-processed')).toBe('true');
     });
 
     // Test case for multiple segments
@@ -140,15 +153,15 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that spans were created
-      const spans = paragraph.querySelectorAll('.tg-converted-text');
+      const spans = paragraph.querySelectorAll!('.tg-converted-text');
       expect(spans.length).toBe(2);
 
       // Check that each span has the correct text and attributes
-      for (const span of spans) {
+      Array.from(spans).forEach((span) => {
         expect(span.textContent).toBe('Agent Orange');
         expect(span.getAttribute('data-original-text')).toBe('Trump');
         expect(span.getAttribute('tabindex')).toBe('0');
-      }
+      });
 
       // Check the paragraph contains the right content (without exact order)
       expect(paragraph.textContent).toContain('Agent Orange');
@@ -255,7 +268,7 @@ describe('DOMModifier', () => {
       expect(result).toBe(true);
 
       // Check that spans were created
-      const spans = paragraph.querySelectorAll('.tg-converted-text');
+      const spans = paragraph.querySelectorAll!('.tg-converted-text');
       expect(spans.length).toBe(2);
 
       // Verify span contents

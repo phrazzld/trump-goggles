@@ -8,121 +8,88 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 /**
  * Interface for our simplified mock element
  * This avoids having to implement the full HTMLElement interface
- * @typedef {Object} SimpleMockElement
- * @property {Record<string, string>} style - Style properties
- * @property {Record<string, string>} attributes - Element attributes
- * @property {(name: string, value: string) => void} setAttribute - Set attribute function
- * @property {(name: string) => string|null} getAttribute - Get attribute function
  */
+interface SimpleMockElement {
+  style: Record<string, string>;
+  attributes: Record<string, string>;
+  setAttribute: (name: string, value: string) => void;
+  getAttribute: (name: string) => string | null;
+  addEventListener?: (event: string, handler: (e: any) => void) => void;
+  removeEventListener?: (event: string, handler: (e: any) => void) => void;
+  id?: string;
+  className?: string;
+  textContent?: string;
+  appendChild?: (child: any) => void;
+  remove?: () => void;
+}
 
 /**
  * Interface for our mock Document object
- * @typedef {Object} MockDocumentInterface
- * @property {(tagName: string) => SimpleMockElement} createElement - Create element function
- * @property {Function} addEventListener - Add event listener function
- * @property {Function} removeEventListener - Remove event listener function
- * @property {boolean} hidden - Whether document is hidden
  */
+interface MockDocumentInterface {
+  createElement: (tagName: string) => SimpleMockElement;
+  addEventListener: (event: string, handler: (e: any) => void) => void;
+  removeEventListener: (event: string, handler: (e: any) => void) => void;
+  hidden: boolean;
+  getElementById?: (id: string) => SimpleMockElement | null;
+  body?: SimpleMockElement;
+}
 
 /**
  * Mock DOM Element for testing
  * Implements a simplified version of element with just what we need
- * @implements {SimpleMockElement}
  */
-class MockElement {
+class MockElement implements SimpleMockElement {
+  style: Record<string, string>;
+  attributes: Record<string, string>;
+  addEventListener?: (event: string, handler: (e: any) => void) => void;
+  removeEventListener?: (event: string, handler: (e: any) => void) => void;
+  id?: string;
+  className?: string;
+  textContent?: string;
+  appendChild?: (child: any) => void;
+  remove?: () => void;
+
   /**
    * Create a new MockElement
    */
   constructor() {
-    /** @type {Record<string, string>} */
     this.style = {};
-    /** @type {Record<string, string>} */
     this.attributes = {};
   }
 
   /**
    * Set attribute on mock element
-   * @param {string} name - Attribute name
-   * @param {string} value - Attribute value
-   * @returns {void}
    */
-  setAttribute(name, value) {
+  setAttribute(name: string, value: string): void {
     this.attributes[name] = value;
   }
 
   /**
    * Get attribute from mock element
-   * @param {string} name - Attribute name
-   * @returns {string|null} Attribute value or null
    */
-  getAttribute(name) {
+  getAttribute(name: string): string | null {
     return this.attributes[name] || null;
   }
 }
 
 // Mock window and document
 // Use any for original references since we're replacing them anyway
-// @ts-ignore - Original window and document are globals from vitest environment
-const originalWindow = global.window;
-// @ts-ignore - Original window and document are globals from vitest environment
-const originalDocument = global.document;
-
-/**
- * Define minimal interfaces for our mock Browser API objects
- * @typedef {Object} BrowserDetectMock
- * @property {() => string} getBrowser
- * @property {() => number} getVersion
- * @property {() => boolean} isFirefox
- * @property {() => boolean} isChrome
- * @property {() => boolean} isEdge
- * @property {() => boolean} isSafari
- * @property {Object} BROWSERS
- * @property {Object} FEATURES
- * @property {Object} MANIFEST
- * @property {() => number} getManifestVersion
- * @property {() => boolean} hasPromiseAPI
- * @property {() => boolean} hasFeature
- * @property {() => Object} getDebugInfo
- */
-
-/**
- * Define minimal interfaces for our mock Logger
- * @typedef {Object} LoggerMock
- * @property {Function} debug
- * @property {Function} info
- * @property {Function} warn
- * @property {Function} error
- * @property {Object} LEVELS
- * @property {Function} configure
- * @property {Function} enableDebugMode
- * @property {Function} disableDebugMode
- * @property {Function} time
- * @property {Function} protect
- * @property {Function} protectAsync
- * @property {Function} getStats
- * @property {Function} resetStats
- */
+const originalWindow = (global as any).window;
+const originalDocument = (global as any).document;
 
 describe('TooltipBrowserAdapter', () => {
   beforeEach(() => {
     // Mock document with just the methods we need
-    /** @type {MockDocumentInterface} */
-    global.document = {
-      createElement: (_tagName) => new MockElement(), // Prefix with underscore to mark as intentionally unused
+    (global as any).document = {
+      createElement: (_tagName: string) => new MockElement(), // Prefix with underscore to mark as intentionally unused
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       hidden: false,
-    };
+    } as MockDocumentInterface;
 
     // Mock window with properly typed properties
-    /**
-     * @type {Partial<Window> & {
-     *   BrowserDetect?: BrowserDetectMock,
-     *   Logger?: LoggerMock,
-     *   TooltipBrowserAdapter?: any
-     * }}
-     */
-    global.window = {
+    (global as any).window = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       BrowserDetect: {
@@ -235,8 +202,8 @@ describe('TooltipBrowserAdapter', () => {
 
   afterEach(() => {
     // Restore originals
-    global.window = originalWindow;
-    global.document = originalDocument;
+    (global as any).window = originalWindow;
+    (global as any).document = originalDocument;
   });
 
   it('should provide a safe z-index value', () => {
@@ -245,7 +212,7 @@ describe('TooltipBrowserAdapter', () => {
 
   it('should apply browser-specific styles to an element', () => {
     const element = new MockElement();
-    window.TooltipBrowserAdapter?.applyBrowserSpecificStyles(element);
+    window.TooltipBrowserAdapter?.applyBrowserSpecificStyles(element as any);
     // Use safer access for style properties
     expect(element.style['zIndex']).toBe('2147483647');
   });

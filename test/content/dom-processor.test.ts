@@ -8,36 +8,42 @@ import { COMPLEX_HTML, NESTED_HTML } from '../fixtures/html-fixtures';
 
 // Create a mock of the DOM processor module
 // In a real implementation, you'd import the actual module
-const createDomProcessor = (options = {}) => {
+const createDomProcessor = (options: any = {}): any => {
   return {
     // Mock the core DOM walking function
-    walkDOM: vi.fn((node, processingFunction, skipFunction = null) => {
-      if (!node || !processingFunction) {
-        return;
+    walkDOM: vi.fn(
+      (
+        node: Node,
+        processingFunction: (node: Node) => void,
+        skipFunction: ((node: Node) => boolean) | null = null
+      ): void => {
+        if (!node || !processingFunction) {
+          return;
+        }
+
+        // Skip if the skip function returns true
+        if (skipFunction && skipFunction(node)) {
+          return;
+        }
+
+        // Process this node
+        if (node.nodeType === 3) {
+          // Text node
+          processingFunction(node);
+        }
+
+        // Process child nodes
+        let child = node.firstChild;
+        while (child) {
+          const next = child.nextSibling; // Store next before processing
+
+          // Recursively process children
+          createDomProcessor(options).walkDOM(child, processingFunction, skipFunction);
+
+          child = next; // Use stored next to avoid issues if the DOM changes
+        }
       }
-
-      // Skip if the skip function returns true
-      if (skipFunction && skipFunction(node)) {
-        return;
-      }
-
-      // Process this node
-      if (node.nodeType === 3) {
-        // Text node
-        processingFunction(node);
-      }
-
-      // Process child nodes
-      let child = node.firstChild;
-      while (child) {
-        const next = child.nextSibling; // Store next before processing
-
-        // Recursively process children
-        createDomProcessor(options).walkDOM(child, processingFunction, skipFunction);
-
-        child = next; // Use stored next to avoid issues if the DOM changes
-      }
-    }),
+    ),
 
     // Check if a node should be skipped
     shouldSkipNode: vi.fn((node) => {
@@ -161,7 +167,7 @@ const createDomProcessor = (options = {}) => {
       }
 
       // Create a processing function
-      const processTextNode = (textNode) => {
+      const processTextNode = (textNode: Node) => {
         // Skip if already processed
         if (createDomProcessor(options).isProcessedNode(textNode)) {
           return;
@@ -198,11 +204,11 @@ const createDomProcessor = (options = {}) => {
 };
 
 describe('DOM Processor Module', () => {
-  let DOMProcessor;
-  let document;
-  let trumpMap;
-  let mapKeys;
-  let mockTextProcessor;
+  let DOMProcessor: any;
+  let document: Document;
+  let trumpMap: any;
+  let mapKeys: string[];
+  let mockTextProcessor: any;
 
   beforeEach(() => {
     // Create a fresh instance for each test
@@ -224,7 +230,7 @@ describe('DOM Processor Module', () => {
       }
 
       let processedText = text;
-      mapKeys.forEach((key) => {
+      mapKeys.forEach((key: string) => {
         // Reset regex lastIndex
         trumpMap[key].regex.lastIndex = 0;
         processedText = processedText.replace(trumpMap[key].regex, trumpMap[key].nick);

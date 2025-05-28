@@ -146,6 +146,9 @@ pnpm format
 
 # Check TypeScript types
 pnpm typecheck
+
+# Check TypeScript types specifically in test files
+pnpm typecheck:test
 ```
 
 ### Build Process
