@@ -3,12 +3,12 @@
  */
 import { describe, it, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
+import type { TrumpMappingObject } from '../types/fixtures';
 
 /**
  * Build a mapping of Trump-style replacements for testing
- * @returns {TrumpMappingObject} Object with replacement patterns
  */
-function buildTrumpMap() {
+function buildTrumpMap(): TrumpMappingObject {
   return {
     // Sample mappings for testing
     cnn: {
@@ -47,24 +47,20 @@ function buildTrumpMap() {
 }
 
 // Cache the Trump mappings
-/** @type {TrumpMappingObject} */
-const trumpMap = buildTrumpMap();
-/** @type {string[]} */
-const mapKeys = Object.keys(trumpMap);
+const trumpMap: TrumpMappingObject = buildTrumpMap();
+const mapKeys: string[] = Object.keys(trumpMap);
 
 /**
  * Converts text in a node using Trump-style replacements
- * @param {Text} textNode - The text node to process
- * @returns {void}
  */
-function convert(textNode) {
+function convert(textNode: Text | null): void {
   if (!textNode || !textNode.nodeValue) return;
 
   // Create a temporary variable to avoid multiple DOM updates
   let replacedText = textNode.nodeValue;
 
   // Apply all replacements to the temporary variable
-  mapKeys.forEach(function (key) {
+  mapKeys.forEach((key: string) => {
     if (key in trumpMap && trumpMap[key].regex instanceof RegExp) {
       replacedText = replacedText.replace(trumpMap[key].regex, trumpMap[key].nick);
     }
@@ -76,10 +72,8 @@ function convert(textNode) {
 
 /**
  * Creates a text node with the given content for testing
- * @param {string} text - The text content for the node
- * @returns {Text} The created text node
  */
-function createTextNode(text) {
+function createTextNode(text: string): Text {
   const dom = new JSDOM('<!DOCTYPE html><p></p>');
   const textNode = dom.window.document.createTextNode(text);
   const paragraph = dom.window.document.querySelector('p');

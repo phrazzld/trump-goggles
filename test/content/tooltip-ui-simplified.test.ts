@@ -6,11 +6,12 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
 import { TooltipUI } from '../../tooltip-ui';
+import type { DOMWindow } from '../types/dom';
 
 describe('TooltipUI (Simplified)', () => {
-  let document;
-  let window;
-  let mockLogger;
+  let document: Document;
+  let window: DOMWindow;
+  let mockLogger: ReturnType<typeof createTestLogger>;
 
   beforeEach(() => {
     // Create a fresh JSDOM instance for each test
@@ -20,14 +21,14 @@ describe('TooltipUI (Simplified)', () => {
       contentType: 'text/html',
     });
 
-    window = dom.window;
+    window = dom.window as DOMWindow;
     document = window.document;
     global.document = document;
     global.window = window;
 
     // Mock the Logger
     mockLogger = createTestLogger();
-    window.Logger = mockLogger;
+    (window as any).Logger = mockLogger;
   });
 
   afterEach(() => {
@@ -47,8 +48,8 @@ describe('TooltipUI (Simplified)', () => {
       // Verify element exists in the DOM
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement.getAttribute('role')).toBe('tooltip');
-      expect(tooltipElement.getAttribute('aria-hidden')).toBe('true');
+      expect(tooltipElement!.getAttribute('role')).toBe('tooltip');
+      expect(tooltipElement!.getAttribute('aria-hidden')).toBe('true');
     });
 
     it('should set text content when setText is called', () => {
@@ -60,7 +61,7 @@ describe('TooltipUI (Simplified)', () => {
 
       // Verify text was set
       const tooltipElement = document.getElementById('tg-tooltip');
-      expect(tooltipElement.textContent).toBe('Test content');
+      expect(tooltipElement!.textContent).toBe('Test content');
     });
 
     it('should show tooltip by changing visibility styles', () => {
@@ -71,7 +72,7 @@ describe('TooltipUI (Simplified)', () => {
       TooltipUI.show();
 
       // Verify visibility
-      const tooltipElement = document.getElementById('tg-tooltip');
+      const tooltipElement = document.getElementById('tg-tooltip') as HTMLElement;
       expect(tooltipElement.style.visibility).toBe('visible');
       expect(tooltipElement.style.opacity).toBe('1');
       expect(tooltipElement.getAttribute('aria-hidden')).toBe('false');
@@ -86,7 +87,7 @@ describe('TooltipUI (Simplified)', () => {
       TooltipUI.hide();
 
       // Verify hidden
-      const tooltipElement = document.getElementById('tg-tooltip');
+      const tooltipElement = document.getElementById('tg-tooltip') as HTMLElement;
       expect(tooltipElement.style.visibility).toBe('hidden');
       expect(tooltipElement.style.opacity).toBe('0');
       expect(tooltipElement.getAttribute('aria-hidden')).toBe('true');
@@ -129,7 +130,7 @@ describe('TooltipUI (Simplified)', () => {
       TooltipUI.updatePosition(targetElement);
 
       // Verify tooltip has position styles (exact values depend on implementation)
-      const tooltipElement = document.getElementById('tg-tooltip');
+      const tooltipElement = document.getElementById('tg-tooltip') as HTMLElement;
       expect(tooltipElement.style.top).toBeTruthy();
       expect(tooltipElement.style.left).toBeTruthy();
     });

@@ -3,38 +3,36 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-
-// Define Node type constants to avoid using magic numbers
-const NODE_TYPES = {
-  ELEMENT_NODE: 1,
-  TEXT_NODE: 3,
-  DOCUMENT_NODE: 9,
-  DOCUMENT_FRAGMENT_NODE: 11,
-} as const;
-
-type NodeType = (typeof NODE_TYPES)[keyof typeof NODE_TYPES];
+import type { CreateDomFunction } from '../types/test-utils';
+import { NODE_TYPES } from '../types/dom';
 
 // Recreate the isEditableNode function for testing
-function isEditableNode(node: Node): boolean {
-  // Check if it's a text node
-  if (node.nodeType === NODE_TYPES.TEXT_NODE) {
-    // For text nodes, check the parent
-    return node.parentNode ? isEditableNode(node.parentNode) : false;
-  }
-
-  // Handle non-text nodes
-  if (!node || node.nodeType !== NODE_TYPES.ELEMENT_NODE) {
+function isEditableNode(node: Node | null): boolean {
+  if (!node) {
     return false;
   }
 
+  // Check if it's a text node
+  if (node.nodeType === NODE_TYPES.TEXT_NODE) {
+    // For text nodes, check the parent
+    return isEditableNode(node.parentNode);
+  }
+
+  // Handle non-text nodes
+  if (node.nodeType !== NODE_TYPES.ELEMENT_NODE) {
+    return false;
+  }
+
+  // Cast to Element for element-specific operations
+  const element = node as Element;
+
   // Check for common editable elements
-  const nodeName = node.nodeName.toLowerCase();
+  const nodeName = element.nodeName.toLowerCase();
   if (nodeName === 'textarea' || nodeName === 'input') {
     return true;
   }
 
   // Check for contenteditable attribute
-  const element = node as Element;
   if (
     element.getAttribute &&
     (element.getAttribute('contenteditable') === 'true' ||
@@ -44,51 +42,41 @@ function isEditableNode(node: Node): boolean {
   }
 
   // Check if any parent is editable (recursively)
-  return node.parentNode ? isEditableNode(node.parentNode) : false;
+  return element.parentNode ? isEditableNode(element.parentNode) : false;
 }
 
 // Mock the convert function for testing
-const convertMock = vi.fn();
+const convertMock = vi.fn<[Node], void>();
 
 // Recreate the walk function for testing
 function walk(node: Node): void {
-  let child: Node | null, next: Node | null;
+  let child: Node | null;
+  let next: Node | null;
 
-  // Use an object lookup instead of a switch statement to avoid TypeScript index issues
-  const handlers: Record<NodeType, () => void> = {
-    [NODE_TYPES.ELEMENT_NODE]: processElementNode,
-    [NODE_TYPES.DOCUMENT_NODE]: processElementNode,
-    [NODE_TYPES.DOCUMENT_FRAGMENT_NODE]: processElementNode,
-    [NODE_TYPES.TEXT_NODE]: processTextNode,
-  };
-
-  function processElementNode(): void {
-    child = node.firstChild;
-    while (child) {
-      next = child.nextSibling;
-      walk(child);
-      child = next;
-    }
-  }
-
-  function processTextNode(): void {
-    // Only convert if the node is not within an editable element
-    if (!isEditableNode(node)) {
-      convertMock(node);
-    }
-  }
-
-  // Call the appropriate handler for this node type
-  const handler = handlers[node.nodeType as NodeType];
-  if (handler) {
-    handler();
+  switch (node.nodeType) {
+    case NODE_TYPES.ELEMENT_NODE: // Element
+    case NODE_TYPES.DOCUMENT_NODE: // Document
+    case NODE_TYPES.DOCUMENT_FRAGMENT_NODE: // Document fragment
+      child = node.firstChild;
+      while (child) {
+        next = child.nextSibling;
+        walk(child);
+        child = next;
+      }
+      break;
+    case NODE_TYPES.TEXT_NODE: // Text node
+      // Only convert if the node is not within an editable element
+      if (!isEditableNode(node)) {
+        convertMock(node);
+      }
+      break;
   }
 }
 
 // Helper function to create DOM elements
-function createDom(html: string): Document {
+const createDom: CreateDomFunction = (html: string): Document => {
   return new JSDOM(html).window.document;
-}
+};
 
 describe('walk Function', () => {
   beforeEach(() => {
@@ -111,7 +99,9 @@ describe('walk Function', () => {
     expect(convertMock).toHaveBeenCalled();
 
     // Verify that the paragraph text nodes were processed
-    const processedValues = convertMock.mock.calls.map((call) => call[0].nodeValue.trim());
+    const processedValues = convertMock.mock.calls
+      .map((call) => (call[0] as Text).nodeValue?.trim() || '')
+      .filter(Boolean);
     expect(processedValues).toContain('First paragraph');
     expect(processedValues).toContain('Second paragraph');
   });
@@ -126,7 +116,9 @@ describe('walk Function', () => {
     walk(doc.body);
 
     // Check for the expected text content
-    const processedValues = convertMock.mock.calls.map((call) => call[0].nodeValue?.trim() || '');
+    const processedValues = convertMock.mock.calls
+      .map((call) => (call[0] as Text).nodeValue?.trim() || '')
+      .filter(Boolean);
     expect(processedValues).toContain('Outer paragraph');
     expect(processedValues).toContain('with a span');
     expect(processedValues).toContain('inside it');
@@ -141,7 +133,7 @@ describe('walk Function', () => {
 
     // Check that at least the regular paragraph was processed
     const processedValues = convertMock.mock.calls
-      .map((call) => call[0].nodeValue?.trim() || '')
+      .map((call) => (call[0] as Text).nodeValue?.trim() || '')
       .filter(Boolean);
     expect(processedValues).toContain('Regular paragraph');
 
@@ -162,7 +154,7 @@ describe('walk Function', () => {
 
     // Extract the processed values, filtering out empty strings and whitespace
     const processedValues = convertMock.mock.calls
-      .map((call) => call[0].nodeValue?.trim() || '')
+      .map((call) => (call[0] as Text).nodeValue?.trim() || '')
       .filter(Boolean);
 
     // Check that non-editable content was processed
@@ -189,7 +181,7 @@ describe('walk Function', () => {
 
     // Check if any of the calls processed a non-whitespace text node
     const nonWhitespaceNodes = convertMock.mock.calls.filter(
-      (call) => (call[0].nodeValue?.trim().length || 0) > 0
+      (call) => ((call[0] as Text).nodeValue?.trim() || '').length > 0
     );
 
     expect(nonWhitespaceNodes.length).toBe(0);
@@ -206,7 +198,7 @@ describe('walk Function', () => {
 
     // Should process the text node in the fragment
     expect(convertMock).toHaveBeenCalledTimes(1);
-    expect(convertMock.mock.calls[0][0].nodeValue).toBe('Text in fragment');
+    expect((convertMock.mock.calls[0][0] as Text).nodeValue).toBe('Text in fragment');
   });
 
   it('should handle text nodes at different levels correctly', () => {
@@ -218,7 +210,7 @@ describe('walk Function', () => {
 
     // Extract all non-empty processed values
     const processedValues = convertMock.mock.calls
-      .map((call) => call[0].nodeValue?.trim() || '')
+      .map((call) => (call[0] as Text).nodeValue?.trim() || '')
       .filter(Boolean);
 
     // Check that all expected text nodes were processed

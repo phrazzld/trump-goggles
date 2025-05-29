@@ -3,13 +3,13 @@
   "compilerOptions": {
     // Test-specific settings
     "noEmit": true,
-    
-    // Disable strict mode for tests to focus on fixing errors incrementally
+
+    // Disable strict mode temporarily - will be enabled in follow-up task
     "strict": false,
-    
-    // Relaxed settings for test files with mocks
+
+    // Relaxed settings for test files with mocks - will be tightened in follow-up task
     "noImplicitAny": false,
-    
+
     // Allow iteration of NodeList in tests
     "downlevelIteration": true,
     "strictNullChecks": false,
@@ -17,18 +17,18 @@
     "strictBindCallApply": false,
     "strictPropertyInitialization": false,
     "noImplicitThis": false,
-    
-    // Support JavaScript test files
-    "allowJs": true,
-    "checkJs": true,
-    
+
+    // Disable JavaScript support - only TypeScript test files
+    "allowJs": false,
+    "checkJs": false,
+
     // Type definition settings
     "types": ["node", "chrome", "jsdom"],
     "typeRoots": ["./node_modules/@types", "./test", "./test/types"],
-    
+
     // Skip type checking of third-party libraries
     "skipLibCheck": true
   },
-  "include": ["test/**/*.ts", "test/**/*.js", "test/**/*.tsx", "test/**/*.jsx", "test/**/*.d.ts"],
+  "include": ["test/**/*.ts", "test/**/*.tsx", "test/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

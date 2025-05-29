@@ -19,10 +19,5 @@
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": false
   },
-  "files": [
-    "tooltip-manager.ts",
-    "security-utils.ts",
-    "tooltip-browser-adapter.ts",
-    "globals.d.ts"
-  ]
+  "files": ["tooltip-manager.ts", "security-utils.ts", "tooltip-browser-adapter.ts", "globals.d.ts"]
 }

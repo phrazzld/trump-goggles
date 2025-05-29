@@ -9,13 +9,34 @@ import {
   EDGE_CASES,
   PARAGRAPH_WITH_MULTIPLE_REFERENCES,
 } from '../fixtures/text-fixtures';
+import type { TrumpMappingObject } from '../types/fixtures';
+
+// Types for the text processor module
+interface TextProcessorMetrics {
+  processedNodes: number;
+  totalReplacements: number;
+  cacheHits: number;
+  cacheMisses: number;
+  earlySkips: number;
+  processingTimeMs: number;
+}
+
+interface TextProcessorInterface {
+  processText: ReturnType<typeof vi.fn>;
+  shouldProcessText: ReturnType<typeof vi.fn>;
+  getCachedResult: ReturnType<typeof vi.fn>;
+  setCachedResult: ReturnType<typeof vi.fn>;
+  clearCache: ReturnType<typeof vi.fn>;
+  getMetrics: ReturnType<typeof vi.fn>;
+  resetMetrics: ReturnType<typeof vi.fn>;
+}
 
 // Create a mock of the text processor module
 // In a real implementation, you'd import the actual module
-const createTextProcessor = () => {
+const createTextProcessor = (): TextProcessorInterface => {
   return {
     // Mock functions with the same interface as the real module
-    processText: vi.fn((text, trumpMap, mapKeys) => {
+    processText: vi.fn((text: string, trumpMap: TrumpMappingObject, mapKeys: string[]): string => {
       if (!text || !trumpMap || !mapKeys) {
         return text;
       }
@@ -29,7 +50,7 @@ const createTextProcessor = () => {
       return processedText;
     }),
 
-    shouldProcessText: vi.fn((text) => {
+    shouldProcessText: vi.fn((text: string): boolean => {
       if (!text || text.length < 3) {
         return false;
       }
@@ -41,28 +62,30 @@ const createTextProcessor = () => {
     }),
 
     // Cache management
-    getCachedResult: vi.fn((_text) => null), // Initially empty cache
-    setCachedResult: vi.fn((_text, _result) => {}), // Using underscore prefix for intentionally unused params
-    clearCache: vi.fn(),
+    getCachedResult: vi.fn((_text: string): string | null => null), // Initially empty cache
+    setCachedResult: vi.fn((_text: string, _result: string): void => {}), // Using underscore prefix for intentionally unused params
+    clearCache: vi.fn((): void => {}),
 
     // Performance metrics
-    getMetrics: vi.fn(() => ({
-      processedNodes: 0,
-      totalReplacements: 0,
-      cacheHits: 0,
-      cacheMisses: 0,
-      earlySkips: 0,
-      processingTimeMs: 0,
-    })),
-    resetMetrics: vi.fn(),
+    getMetrics: vi.fn(
+      (): TextProcessorMetrics => ({
+        processedNodes: 0,
+        totalReplacements: 0,
+        cacheHits: 0,
+        cacheMisses: 0,
+        earlySkips: 0,
+        processingTimeMs: 0,
+      })
+    ),
+    resetMetrics: vi.fn((): void => {}),
   };
 };
 
 describe('Text Processor Module', () => {
-  let TextProcessor;
-  let trumpMap;
-  let mapKeys;
-  let document;
+  let TextProcessor: TextProcessorInterface;
+  let trumpMap: TrumpMappingObject;
+  let mapKeys: string[];
+  let document: Document;
 
   beforeEach(() => {
     // Create a fresh instance for each test
@@ -75,7 +98,7 @@ describe('Text Processor Module', () => {
     // Setup JSDOM
     const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
     document = dom.window.document;
-    global.document = document;
+    (global as any).document = document;
   });
 
   describe('Text Processing Logic', () => {
@@ -124,7 +147,9 @@ describe('Text Processor Module', () => {
 
       // Verify replacements
       expect(result).not.toBe(PARAGRAPH_WITH_MULTIPLE_REFERENCES);
-      expect(result.match(/Agent Orange/g).length).toBeGreaterThanOrEqual(4); // At least 4 replacements
+      const matches = result.match(/Agent Orange/g);
+      expect(matches).not.toBeNull();
+      expect(matches!.length).toBeGreaterThanOrEqual(4); // At least 4 replacements
       expect(result).toContain('Fake News CNN'); // Should replace CNN too
     });
   });
@@ -190,7 +215,12 @@ describe('Text Processor Module', () => {
 
     it('should process each edge case in EDGE_CASES fixture', () => {
       // Track which edge cases were modified
-      const modifications = [];
+      interface EdgeCaseModification {
+        index: number;
+        original: string;
+        modified: string;
+      }
+      const modifications: EdgeCaseModification[] = [];
 
       // Test each edge case
       EDGE_CASES.forEach((text, index) => {
@@ -212,20 +242,22 @@ describe('Text Processor Module', () => {
   describe('Caching Mechanism', () => {
     it('should check cache before processing', () => {
       // Create a modified text processor that verifies cache access
-      const cacheCheckingProcessor = {
+      const cacheCheckingProcessor: TextProcessorInterface = {
         ...TextProcessor,
-        processText: vi.fn((text, trumpMap, mapKeys) => {
-          // Call getCachedResult explicitly
-          cacheCheckingProcessor.getCachedResult(text);
+        processText: vi.fn(
+          (text: string, trumpMap: TrumpMappingObject, mapKeys: string[]): string => {
+            // Call getCachedResult explicitly
+            cacheCheckingProcessor.getCachedResult(text);
 
-          // Continue with normal processing
-          let processedText = text;
-          mapKeys.forEach((key) => {
-            trumpMap[key].regex.lastIndex = 0;
-            processedText = processedText.replace(trumpMap[key].regex, trumpMap[key].nick);
-          });
-          return processedText;
-        }),
+            // Continue with normal processing
+            let processedText = text;
+            mapKeys.forEach((key) => {
+              trumpMap[key].regex.lastIndex = 0;
+              processedText = processedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+            });
+            return processedText;
+          }
+        ),
       };
 
       // Process text
@@ -238,23 +270,25 @@ describe('Text Processor Module', () => {
 
     it('should store results in cache', () => {
       // Create a modified text processor that verifies cache storage
-      const cachingProcessor = {
+      const cachingProcessor: TextProcessorInterface = {
         ...TextProcessor,
-        processText: vi.fn((text, trumpMap, mapKeys) => {
-          // Process text
-          let processedText = text;
-          mapKeys.forEach((key) => {
-            trumpMap[key].regex.lastIndex = 0;
-            processedText = processedText.replace(trumpMap[key].regex, trumpMap[key].nick);
-          });
+        processText: vi.fn(
+          (text: string, trumpMap: TrumpMappingObject, mapKeys: string[]): string => {
+            // Process text
+            let processedText = text;
+            mapKeys.forEach((key) => {
+              trumpMap[key].regex.lastIndex = 0;
+              processedText = processedText.replace(trumpMap[key].regex, trumpMap[key].nick);
+            });
 
-          // Call setCachedResult explicitly
-          if (processedText !== text) {
-            cachingProcessor.setCachedResult(text, processedText);
+            // Call setCachedResult explicitly
+            if (processedText !== text) {
+              cachingProcessor.setCachedResult(text, processedText);
+            }
+
+            return processedText;
           }
-
-          return processedText;
-        }),
+        ),
       };
 
       // Process text

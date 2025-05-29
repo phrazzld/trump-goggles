@@ -1,7 +1,7 @@
 /**
  * Unit tests for the browser adapter module
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest';
 
 // Import the mock from our mock directory
 import {
@@ -71,7 +71,7 @@ describe('BrowserAdapter Module', () => {
       switchApiType(API_TYPES.CALLBACK);
 
       // Mock API function
-      const mockApiFunction = vi.fn((arg, callback) => {
+      const mockApiFunction = vi.fn((arg: string, callback: (result: any) => void) => {
         callback({ result: 'success', arg });
       });
 

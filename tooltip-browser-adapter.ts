@@ -100,7 +100,7 @@ function getBrowserInfo(): BrowserInfo {
   if (browserDetect) {
     return {
       browser: browserDetect.getBrowser(),
-      version: browserDetect.getVersion(),
+      version: Number(browserDetect.getVersion()) || null,
       isFirefox: browserDetect.isFirefox(),
       isChrome: browserDetect.isChrome(),
       isEdge: typeof browserDetect.isEdge === 'function' ? browserDetect.isEdge() : false,

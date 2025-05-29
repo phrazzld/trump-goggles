@@ -1,17 +1,54 @@
 /**
  * Unit tests for the MutationObserver module
  */
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type MockedFunction } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createMockMutation } from '../helpers/test-utils';
+import type { DOMWindow } from '../types/dom';
+
+interface TrumpMappingItem {
+  regex: RegExp;
+  nick: string;
+}
+
+interface TrumpMappingObject {
+  [key: string]: TrumpMappingItem;
+}
+
+interface MockMutationObserver {
+  observe: MockedFunction<any>;
+  disconnect: MockedFunction<any>;
+  takeRecords: MockedFunction<any>;
+  callback?: any;
+}
+
+interface MockDomProcessor {
+  processDOM: MockedFunction<any>;
+  isEditableNode: MockedFunction<any>;
+  isProcessedNode: MockedFunction<any>;
+}
+
+interface MutationHandlerType {
+  observer: MockMutationObserver | null;
+  isActive: boolean;
+  trumpMap: TrumpMappingObject;
+  mapKeys: string[];
+  domProcessor: MockDomProcessor;
+  textProcessor: MockedFunction<any>;
+  setupMutationObserver: MockedFunction<any>;
+  disconnectObserver: MockedFunction<any>;
+  reconnectObserver: MockedFunction<any>;
+  processMutations: MockedFunction<any>;
+  mutationHandler: MockedFunction<any>;
+}
 
 describe('MutationObserver Module', () => {
-  let document;
-  let mockDisconnect;
-  let mockObserve;
+  let document: Document;
+  let mockDisconnect: MockedFunction<any>;
+  let mockObserve: MockedFunction<any>;
 
   // Create an object that holds all the mutation handler functions and state
-  const MutationHandler = {
+  const MutationHandler: MutationHandlerType = {
     observer: null,
     isActive: false,
     trumpMap: { trump: { regex: /Trump/g, nick: 'Agent Orange' } },
@@ -28,7 +65,7 @@ describe('MutationObserver Module', () => {
     textProcessor: vi.fn(),
 
     // Mock setup function
-    setupMutationObserver: vi.fn((rootNode) => {
+    setupMutationObserver: vi.fn((rootNode: Node) => {
       if (!rootNode) {
         return null;
       }
@@ -59,13 +96,13 @@ describe('MutationObserver Module', () => {
     }),
 
     // Mock reconnect function
-    reconnectObserver: vi.fn((rootNode) => {
+    reconnectObserver: vi.fn((rootNode: Node) => {
       MutationHandler.disconnectObserver();
       return MutationHandler.setupMutationObserver(rootNode);
     }),
 
     // Mock process mutations function
-    processMutations: vi.fn((mutations) => {
+    processMutations: vi.fn((mutations: MutationRecord[]) => {
       if (!mutations || !Array.isArray(mutations)) {
         return;
       }
@@ -104,7 +141,7 @@ describe('MutationObserver Module', () => {
     }),
 
     // Mock handler function
-    mutationHandler: vi.fn((mutations, _observer) => {
+    mutationHandler: vi.fn((mutations: MutationRecord[], _observer: MutationObserver) => {
       try {
         MutationHandler.processMutations(mutations);
       } catch (error) {
@@ -119,8 +156,9 @@ describe('MutationObserver Module', () => {
       url: 'https://example.org/',
     });
     document = dom.window.document;
+    const window = dom.window as DOMWindow;
     global.document = document;
-    global.window = dom.window;
+    global.window = window;
 
     // Create mocks
     mockObserve = vi.fn();
@@ -142,7 +180,7 @@ describe('MutationObserver Module', () => {
     MutationHandler.domProcessor.isProcessedNode.mockReturnValue(false);
 
     // Setup MutationObserver
-    global.MutationObserver = vi.fn().mockImplementation((callback) => {
+    global.MutationObserver = vi.fn().mockImplementation((callback: MutationCallback) => {
       return {
         observe: mockObserve,
         disconnect: mockDisconnect,
@@ -312,7 +350,7 @@ describe('MutationObserver Module', () => {
         processMutations: vi.fn().mockImplementation(() => {
           throw new Error('Test error');
         }),
-        mutationHandler: vi.fn((mutations, _observer) => {
+        mutationHandler: vi.fn((mutations: MutationRecord[], _observer: MutationObserver) => {
           try {
             errorHandler.processMutations(mutations);
           } catch (error) {
@@ -326,7 +364,7 @@ describe('MutationObserver Module', () => {
       const mutation = createMockMutation('characterData', textNode, [], [], 'Previous text');
 
       // Call the handler with mock observer (unused, hence prefixed with _)
-      const mockObserver = { disconnect: vi.fn() };
+      const mockObserver = { disconnect: vi.fn() } as unknown as MutationObserver;
       errorHandler.mutationHandler([mutation], mockObserver);
 
       // Verify error was caught

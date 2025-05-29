@@ -2,11 +2,12 @@
  * Simplified unit tests for the TooltipManager module
  * Tests the actual module behavior
  */
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type MockedFunction } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
 import { TooltipUI } from '../../tooltip-ui';
 import { TooltipManager } from '../../tooltip-manager';
+import type { DOMWindow } from '../types/dom';
 
 // Mock TooltipUI module since TooltipManager depends on it
 vi.mock('../../tooltip-ui', () => ({
@@ -21,11 +22,35 @@ vi.mock('../../tooltip-ui', () => ({
   },
 }));
 
+interface MockedTooltipUI {
+  ensureCreated: MockedFunction<any>;
+  setText: MockedFunction<any>;
+  updatePosition: MockedFunction<any>;
+  show: MockedFunction<any>;
+  hide: MockedFunction<any>;
+  destroy: MockedFunction<any>;
+  getId: MockedFunction<any>;
+}
+
+interface MockPerformanceUtils {
+  throttle: MockedFunction<any>;
+  debounce: MockedFunction<any>;
+  Configs: {
+    input: { delay: number };
+    scroll: { delay: number };
+    keyboard: { delay: number };
+  };
+  DOMBatch: {
+    read: MockedFunction<any>;
+    write: MockedFunction<any>;
+  };
+}
+
 describe('TooltipManager (Simplified)', () => {
-  let document;
-  let window;
-  let mockLogger;
-  let mockPerformanceUtils;
+  let document: Document;
+  let window: DOMWindow;
+  let mockLogger: ReturnType<typeof createTestLogger>;
+  let mockPerformanceUtils: MockPerformanceUtils;
 
   beforeEach(() => {
     // Create a fresh JSDOM instance for each test
@@ -35,19 +60,19 @@ describe('TooltipManager (Simplified)', () => {
       contentType: 'text/html',
     });
 
-    window = dom.window;
+    window = dom.window as DOMWindow;
     document = window.document;
     global.document = document;
     global.window = window;
 
     // Mock the Logger
     mockLogger = createTestLogger();
-    window.Logger = mockLogger;
+    (window as any).Logger = mockLogger;
 
     // Mock performance utils
     mockPerformanceUtils = {
-      throttle: vi.fn((fn) => fn), // For simplicity, return the function unchanged
-      debounce: vi.fn((fn) => fn), // Add debounce function
+      throttle: vi.fn((fn: any) => fn), // For simplicity, return the function unchanged
+      debounce: vi.fn((fn: any) => fn), // Add debounce function
       Configs: {
         // Add Configs object
         input: { delay: 32 },
@@ -57,11 +82,11 @@ describe('TooltipManager (Simplified)', () => {
       // Note: DOMBatch has been removed from performance-utils.ts as part of T021
       // but we still mock it here for backward compatibility with tests
       DOMBatch: {
-        read: vi.fn((callback) => callback()),
-        write: vi.fn((callback) => callback()),
+        read: vi.fn((callback: () => void) => callback()),
+        write: vi.fn((callback: () => void) => callback()),
       },
     };
-    window.PerformanceUtils = mockPerformanceUtils;
+    (window as any).PerformanceUtils = mockPerformanceUtils;
 
     // Clear all mocks before each test
     vi.clearAllMocks();
@@ -79,7 +104,7 @@ describe('TooltipManager (Simplified)', () => {
       TooltipManager.initialize(TooltipUI);
 
       // Verify TooltipUI.ensureCreated was called
-      expect(TooltipUI.ensureCreated).toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).ensureCreated).toHaveBeenCalled();
 
       // Verify initialization was logged
       expect(mockLogger.info).toHaveBeenCalledWith('TooltipManager: Initialized successfully');
@@ -87,7 +112,7 @@ describe('TooltipManager (Simplified)', () => {
 
     it('should handle null TooltipUI instance', () => {
       // Initialize with null should throw
-      expect(() => TooltipManager.initialize(null)).toThrow('TooltipUI module is required');
+      expect(() => TooltipManager.initialize(null as any)).toThrow('TooltipUI module is required');
     });
 
     it('should prevent multiple initializations', () => {
@@ -101,7 +126,7 @@ describe('TooltipManager (Simplified)', () => {
       // Verify warning was logged
       expect(mockLogger.warn).toHaveBeenCalledWith('TooltipManager: Already initialized');
       // Verify ensureCreated was not called again
-      expect(TooltipUI.ensureCreated).not.toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).ensureCreated).not.toHaveBeenCalled();
     });
   });
 
@@ -124,9 +149,9 @@ describe('TooltipManager (Simplified)', () => {
       document.dispatchEvent(event);
 
       // Verify tooltip was shown
-      expect(TooltipUI.setText).toHaveBeenCalledWith('Obama');
-      expect(TooltipUI.updatePosition).toHaveBeenCalledWith(convertedElement);
-      expect(TooltipUI.show).toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).setText).toHaveBeenCalledWith('Obama');
+      expect((TooltipUI as MockedTooltipUI).updatePosition).toHaveBeenCalledWith(convertedElement);
+      expect((TooltipUI as MockedTooltipUI).show).toHaveBeenCalled();
     });
 
     it('should handle mouseleave to hide tooltip', () => {
@@ -135,7 +160,7 @@ describe('TooltipManager (Simplified)', () => {
       document.dispatchEvent(event);
 
       // Verify tooltip was hidden
-      expect(TooltipUI.hide).toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).hide).toHaveBeenCalled();
     });
 
     it('should handle keyboard dismissal with Escape key', () => {
@@ -144,7 +169,7 @@ describe('TooltipManager (Simplified)', () => {
       document.dispatchEvent(event);
 
       // Verify tooltip was hidden
-      expect(TooltipUI.hide).toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).hide).toHaveBeenCalled();
     });
   });
 
@@ -158,7 +183,7 @@ describe('TooltipManager (Simplified)', () => {
       TooltipManager.dispose();
 
       // Verify cleanup
-      expect(TooltipUI.destroy).toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).destroy).toHaveBeenCalled();
       expect(mockLogger.info).toHaveBeenCalledWith('TooltipManager: Disposed successfully');
     });
 
@@ -167,7 +192,7 @@ describe('TooltipManager (Simplified)', () => {
       TooltipManager.dispose();
 
       // Verify nothing happened (no error)
-      expect(TooltipUI.destroy).not.toHaveBeenCalled();
+      expect((TooltipUI as MockedTooltipUI).destroy).not.toHaveBeenCalled();
     });
   });
 });

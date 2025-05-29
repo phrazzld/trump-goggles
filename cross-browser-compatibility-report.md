@@ -93,18 +93,21 @@ The extension uses a dedicated `TooltipBrowserAdapter` module to handle browser-
 
 1. **Browser Detection**: Uses feature detection primarily, with user agent detection as fallback
 2. **Feature Support Detection**:
+
    - Checks support for high z-index values (some browsers limit maximum values)
    - Detects pointer-events CSS property support
    - Verifies CSS transitions support
    - Determines appropriate visibility change event names
 
 3. **Browser-Specific Style Adjustments**:
+
    - Firefox: Applies backface-visibility and transform properties to fix subpixel rendering issues
    - Safari: Uses vendor-prefixed properties for transforms and transitions
    - Edge: Handles legacy Edge (pre-Chromium) with MS-prefixed properties
    - Provides high contrast mode support for accessibility
 
 4. **CSS Adaptation**:
+
    - Converts CSS to be compatible with different browser engines
    - Adds Firefox-specific focus styles
    - Adds Safari-prefixed properties
@@ -184,7 +187,7 @@ No significant changes required for Edge compatibility.
 
 The project currently implements both recommended approaches:
 
-1. **Browser Detection Module**: `browser-detect.js` provides comprehensive browser and feature detection 
+1. **Browser Detection Module**: `browser-detect.js` provides comprehensive browser and feature detection
 2. **Browser Adapter Module**: `tooltip-browser-adapter.ts` handles browser-specific style and behavior adaptations
 3. **Browser API Polyfill**: `background-polyfill.js` provides compatibility between Chrome and Firefox APIs
 4. **Browser-Specific Builds**: `build-browser-extensions.sh` generates tailored versions for each browser

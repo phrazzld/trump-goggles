@@ -51,7 +51,7 @@
     "typeRoots": ["./node_modules/@types", "./test"],
     "types": ["node", "chrome", "jsdom"] // Explicitly include types
   },
-  "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx"],
+  "include": ["*.js", "*.ts", "*.tsx", "*.jsx"],
   "exclude": [
     "node_modules",
     "**/node_modules/*",
@@ -64,6 +64,9 @@
     "performance-test.js",
     "setup-performance-test.js",
     "dist/**/*",
-    "rollup.config.js"
+    "rollup.config.js",
+    "test/fixtures/**/*.js",
+    "test/e2e/**/*.js",
+    "test/mocks/**/*.js"
   ]
 }

@@ -1,27 +1,35 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
+import type { DOMWindow } from '../types/dom';
 
 // Import functions from content.js to test
 // Note: This imports may need adjustment when packaging the extension
 // We're assuming we can directly import from content.js
 
+interface TrumpMappingItem {
+  regex: RegExp;
+  nick: string;
+}
+
+interface TrumpMappingObject {
+  [key: string]: TrumpMappingItem;
+}
+
 /**
  * Creates a text node with the given content for testing
- * @param {string} text - The text content for the node
- * @returns {Text} The created text node
  */
-function createTextNode(text) {
+function createTextNode(text: string): Text {
   const dom = new JSDOM('<!DOCTYPE html><p></p>');
-  const textNode = dom.window.document.createTextNode(text);
-  dom.window.document.querySelector('p')?.appendChild(textNode);
+  const window = dom.window as DOMWindow;
+  const textNode = window.document.createTextNode(text);
+  window.document.querySelector('p')?.appendChild(textNode);
   return textNode;
 }
 
 /**
  * Create a mapping of Trump-style replacements
- * @returns {TrumpMappingObject} Object with replacement patterns
  */
-function buildTrumpMap() {
+function buildTrumpMap(): TrumpMappingObject {
   return {
     cnn: {
       regex: new RegExp('CNN', 'g'),
@@ -40,10 +48,8 @@ function buildTrumpMap() {
 
 /**
  * Converts text in a node using Trump-style replacements
- * @param {Text} textNode - The text node to process
- * @returns {void}
  */
-function convert(textNode) {
+function convert(textNode: Text): void {
   const mappings = buildTrumpMap();
   const mapKeys = Object.keys(mappings);
   mapKeys.forEach(function (key) {
@@ -57,15 +63,11 @@ describe('Content Script', () => {
   // Setup chrome mock
   beforeEach(() => {
     if (chrome?.storage?.sync?.get) {
-      /** @type {any} */
-      (chrome.storage.sync.get).mockImplementation(
-        /**
-         * Mock implementation of chrome.storage.sync.get
-         * @param {string|string[]|Record<string,any>|null} _keys - Keys to get
-         * @param {(items: Record<string,any>) => void} callback - Callback function
-         * @returns {void}
-         */
-        (_keys, callback) => {
+      (chrome.storage.sync.get as any).mockImplementation(
+        (
+          _keys: string | string[] | Record<string, any> | null,
+          callback: (items: Record<string, any>) => void
+        ) => {
           callback({});
         }
       );

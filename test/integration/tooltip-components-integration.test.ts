@@ -8,8 +8,45 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
 
+// Types for test components
+interface DOMModifierInterface {
+  CONVERTED_TEXT_WRAPPER_CLASS: string;
+  ORIGINAL_TEXT_DATA_ATTR: string;
+}
+
+interface TooltipUIInterface {
+  ensureCreated(): void;
+  setText(text: string): void;
+  updatePosition(targetElement: Element): void;
+  show(): void;
+  hide(): void;
+  destroy(): void;
+  getId(): string;
+}
+
+interface TooltipManagerInterface {
+  initialize(tooltipUI: TooltipUIInterface): void;
+  dispose(): void;
+}
+
+interface MockPerformanceUtils {
+  throttle: (fn: Function) => Function;
+  DOMBatch: {
+    read: (callback: () => void) => void;
+    write: (callback: () => void) => void;
+  };
+}
+
+interface TestLogger {
+  info: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
+  error: ReturnType<typeof vi.fn>;
+  debug: ReturnType<typeof vi.fn>;
+  protect: ReturnType<typeof vi.fn>;
+}
+
 // Create test DOM with valid URL to avoid security issues
-const setupTestDom = () => {
+const setupTestDom = (): JSDOM => {
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
     url: 'https://example.org/',
     referrer: 'https://example.com/',
@@ -17,20 +54,20 @@ const setupTestDom = () => {
   });
 
   // Setup globals
-  global.document = dom.window.document;
-  global.window = dom.window;
+  (global as any).document = dom.window.document;
+  (global as any).window = dom.window;
 
   return dom;
 };
 
 describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
-  let domModifier;
-  let tooltipManager;
-  let tooltipUI;
-  let dom;
-  let document;
-  let mockLogger;
-  let mockPerformanceUtils;
+  let domModifier: DOMModifierInterface;
+  let tooltipManager: TooltipManagerInterface;
+  let tooltipUI: TooltipUIInterface;
+  let dom: JSDOM;
+  let document: Document;
+  let mockLogger: TestLogger;
+  let mockPerformanceUtils: MockPerformanceUtils;
 
   beforeEach(() => {
     // Setup test DOM
@@ -38,23 +75,23 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
     document = dom.window.document;
 
     // Create test logger to capture logs
-    mockLogger = createTestLogger();
-    global.Logger = mockLogger;
+    mockLogger = createTestLogger() as TestLogger;
+    (global as any).Logger = mockLogger;
 
     // Mock performance utils for throttling
     mockPerformanceUtils = {
-      throttle: vi.fn((fn) => fn), // Simple pass-through mock
+      throttle: vi.fn((fn: Function) => fn), // Simple pass-through mock
       // Note: DOMBatch has been removed from performance-utils.ts as part of T021
       // but we still mock it here for backward compatibility with tests
       DOMBatch: {
-        read: vi.fn((callback) => callback()),
-        write: vi.fn((callback) => callback()),
+        read: vi.fn((callback: () => void) => callback()),
+        write: vi.fn((callback: () => void) => callback()),
       },
     };
-    global.PerformanceUtils = mockPerformanceUtils;
+    (global as any).PerformanceUtils = mockPerformanceUtils;
 
     // Mock logger.protect for simplified error handling
-    mockLogger.protect = vi.fn((fn, context, defaultValue) => {
+    mockLogger.protect = vi.fn((fn: () => any, context: string, defaultValue?: any) => {
       try {
         return fn();
       } catch (error) {
@@ -73,11 +110,11 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
 
     // TooltipUI implementation
     tooltipUI = (() => {
-      let tooltipElement = null;
+      let tooltipElement: HTMLElement | null = null;
       const TOOLTIP_ID = 'tg-tooltip';
 
       return {
-        ensureCreated: () => {
+        ensureCreated: (): void => {
           if (!tooltipElement) {
             tooltipElement = document.createElement('div');
             tooltipElement.id = TOOLTIP_ID;
@@ -90,13 +127,13 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           }
         },
 
-        setText: (text) => {
+        setText: (text: string): void => {
           if (tooltipElement) {
             tooltipElement.textContent = text;
           }
         },
 
-        updatePosition: (targetElement) => {
+        updatePosition: (targetElement: Element): void => {
           if (tooltipElement && targetElement) {
             const rect = targetElement.getBoundingClientRect();
             tooltipElement.style.top = `${rect.top - 30}px`;
@@ -104,7 +141,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           }
         },
 
-        show: () => {
+        show: (): void => {
           if (tooltipElement) {
             tooltipElement.style.visibility = 'visible';
             tooltipElement.style.opacity = '1';
@@ -112,7 +149,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           }
         },
 
-        hide: () => {
+        hide: (): void => {
           if (tooltipElement) {
             tooltipElement.style.visibility = 'hidden';
             tooltipElement.style.opacity = '0';
@@ -120,27 +157,28 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           }
         },
 
-        destroy: () => {
+        destroy: (): void => {
           if (tooltipElement && tooltipElement.parentNode) {
             tooltipElement.parentNode.removeChild(tooltipElement);
             tooltipElement = null;
           }
         },
 
-        getId: () => TOOLTIP_ID,
+        getId: (): string => TOOLTIP_ID,
       };
     })();
 
     // TooltipManager implementation
     tooltipManager = (() => {
       let isInitialized = false;
-      let tooltipUIInstance = null;
-      let showDelayTimeout = null;
-      const handleShowTooltip = (event) => {
+      let tooltipUIInstance: TooltipUIInterface | null = null;
+      let showDelayTimeout: NodeJS.Timeout | null = null;
+
+      const handleShowTooltip = (event: Event): void => {
         if (!isInitialized || !tooltipUIInstance) return;
 
         // Find converted text element
-        const target = event.target;
+        const target = event.target as Element;
         if (!target.matches || !target.matches('.' + domModifier.CONVERTED_TEXT_WRAPPER_CLASS)) {
           return;
         }
@@ -164,7 +202,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
         target.setAttribute('aria-describedby', tooltipUIInstance.getId());
       };
 
-      const handleHideTooltip = (event) => {
+      const handleHideTooltip = (event: Event): void => {
         if (!isInitialized || !tooltipUIInstance) return;
 
         // Clear timeout
@@ -174,14 +212,14 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
         }
 
         // Find converted text element
-        const target = event.target;
+        const target = event.target as Element;
         if (!target.matches || !target.matches('.' + domModifier.CONVERTED_TEXT_WRAPPER_CLASS)) {
           return;
         }
 
         // Check for mouseout to children
-        if (event.type === 'mouseout' && event.relatedTarget) {
-          if (target.contains(event.relatedTarget)) {
+        if (event.type === 'mouseout' && (event as MouseEvent).relatedTarget) {
+          if (target.contains((event as MouseEvent).relatedTarget as Node)) {
             return;
           }
         }
@@ -191,7 +229,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
         target.removeAttribute('aria-describedby');
       };
 
-      const handleKeyDown = (event) => {
+      const handleKeyDown = (event: KeyboardEvent): void => {
         if (!isInitialized || !tooltipUIInstance) return;
 
         if (event.key === 'Escape') {
@@ -199,14 +237,16 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
 
           // Remove aria-describedby from any elements
           const tooltipId = tooltipUIInstance.getId();
-          document.querySelectorAll(`[aria-describedby="${tooltipId}"]`).forEach((el) => {
-            el.removeAttribute('aria-describedby');
-          });
+          Array.from(document.querySelectorAll(`[aria-describedby="${tooltipId}"]`)).forEach(
+            (el) => {
+              el.removeAttribute('aria-describedby');
+            }
+          );
         }
       };
 
       return {
-        initialize: (tooltipUI) => {
+        initialize: (tooltipUI: TooltipUIInterface): void => {
           if (isInitialized) {
             return;
           }
@@ -219,12 +259,12 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           document.body.addEventListener('mouseout', handleHideTooltip);
           document.body.addEventListener('focusin', handleShowTooltip);
           document.body.addEventListener('focusout', handleHideTooltip);
-          document.addEventListener('keydown', handleKeyDown);
+          document.addEventListener('keydown', handleKeyDown as EventListener);
 
           isInitialized = true;
         },
 
-        dispose: () => {
+        dispose: (): void => {
           if (!isInitialized) {
             return;
           }
@@ -240,7 +280,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
           document.body.removeEventListener('mouseout', handleHideTooltip);
           document.body.removeEventListener('focusin', handleShowTooltip);
           document.body.removeEventListener('focusout', handleHideTooltip);
-          document.removeEventListener('keydown', handleKeyDown);
+          document.removeEventListener('keydown', handleKeyDown as EventListener);
 
           // Destroy tooltip
           if (tooltipUIInstance) {
@@ -262,8 +302,8 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
 
     // Clean up
     vi.resetAllMocks();
-    global.Logger = undefined;
-    global.PerformanceUtils = undefined;
+    (global as any).Logger = undefined;
+    (global as any).PerformanceUtils = undefined;
   });
 
   describe('Tooltip Interaction Flow', () => {
@@ -377,7 +417,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       tooltipManager.initialize(tooltipUI);
 
       // Create multiple converted text elements
-      const spans = [];
+      const spans: HTMLSpanElement[] = [];
       const originalTexts = ['Donald Trump', 'President Trump', 'Trump'];
       const convertedText = 'Agent Orange';
 
@@ -408,7 +448,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
         // Verify tooltip shows correct text
         const tooltipElement = document.getElementById(tooltipId);
         expect(tooltipElement).not.toBeNull();
-        expect(tooltipElement.textContent).toBe(originalTexts[i]);
+        expect(tooltipElement!.textContent).toBe(originalTexts[i]);
         expect(spans[i].getAttribute('aria-describedby')).toBe(tooltipId);
 
         // Directly hide
@@ -450,7 +490,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       expect(convertedSpans.length).toBe(2);
 
       // Step 4: Simulate interaction with the first span
-      const firstSpan = convertedSpans[0];
+      const firstSpan = convertedSpans[0] as Element;
       const mouseoverEvent = new dom.window.MouseEvent('mouseover', {
         bubbles: true,
         cancelable: true,
@@ -466,7 +506,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       const tooltipId = tooltipUI.getId();
       const tooltipElement = document.getElementById(tooltipId);
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement.textContent).toBe('Donald Trump');
+      expect(tooltipElement!.textContent).toBe('Donald Trump');
       expect(firstSpan.getAttribute('aria-describedby')).toBe(tooltipId);
     });
 
@@ -498,7 +538,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       expect(convertedSpans.length).toBe(1);
 
       // Step 6: Directly set tooltip
-      const dynamicSpan = convertedSpans[0];
+      const dynamicSpan = convertedSpans[0] as Element;
       const tooltipId = tooltipUI.getId();
       tooltipUI.setText('Donald Trump');
       tooltipUI.updatePosition(dynamicSpan);
@@ -508,7 +548,7 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       // Step 7: Verify tooltip shows original text
       const tooltipElement = document.getElementById(tooltipId);
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement.textContent).toBe('Donald Trump');
+      expect(tooltipElement!.textContent).toBe('Donald Trump');
       expect(dynamicSpan.getAttribute('aria-describedby')).toBe(tooltipId);
     });
   });
@@ -545,7 +585,9 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
       expect(mockLogger.warn).toHaveBeenCalled();
       const warningCalls = mockLogger.warn.mock.calls;
       expect(
-        warningCalls.some((call) => call[0] && call[0].includes('Missing data-original-text'))
+        warningCalls.some(
+          (call: any[]) => call[0] && call[0].includes('Missing data-original-text')
+        )
       ).toBe(true);
     });
 

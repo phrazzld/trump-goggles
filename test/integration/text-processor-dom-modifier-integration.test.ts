@@ -8,9 +8,33 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestTrumpMap, createTestLogger } from '../helpers/test-utils';
 import { PARAGRAPH_WITH_MULTIPLE_REFERENCES } from '../fixtures/text-fixtures';
+import type { TrumpMappingObject, TextSegment } from '../types/fixtures';
+
+// Types for test components
+interface TextProcessorInterface {
+  identifyConversableSegments(
+    textNodeContent: string,
+    replacementMap: TrumpMappingObject,
+    mapKeys: string[]
+  ): TextSegment[];
+}
+
+interface DOMModifierInterface {
+  CONVERTED_TEXT_WRAPPER_CLASS: string;
+  ORIGINAL_TEXT_DATA_ATTR: string;
+  processTextNodeAndWrapSegments(textNode: Text, segments: TextSegment[]): boolean;
+}
+
+interface TestLogger {
+  info: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
+  error: ReturnType<typeof vi.fn>;
+  debug: ReturnType<typeof vi.fn>;
+  protect: ReturnType<typeof vi.fn>;
+}
 
 // Create test DOM with valid URL to avoid security issues
-const setupTestDom = () => {
+const setupTestDom = (): JSDOM => {
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
     url: 'https://example.org/',
     referrer: 'https://example.com/',
@@ -18,20 +42,20 @@ const setupTestDom = () => {
   });
 
   // Setup globals
-  global.document = dom.window.document;
-  global.window = dom.window;
+  (global as any).document = dom.window.document;
+  (global as any).window = dom.window;
 
   return dom;
 };
 
 describe('TextProcessor → DOMModifier Integration', () => {
-  let textProcessor;
-  let domModifier;
-  let dom;
-  let document;
-  let mockLogger;
-  let trumpMap;
-  let mapKeys;
+  let textProcessor: TextProcessorInterface;
+  let domModifier: DOMModifierInterface;
+  let dom: JSDOM;
+  let document: Document;
+  let mockLogger: TestLogger;
+  let trumpMap: TrumpMappingObject;
+  let mapKeys: string[];
 
   beforeEach(() => {
     // Setup test DOM
@@ -39,15 +63,15 @@ describe('TextProcessor → DOMModifier Integration', () => {
     document = dom.window.document;
 
     // Create test logger to capture logs
-    mockLogger = createTestLogger();
-    global.Logger = mockLogger;
+    mockLogger = createTestLogger() as TestLogger;
+    (global as any).Logger = mockLogger;
 
     // Create test trump map for testing
     trumpMap = createTestTrumpMap();
     mapKeys = Object.keys(trumpMap);
 
     // Mock window.Logger.protect for simplified error handling
-    mockLogger.protect = vi.fn((fn, context, defaultValue) => {
+    mockLogger.protect = vi.fn((fn: () => any, context: string, defaultValue?: any) => {
       try {
         return fn();
       } catch (error) {
@@ -60,18 +84,22 @@ describe('TextProcessor → DOMModifier Integration', () => {
     // since the modules aren't properly loaded in the test environment
 
     textProcessor = {
-      identifyConversableSegments: (textNodeContent, replacementMap, mapKeys) => {
+      identifyConversableSegments: (
+        textNodeContent: string,
+        replacementMap: TrumpMappingObject,
+        mapKeys: string[]
+      ): TextSegment[] => {
         if (!textNodeContent || textNodeContent.length < 2) {
           return [];
         }
 
-        const segments = [];
+        const segments: TextSegment[] = [];
         mapKeys.forEach((key) => {
           const regex = replacementMap[key].regex;
           // Reset lastIndex
           regex.lastIndex = 0;
 
-          let match;
+          let match: RegExpExecArray | null;
           while ((match = regex.exec(textNodeContent)) !== null) {
             segments.push({
               originalText: match[0],
@@ -98,7 +126,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       CONVERTED_TEXT_WRAPPER_CLASS: 'tg-converted-text',
       ORIGINAL_TEXT_DATA_ATTR: 'data-original-text',
 
-      processTextNodeAndWrapSegments: (textNode, segments) => {
+      processTextNodeAndWrapSegments: (textNode: Text, segments: TextSegment[]): boolean => {
         // Input validation
         if (!textNode || !textNode.nodeValue || textNode.nodeType !== 3) {
           return false;
@@ -171,7 +199,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
   afterEach(() => {
     // Clean up
     vi.resetAllMocks();
-    global.Logger = undefined;
+    (global as any).Logger = undefined;
   });
 
   describe('Text Segment Identification to DOM Wrapping Flow', () => {
@@ -182,7 +210,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
 
       // Step 1: Use TextProcessor to identify segments
       const segments = textProcessor.identifyConversableSegments(
-        textNode.nodeValue,
+        textNode.nodeValue!,
         trumpMap,
         mapKeys
       );
@@ -216,7 +244,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       expect(wrapperSpans.length).toBeGreaterThan(0);
 
       // Verify each span has the correct attributes and content
-      wrapperSpans.forEach((span) => {
+      Array.from(wrapperSpans).forEach((span) => {
         expect(span.getAttribute(domModifier.ORIGINAL_TEXT_DATA_ATTR)).toBeTruthy();
         expect(span.getAttribute('tabindex')).toBe('0'); // For accessibility
         expect(span.textContent).toBeTruthy();
@@ -244,7 +272,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
 
       // Step 1: Identify segments
       const segments = textProcessor.identifyConversableSegments(
-        textNode.nodeValue,
+        textNode.nodeValue!,
         trumpMap,
         mapKeys
       );
@@ -293,7 +321,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
 
       // Step 1: Identify segments
       const segments = textProcessor.identifyConversableSegments(
-        textNode.nodeValue,
+        textNode.nodeValue!,
         trumpMap,
         mapKeys
       );
@@ -323,7 +351,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       document.body.appendChild(textNode);
 
       // Manually create segments that don't overlap
-      const segments = [
+      const segments: TextSegment[] = [
         {
           originalText: 'Donald Trump',
           convertedText: 'Agent Orange',
@@ -347,7 +375,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       expect(wrapperSpans.length).toBeGreaterThan(0);
 
       // Verify content
-      const span = wrapperSpans[0];
+      const span = wrapperSpans[0] as Element;
       expect(span.getAttribute(domModifier.ORIGINAL_TEXT_DATA_ATTR)).toBe('Donald Trump');
       expect(span.textContent).toBe('Agent Orange');
     });
@@ -359,7 +387,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
 
       // Step 1: Identify segments
       const segments = textProcessor.identifyConversableSegments(
-        textNode.nodeValue,
+        textNode.nodeValue!,
         trumpMap,
         mapKeys
       );
@@ -368,7 +396,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       expect(segments.length).toBeGreaterThan(0);
 
       // Force an error scenario for DOMModifier
-      const badSegments = [...segments];
+      const badSegments: TextSegment[] = [...segments];
       badSegments.push({
         // Invalid segment with negative index
         originalText: 'Trump',
@@ -403,12 +431,12 @@ describe('TextProcessor → DOMModifier Integration', () => {
         '<p>Donald Trump announced a new policy. Trump said it would be great.</p>';
 
       // Get the text node from the paragraph
-      const paragraph = container.querySelector('p');
-      const textNode = paragraph.firstChild;
+      const paragraph = container.querySelector('p')!;
+      const textNode = paragraph.firstChild as Text;
 
       // Step 1: Identify segments
       const segments = textProcessor.identifyConversableSegments(
-        textNode.nodeValue,
+        textNode.nodeValue!,
         trumpMap,
         mapKeys
       );
