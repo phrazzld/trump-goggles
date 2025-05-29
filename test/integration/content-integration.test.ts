@@ -6,9 +6,9 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { createTestTrumpMap, createTestDOM, countReplacements } from '../helpers/test-utils';
-import { COMPLEX_HTML, DYNAMIC_HTML } from '../fixtures/html-fixtures';
-import type { TrumpMappingObject, MockLogger } from '../types/fixtures';
+import { createTestTrumpMap } from '../helpers/test-utils';
+import { COMPLEX_HTML } from '../fixtures/html-fixtures';
+import type { TrumpMappingObject } from '../types/fixtures';
 
 // Define types for mock modules
 interface TextProcessorModule {
@@ -230,11 +230,11 @@ const createMockModules = (): MockModules => {
       return mutation.type === 'childList' && mutation.addedNodes.length > 0;
     }),
 
-    throttle: vi.fn(<T extends (...args: any[]) => any>(fn: T, delay: number): T => {
+    throttle: vi.fn().mockImplementation((fn: any, delay: number) => {
       let timeoutId: ReturnType<typeof setTimeout> | null = null;
-      let lastArgs: Parameters<T>;
+      let lastArgs: any[];
 
-      return ((...args: Parameters<T>) => {
+      return (...args: any[]) => {
         lastArgs = args;
 
         if (timeoutId !== null) {
@@ -245,7 +245,7 @@ const createMockModules = (): MockModules => {
           fn(...lastArgs);
           timeoutId = null;
         }, delay);
-      }) as T;
+      };
     }),
   };
 

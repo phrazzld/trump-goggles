@@ -2,7 +2,7 @@
  * Unit tests for the buildTrumpMap function in content.js
  */
 import { describe, it, expect } from 'vitest';
-import type { TrumpMappingObject, TrumpMapping } from '../types/fixtures';
+import type { TrumpMappingObject } from '../types/fixtures';
 
 // Import the buildTrumpMap function
 // Since we can't directly import from content.js, we recreate the function for testing

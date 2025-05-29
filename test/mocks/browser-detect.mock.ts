@@ -28,6 +28,8 @@ const FEATURES = {
   LOCAL_STORAGE: 'localStorage',
   SERVICE_WORKER: 'serviceWorker',
   SHADOW_DOM: 'shadowDom',
+  FETCH: 'fetch',
+  WEB_COMPONENTS: 'webComponents',
 };
 
 // Create a mock BrowserDetect module
@@ -55,6 +57,8 @@ const createBrowserDetectMock = (browserType = BROWSERS.CHROME, manifestVersion 
       localStorage: true,
       serviceWorker: true,
       shadowDom: true,
+      fetch: true,
+      webComponents: true,
     },
   }));
 
@@ -117,6 +121,8 @@ const switchBrowserType = (browserType: string, manifestVersion: number) => {
       localStorage: true,
       serviceWorker: true,
       shadowDom: true,
+      fetch: true,
+      webComponents: true,
     },
   }));
 };

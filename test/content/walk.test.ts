@@ -46,7 +46,7 @@ function isEditableNode(node: Node | null): boolean {
 }
 
 // Mock the convert function for testing
-const convertMock = vi.fn<[Node], void>();
+const convertMock = vi.fn((_node: Node) => void 0);
 
 // Recreate the walk function for testing
 function walk(node: Node): void {

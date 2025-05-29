@@ -4,7 +4,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach, type MockedFunction } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createMockMutation } from '../helpers/test-utils';
-import type { DOMWindow } from '../types/dom';
 
 interface TrumpMappingItem {
   regex: RegExp;
@@ -156,7 +155,7 @@ describe('MutationObserver Module', () => {
       url: 'https://example.org/',
     });
     document = dom.window.document;
-    const window = dom.window as DOMWindow;
+    const window = dom.window as unknown as Window & typeof globalThis;
     global.document = document;
     global.window = window;
 

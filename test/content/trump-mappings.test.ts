@@ -10,9 +10,6 @@ import {
   NICKNAME_TEST_CASES,
   EDGE_CASES,
   PARAGRAPH_WITH_MULTIPLE_REFERENCES,
-  TEXT_WITH_URLS,
-  LONG_TEXT,
-  generateLargeText,
 } from '../fixtures/text-fixtures';
 import type { TrumpMappingObject, TrumpMapping } from '../types/fixtures';
 
@@ -394,7 +391,7 @@ describe('Trump Mappings Integration', () => {
     it('should work with NICKNAME_TEST_CASES fixture', () => {
       const trumpMap = createMockTrumpMappings().buildTrumpMap();
 
-      NICKNAME_TEST_CASES.forEach((testCase) => {
+      NICKNAME_TEST_CASES.forEach((testCase: string) => {
         let processedText = testCase;
         Object.keys(trumpMap).forEach((key) => {
           const mapping = trumpMap[key];
@@ -411,7 +408,7 @@ describe('Trump Mappings Integration', () => {
     it('should work with EDGE_CASES fixture', () => {
       const trumpMap = createMockTrumpMappings().buildTrumpMap();
 
-      EDGE_CASES.forEach((edgeCase) => {
+      EDGE_CASES.forEach((edgeCase: string) => {
         let processedText = edgeCase;
         Object.keys(trumpMap).forEach((key) => {
           const mapping = trumpMap[key];

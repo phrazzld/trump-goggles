@@ -4,6 +4,9 @@
 
 import { DOMWindow } from 'jsdom';
 
+// Export DOMWindow for test files
+export type { DOMWindow } from 'jsdom';
+
 // JSDOM window casting helper type
 export type JSDOMWindow = DOMWindow & typeof globalThis;
 

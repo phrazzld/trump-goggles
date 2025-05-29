@@ -167,7 +167,7 @@ describe('TextProcessor.identifyConversableSegments', () => {
     });
 
     it('should find Trump references in simple text', () => {
-      SIMPLE_REFERENCES.forEach((text) => {
+      SIMPLE_REFERENCES.forEach((text: string) => {
         const result = TextProcessor.identifyConversableSegments(text, trumpMap, mapKeys);
         expect(result.length).toBeGreaterThan(0);
         expect(result[0]).toHaveProperty('originalText');
@@ -217,7 +217,7 @@ describe('TextProcessor.identifyConversableSegments', () => {
 
   describe('Edge Cases', () => {
     it('should handle edge cases without throwing errors', () => {
-      EDGE_CASES.forEach((edgeCase) => {
+      EDGE_CASES.forEach((edgeCase: string) => {
         expect(() => {
           const result = TextProcessor.identifyConversableSegments(edgeCase, trumpMap, mapKeys);
           expect(Array.isArray(result)).toBe(true);

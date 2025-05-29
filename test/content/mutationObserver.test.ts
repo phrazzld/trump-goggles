@@ -21,8 +21,7 @@ const MUTATION_TYPES = {
   CHARACTER_DATA: 'characterData',
 } as const;
 
-// MutationType is used for test record creation
-type MutationType = (typeof MUTATION_TYPES)[keyof typeof MUTATION_TYPES];
+// Mutation types are available from MUTATION_TYPES constant
 
 // Mock MutationObserver
 class MockMutationObserver implements MutationObserver {

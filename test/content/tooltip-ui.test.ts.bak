@@ -8,6 +8,7 @@ import { TooltipUI } from '../../tooltip-ui';
 
 // Types for test environment
 
+
 describe('TooltipUI', () => {
   let document: Document;
   let window: Window & typeof globalThis;
@@ -73,7 +74,7 @@ describe('TooltipUI', () => {
       expect(tooltipElement).not.toBeNull();
 
       // Verify initial styles (these may vary based on implementation)
-      const style = tooltipElement!.style!;
+      const style = tooltipElement!.style;
       expect(style.position).toBe('fixed');
       expect(style.visibility).toBe('hidden');
       expect(style.opacity).toBe('0');
@@ -169,12 +170,12 @@ describe('TooltipUI', () => {
       const tooltipElement = document.getElementById('tg-tooltip');
       // The tooltip is centered: targetLeft (100) + targetWidth/2 (25) - tooltipWidth/2 = 125 - tooltipWidth/2
       // Since we can't easily predict tooltip width in JSDOM, just verify position was set
-      expect(tooltipElement!!.style!.left).toBeTruthy();
-      expect(tooltipElement!!.style!.top).toBeTruthy();
+      expect(tooltipElement!.style.left).toBeTruthy();
+      expect(tooltipElement!.style.top).toBeTruthy();
 
       // Verify the position values are numeric pixel values
-      expect(tooltipElement!!.style!.left).toMatch(/^\d+px$/);
-      expect(tooltipElement!!.style!.top).toMatch(/^\d+px$/);
+      expect(tooltipElement!.style.left).toMatch(/^\d+px$/);
+      expect(tooltipElement!.style.top).toMatch(/^\d+px$/);
     });
 
     it('should handle null target element gracefully', () => {
@@ -208,8 +209,8 @@ describe('TooltipUI', () => {
       // Verify visibility
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!!.style!.visibility).toBe('visible');
-      expect(tooltipElement!!.style!.opacity).toBe('1');
+      expect(tooltipElement!.style.visibility).toBe('visible');
+      expect(tooltipElement!.style.opacity).toBe('1');
       expect(tooltipElement!.getAttribute('aria-hidden')).toBe('false');
     });
 
@@ -221,8 +222,8 @@ describe('TooltipUI', () => {
       // Should remain visible
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!!.style!.visibility).toBe('visible');
-      expect(tooltipElement!!.style!.opacity).toBe('1');
+      expect(tooltipElement!.style.visibility).toBe('visible');
+      expect(tooltipElement!.style.opacity).toBe('1');
       expect(tooltipElement!.getAttribute('aria-hidden')).toBe('false');
     });
   });
@@ -242,8 +243,8 @@ describe('TooltipUI', () => {
       // Verify hidden
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!!.style!.visibility).toBe('hidden');
-      expect(tooltipElement!!.style!.opacity).toBe('0');
+      expect(tooltipElement!.style.visibility).toBe('hidden');
+      expect(tooltipElement!.style.opacity).toBe('0');
       expect(tooltipElement!.getAttribute('aria-hidden')).toBe('true');
     });
 
@@ -255,8 +256,8 @@ describe('TooltipUI', () => {
       // Should remain hidden
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!!.style!.visibility).toBe('hidden');
-      expect(tooltipElement!!.style!.opacity).toBe('0');
+      expect(tooltipElement!.style.visibility).toBe('hidden');
+      expect(tooltipElement!.style.opacity).toBe('0');
       expect(tooltipElement!.getAttribute('aria-hidden')).toBe('true');
     });
   });
@@ -335,11 +336,11 @@ describe('TooltipUI', () => {
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
       expect(tooltipElement!.textContent).toBe('Donald Trump');
-      expect(tooltipElement!!.style!.visibility).toBe('visible');
+      expect(tooltipElement!.style.visibility).toBe('visible');
 
       // Hide and cleanup
       TooltipUI.hide();
-      expect(tooltipElement!!.style!.visibility).toBe('hidden');
+      expect(tooltipElement!.style.visibility).toBe('hidden');
 
       TooltipUI.destroy();
       expect(document.getElementById('tg-tooltip')).toBeNull();
@@ -354,13 +355,13 @@ describe('TooltipUI', () => {
       TooltipUI.show();
       const tooltipElement = document.getElementById('tg-tooltip');
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!!.style!.visibility).toBe('visible');
+      expect(tooltipElement!.style.visibility).toBe('visible');
 
       TooltipUI.hide();
-      expect(tooltipElement!!.style!.visibility).toBe('hidden');
+      expect(tooltipElement!.style.visibility).toBe('hidden');
 
       TooltipUI.show();
-      expect(tooltipElement!!.style!.visibility).toBe('visible');
+      expect(tooltipElement!.style.visibility).toBe('visible');
     });
   });
 });

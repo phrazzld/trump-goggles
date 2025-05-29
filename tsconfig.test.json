@@ -4,19 +4,11 @@
     // Test-specific settings
     "noEmit": true,
 
-    // Disable strict mode temporarily - will be enabled in follow-up task
-    "strict": false,
-
-    // Relaxed settings for test files with mocks - will be tightened in follow-up task
-    "noImplicitAny": false,
+    // Enable strict mode (T055)
+    "strict": true,
 
     // Allow iteration of NodeList in tests
     "downlevelIteration": true,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
 
     // Disable JavaScript support - only TypeScript test files
     "allowJs": false,

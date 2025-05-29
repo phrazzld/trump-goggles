@@ -12,9 +12,7 @@ import {
   MANIFEST,
 } from '../mocks/browser-detect.mock';
 
-// Type definitions for browser constants
-type BrowserType = keyof typeof BROWSERS;
-type ManifestVersion = keyof typeof MANIFEST;
+// Types are available from the imported mock constants
 
 describe('BrowserDetect Module', () => {
   beforeEach(() => {

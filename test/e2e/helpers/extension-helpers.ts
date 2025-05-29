@@ -1,16 +1,19 @@
 /**
  * Helper functions for working with the Trump Goggles extension in E2E tests
  */
-import { expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
+
+interface WaitOptions {
+  timeout?: number;
+}
 
 /**
  * Waits for the extension to initialize and process a page
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {Object} options - Options for waiting
- * @param {number} options.timeout - Timeout in milliseconds
- * @returns {Promise<void>}
  */
-export async function waitForExtensionInitialization(page, { timeout = 5000 } = {}) {
+export async function waitForExtensionInitialization(
+  page: Page,
+  { timeout = 5000 }: WaitOptions = {}
+): Promise<void> {
   // Wait for the extension's content script to be injected and initialize
   // This can be detected by looking for elements with the tg-converted-text class
   try {
@@ -33,25 +36,21 @@ export async function waitForExtensionInitialization(page, { timeout = 5000 } = 
 
 /**
  * Verifies that the tooltip element exists in the DOM
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @returns {Promise<void>}
  */
-export async function verifyTooltipExists(page) {
+export async function verifyTooltipExists(page: Page): Promise<void> {
   const tooltipElement = await page.$('#tg-tooltip');
   expect(tooltipElement).not.toBeNull();
 }
 
 /**
  * Checks if the tooltip is visible
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @returns {Promise<boolean>}
  */
-export async function isTooltipVisible(page) {
+export async function isTooltipVisible(page: Page): Promise<boolean> {
   const tooltipElement = await page.$('#tg-tooltip');
   if (!tooltipElement) return false;
 
   // Check if the tooltip is visible by checking its CSS visibility and opacity
-  const isVisible = await tooltipElement.evaluate((el) => {
+  const isVisible = await tooltipElement.evaluate((el: HTMLElement) => {
     const styles = window.getComputedStyle(el);
     return styles.visibility === 'visible' && styles.opacity !== '0';
   });
@@ -61,10 +60,8 @@ export async function isTooltipVisible(page) {
 
 /**
  * Gets the text content of the tooltip
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @returns {Promise<string|null>}
  */
-export async function getTooltipText(page) {
+export async function getTooltipText(page: Page): Promise<string | null> {
   const tooltipElement = await page.$('#tg-tooltip');
   if (!tooltipElement) return null;
 
@@ -73,11 +70,8 @@ export async function getTooltipText(page) {
 
 /**
  * Hovers over a converted text element
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {number} index - Index of the converted text element to hover (0-based)
- * @returns {Promise<void>}
  */
-export async function hoverConvertedText(page, index = 0) {
+export async function hoverConvertedText(page: Page, index: number = 0): Promise<void> {
   const convertedElements = await page.$$('.tg-converted-text');
   expect(convertedElements.length).toBeGreaterThan(index);
 
@@ -88,11 +82,11 @@ export async function hoverConvertedText(page, index = 0) {
 
 /**
  * Gets the original text from a converted element
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {number} index - Index of the converted text element (0-based)
- * @returns {Promise<string|null>}
  */
-export async function getOriginalTextFromElement(page, index = 0) {
+export async function getOriginalTextFromElement(
+  page: Page,
+  index: number = 0
+): Promise<string | null> {
   const convertedElements = await page.$$('.tg-converted-text');
   if (convertedElements.length <= index) return null;
 
@@ -101,11 +95,8 @@ export async function getOriginalTextFromElement(page, index = 0) {
 
 /**
  * Focuses on a converted text element using the Tab key
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {number} tabCount - Number of Tab key presses to reach the element
- * @returns {Promise<void>}
  */
-export async function focusWithTab(page, tabCount = 1) {
+export async function focusWithTab(page: Page, tabCount: number = 1): Promise<void> {
   // First focus on the body
   await page.focus('body');
 
@@ -118,10 +109,8 @@ export async function focusWithTab(page, tabCount = 1) {
 
 /**
  * Presses the Escape key
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @returns {Promise<void>}
  */
-export async function pressEscape(page) {
+export async function pressEscape(page: Page): Promise<void> {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(100);
 }

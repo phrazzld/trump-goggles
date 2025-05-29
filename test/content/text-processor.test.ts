@@ -130,7 +130,7 @@ describe('Text Processor Module', () => {
 
     it('should process each reference in SIMPLE_REFERENCES fixture', () => {
       // Test each reference in the fixture
-      SIMPLE_REFERENCES.forEach((text) => {
+      SIMPLE_REFERENCES.forEach((text: string) => {
         const result = TextProcessor.processText(text, trumpMap, mapKeys);
         expect(result).not.toBe(text); // Should be replaced
         expect(result).toContain('Agent Orange'); // Should contain the nickname
@@ -223,7 +223,7 @@ describe('Text Processor Module', () => {
       const modifications: EdgeCaseModification[] = [];
 
       // Test each edge case
-      EDGE_CASES.forEach((text, index) => {
+      EDGE_CASES.forEach((text: string, index: number) => {
         const result = TextProcessor.processText(text, trumpMap, mapKeys);
         if (result !== text) {
           modifications.push({ index, original: text, modified: result });

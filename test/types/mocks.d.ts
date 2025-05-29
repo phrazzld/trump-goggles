@@ -179,6 +179,32 @@ export interface MockLogger {
   warn: VitestMock<(message: string, data?: any) => void>;
   error: VitestMock<(message: string, data?: any) => void>;
 
+  // Configuration methods
+  configure: VitestMock<(options?: any) => any>;
+  enableDebugMode: VitestMock<() => void>;
+  disableDebugMode: VitestMock<() => void>;
+
+  // Error protection methods
+  protect: VitestMock<(fn: any, context: string, fallback?: any) => any>;
+  protectAsync: VitestMock<(fn: any, context: string, fallback?: any) => any>;
+
+  // Performance monitoring
+  time: VitestMock<
+    (operationName: string) => { stop: (status?: string, additionalData?: object) => number }
+  >;
+
+  // Statistics
+  getStats: VitestMock<() => any>;
+  resetStats: VitestMock<() => void>;
+
+  // Constants
+  LEVELS: {
+    DEBUG: string;
+    INFO: string;
+    WARN: string;
+    ERROR: string;
+  };
+
   // Test helper methods
   getMessages: () => {
     debug: Array<{ msg: string; data?: any }>;

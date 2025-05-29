@@ -1,7 +1,7 @@
 /**
  * Unit tests for the browser adapter module
  */
-import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Import the mock from our mock directory
 import {

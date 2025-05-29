@@ -8,38 +8,10 @@ import { createTestLogger } from '../helpers/test-utils';
 import { TooltipManager } from '../../tooltip-manager';
 import { TooltipUI } from '../../tooltip-ui';
 
-// Types for test environment
-interface TestLogger {
-  info: ReturnType<typeof vi.fn>;
-  warn: ReturnType<typeof vi.fn>;
-  error: ReturnType<typeof vi.fn>;
-  debug: ReturnType<typeof vi.fn>;
-  protect: ReturnType<typeof vi.fn>;
-}
-
-interface MockPerformanceUtils {
-  throttle: ReturnType<typeof vi.fn>;
-  debounce: ReturnType<typeof vi.fn>;
-  Configs: {
-    input: { delay: number };
-    scroll: { delay: number };
-    keyboard: { delay: number };
-  };
-  DOMBatch: {
-    read: ReturnType<typeof vi.fn>;
-    write: ReturnType<typeof vi.fn>;
-  };
-}
-
-declare global {
-  var Logger: TestLogger;
-  var PerformanceUtils: MockPerformanceUtils;
-}
-
 describe('TooltipManager (Actual Module)', () => {
   let document: Document;
   let window: Window & typeof globalThis;
-  let mockLogger: TestLogger;
+  let mockLogger: ReturnType<typeof createTestLogger>;
 
   beforeEach(() => {
     // Create a fresh JSDOM instance for each test
@@ -55,7 +27,7 @@ describe('TooltipManager (Actual Module)', () => {
     (global as any).window = window;
 
     // Mock the Logger
-    mockLogger = createTestLogger() as TestLogger;
+    mockLogger = createTestLogger();
     (window as any).Logger = mockLogger;
 
     // Mock performance utils

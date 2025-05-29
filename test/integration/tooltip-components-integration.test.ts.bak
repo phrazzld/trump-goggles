@@ -37,6 +37,7 @@ interface MockPerformanceUtils {
   };
 }
 
+
 // Create test DOM with valid URL to avoid security issues
 const setupTestDom = (): JSDOM => {
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
@@ -112,9 +113,9 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
             tooltipElement.id = TOOLTIP_ID;
             tooltipElement.setAttribute('role', 'tooltip');
             tooltipElement.setAttribute('aria-hidden', 'true');
-            tooltipElement!.style!.position = 'fixed';
-            tooltipElement!.style!.visibility = 'hidden';
-            tooltipElement!.style!.opacity = '0';
+            tooltipElement.style.position = 'fixed';
+            tooltipElement.style.visibility = 'hidden';
+            tooltipElement.style.opacity = '0';
             document.body.appendChild(tooltipElement);
           }
         },
@@ -128,23 +129,23 @@ describe('DOMModifier → TooltipManager → TooltipUI Integration', () => {
         updatePosition: (targetElement: Element | null): void => {
           if (tooltipElement && targetElement) {
             const rect = targetElement.getBoundingClientRect();
-            tooltipElement!.style!.top = `${rect.top - 30}px`;
-            tooltipElement!.style!.left = `${rect.left}px`;
+            tooltipElement.style.top = `${rect.top - 30}px`;
+            tooltipElement.style.left = `${rect.left}px`;
           }
         },
 
         show: (): void => {
           if (tooltipElement) {
-            tooltipElement!.style!.visibility = 'visible';
-            tooltipElement!.style!.opacity = '1';
+            tooltipElement.style.visibility = 'visible';
+            tooltipElement.style.opacity = '1';
             tooltipElement.setAttribute('aria-hidden', 'false');
           }
         },
 
         hide: (): void => {
           if (tooltipElement) {
-            tooltipElement!.style!.visibility = 'hidden';
-            tooltipElement!.style!.opacity = '0';
+            tooltipElement.style.visibility = 'hidden';
+            tooltipElement.style.opacity = '0';
             tooltipElement.setAttribute('aria-hidden', 'true');
           }
         },

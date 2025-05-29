@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import type { DOMWindow } from '../types/dom';
+import type { JSDOMWindow } from '../types/dom';
 
 // Import functions from content.js to test
 // Note: This imports may need adjustment when packaging the extension
@@ -20,7 +20,7 @@ interface TrumpMappingObject {
  */
 function createTextNode(text: string): Text {
   const dom = new JSDOM('<!DOCTYPE html><p></p>');
-  const window = dom.window as DOMWindow;
+  const window = dom.window as JSDOMWindow;
   const textNode = window.document.createTextNode(text);
   window.document.querySelector('p')?.appendChild(textNode);
   return textNode;

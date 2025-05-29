@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page, Browser } from '@playwright/test';
 import {
   waitForExtensionInitialization,
   hoverConvertedText,
@@ -9,9 +9,9 @@ import {
 } from './helpers/extension-helpers';
 
 test.describe('Trump Goggles Tooltip Basic Functionality', () => {
-  let page;
+  let page: Page;
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeEach(async ({ browser }: { browser: Browser }) => {
     // Create a new page for each test
     page = await browser.newPage();
 

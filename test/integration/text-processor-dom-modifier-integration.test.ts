@@ -25,14 +25,6 @@ interface DOMModifierInterface {
   processTextNodeAndWrapSegments(textNode: Text, segments: TextSegment[]): boolean;
 }
 
-interface TestLogger {
-  info: ReturnType<typeof vi.fn>;
-  warn: ReturnType<typeof vi.fn>;
-  error: ReturnType<typeof vi.fn>;
-  debug: ReturnType<typeof vi.fn>;
-  protect: ReturnType<typeof vi.fn>;
-}
-
 // Create test DOM with valid URL to avoid security issues
 const setupTestDom = (): JSDOM => {
   const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
@@ -53,7 +45,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
   let domModifier: DOMModifierInterface;
   let dom: JSDOM;
   let document: Document;
-  let mockLogger: TestLogger;
+  let mockLogger: ReturnType<typeof createTestLogger>;
   let trumpMap: TrumpMappingObject;
   let mapKeys: string[];
 
@@ -63,7 +55,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
     document = dom.window.document;
 
     // Create test logger to capture logs
-    mockLogger = createTestLogger() as TestLogger;
+    mockLogger = createTestLogger();
     (global as any).Logger = mockLogger;
 
     // Create test trump map for testing
@@ -154,7 +146,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
               typeof segment.startIndex !== 'number' ||
               typeof segment.endIndex !== 'number' ||
               segment.startIndex < 0 ||
-              segment.endIndex > textNode.nodeValue.length ||
+              segment.endIndex > (textNode.nodeValue?.length || 0) ||
               segment.startIndex >= segment.endIndex
             ) {
               if (mockLogger) mockLogger.warn('Invalid segment indices', { segment });
@@ -451,7 +443,7 @@ describe('TextProcessor → DOMModifier Integration', () => {
       expect(result).toBe(true);
 
       // Verify DOM structure
-      const wrapperSpans = paragraph.querySelectorAll(
+      const wrapperSpans = paragraph.querySelectorAll!(
         '.' + domModifier.CONVERTED_TEXT_WRAPPER_CLASS
       );
       expect(wrapperSpans.length).toBe(segments.length);

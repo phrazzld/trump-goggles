@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page, Browser } from '@playwright/test';
 import {
   waitForExtensionInitialization,
   isTooltipVisible,
@@ -9,9 +9,9 @@ import {
 } from './helpers/extension-helpers';
 
 test.describe('Trump Goggles Tooltip Keyboard Navigation', () => {
-  let page;
+  let page: Page;
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeEach(async ({ browser }: { browser: Browser }) => {
     // Create a new page for each test
     page = await browser.newPage();
 
@@ -106,7 +106,7 @@ test.describe('Trump Goggles Tooltip Keyboard Navigation', () => {
       if (isFocusedElementConverted) {
         // Get the original text from the focused element
         const originalText = await page.evaluate(() => {
-          const activeElement = document.activeElement;
+          const activeElement = document.activeElement as HTMLElement;
           return activeElement.getAttribute('data-original-text');
         });
 

@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
 import { TooltipUI } from '../../tooltip-ui';
+import type { JSDOMWindow } from '../types/dom';
 
 describe('TooltipUI (Simplified)', () => {
   let document: Document;
@@ -131,10 +132,10 @@ describe('TooltipUI (Simplified)', () => {
       TooltipUI.updatePosition(targetElement);
 
       // Verify tooltip has position styles (exact values depend on implementation)
-      const tooltipElement = document.getElementById('tg-tooltip');
+      const tooltipElement = document.getElementById('tg-tooltip') as HTMLElement;
       expect(tooltipElement).not.toBeNull();
-      expect(tooltipElement!.style!.top).toBeTruthy();
-      expect(tooltipElement!.style!.left).toBeTruthy();
+      expect(tooltipElement!.style.top).toBeTruthy();
+      expect(tooltipElement!.style.left).toBeTruthy();
     });
   });
 
@@ -144,7 +145,7 @@ describe('TooltipUI (Simplified)', () => {
       TooltipUI.ensureCreated();
 
       // Update position with null target (should not throw)
-      expect(() => TooltipUI.updatePosition(null as unknown as HTMLElement)).not.toThrow();
+      expect(() => TooltipUI.updatePosition(null as any)).not.toThrow();
 
       // Verify warning was logged
       expect(mockLogger.warn).toHaveBeenCalled();
