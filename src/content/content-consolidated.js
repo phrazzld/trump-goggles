@@ -10,8 +10,8 @@
 
 // Import ES Modules
 import { DOMModifier } from './dom-modifier';
-import { TooltipUI } from './tooltip-ui';
-import { TooltipManager } from './tooltip-manager';
+import { TooltipUI } from '../components/tooltip-ui';
+import { TooltipManager } from '../components/tooltip-manager';
 
 // TrumpGoggles module pattern - provides a self-contained module with proper encapsulation
 const TrumpGoggles = (function () {

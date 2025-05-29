@@ -15,9 +15,9 @@
 'use strict';
 
 // Include the reference to types for editor tooling
-/// <reference path="./types.d.ts" />
+/// <reference path="../types/types.d.ts" />
 // Import dependencies properly instead of using global window properties
-import { escapeHTML } from './security-utils';
+import { escapeHTML } from '../utils/security-utils';
 
 // Define interfaces for strict type checking
 interface TooltipUIInterface {

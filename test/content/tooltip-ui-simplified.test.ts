@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
-import { TooltipUI } from '../../tooltip-ui';
+import { TooltipUI } from '../../src/components/tooltip-ui';
 
 describe('TooltipUI (Simplified)', () => {
   let document: Document;

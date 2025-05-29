@@ -5,11 +5,11 @@
 import { describe, it, expect, beforeEach, vi, afterEach, type MockedFunction } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTestLogger } from '../helpers/test-utils';
-import { TooltipUI } from '../../tooltip-ui';
-import { TooltipManager } from '../../tooltip-manager';
+import { TooltipUI } from '../../src/components/tooltip-ui';
+import { TooltipManager } from '../../src/components/tooltip-manager';
 
 // Mock TooltipUI module since TooltipManager depends on it
-vi.mock('../../tooltip-ui', () => ({
+vi.mock('../../src/components/tooltip-ui', () => ({
   TooltipUI: {
     ensureCreated: vi.fn(),
     setText: vi.fn(),

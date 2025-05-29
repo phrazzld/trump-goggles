@@ -2,7 +2,7 @@
  * Unit tests for security-utils.ts
  */
 import { describe, it, expect } from 'vitest';
-import { escapeHTML } from '../security-utils';
+import { escapeHTML } from '../src/utils/security-utils';
 
 describe('SecurityUtils', () => {
   describe('escapeHTML', () => {

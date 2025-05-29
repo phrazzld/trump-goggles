@@ -9,7 +9,7 @@
  * @version 1.0.0
  */
 
-/// <reference path="./types.d.ts" />
+/// <reference path="../types/types.d.ts" />
 
 'use strict';
 

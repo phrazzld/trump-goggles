@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { DOMModifier } from '../../dom-modifier';
+import { DOMModifier } from '../../src/content/dom-modifier';
 
 describe('DOMModifier', () => {
   let document: Document;

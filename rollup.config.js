@@ -62,8 +62,8 @@ const createConfig = (input, outputName) => ({
 
 // Export array of configs with shared copy plugin
 export default [
-  createConfig('content-consolidated.js', 'content'),
-  createConfig('background-combined.js', 'background'),
+  createConfig('src/content/content-consolidated.js', 'content'),
+  createConfig('src/background/background-combined.js', 'background'),
 ].map((config, index) => {
   // Only add copy plugin to first config to avoid duplicates
   if (index === 0 && config.plugins) {
@@ -71,9 +71,9 @@ export default [
     config.plugins.push(
       copy({
         targets: [
-          { src: 'manifest.json', dest: 'dist' },
+          { src: 'extension/manifest.json', dest: 'dist' },
           { src: 'images/*', dest: 'dist/images' },
-          { src: '*.html', dest: 'dist' },
+          { src: 'extension/*.html', dest: 'dist' },
         ],
         hook: 'writeBundle', // Copy after bundle is written
       })
