@@ -1,6 +1,6 @@
 {
   "name": "trump-goggles",
-  "version": "2.0.0",
+  "version": "0.3.0",
   "description": "See the world like Trump does - Chrome Extension",
   "scripts": {
     "preinstall": "node scripts/enforce-pnpm.js",
