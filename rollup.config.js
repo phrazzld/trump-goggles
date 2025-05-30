@@ -74,6 +74,26 @@ export default [
           { src: 'extension/manifest.json', dest: 'dist' },
           { src: 'images/*', dest: 'dist/images' },
           { src: 'extension/*.html', dest: 'dist' },
+          // Copy all dependency modules
+          { src: 'src/content/content-debug.js', dest: 'dist' },
+          { src: 'src/utils/logger.js', dest: 'dist' },
+          { src: 'src/utils/error-handler.js', dest: 'dist' },
+          { src: 'src/utils/browser-detect.js', dest: 'dist' },
+          { src: 'src/utils/browser-adapter.js', dest: 'dist' },
+          { src: 'src/utils/performance-utils.ts', dest: 'dist', rename: 'performance-utils.js' },
+          { src: 'src/utils/security-utils.ts', dest: 'dist', rename: 'security-utils.js' },
+          { src: 'src/data/trump-mappings.js', dest: 'dist' },
+          { src: 'src/content/dom-processor.js', dest: 'dist' },
+          { src: 'src/content/text-processor.js', dest: 'dist' },
+          { src: 'src/content/mutation-observer.js', dest: 'dist' },
+          { src: 'src/content/dom-modifier.ts', dest: 'dist', rename: 'dom-modifier.js' },
+          {
+            src: 'src/components/tooltip-browser-adapter.ts',
+            dest: 'dist',
+            rename: 'tooltip-browser-adapter.js',
+          },
+          { src: 'src/components/tooltip-ui.ts', dest: 'dist', rename: 'tooltip-ui.js' },
+          { src: 'src/components/tooltip-manager.ts', dest: 'dist', rename: 'tooltip-manager.js' },
         ],
         hook: 'writeBundle', // Copy after bundle is written
       })
