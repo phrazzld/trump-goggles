@@ -3,7 +3,7 @@
   "name": "Trump Goggles",
   "short_name": "trumpgoggles",
   "description": "See the world like Trump does.",
-  "version": "0.3.0",
+  "version": "18.5.0",
 
   "browser_action": {
     "default_title": "Trump Goggles",
