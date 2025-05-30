@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Test-specific settings
+    "noEmit": true,
+
+    // Enable strict mode (T055)
+    "strict": true,
+
+    // Allow iteration of NodeList in tests
+    "downlevelIteration": true,
+
+    // Disable JavaScript support - only TypeScript test files
+    "allowJs": false,
+    "checkJs": false,
+
+    // Type definition settings
+    "types": ["node", "chrome", "jsdom"],
+    "typeRoots": ["./node_modules/@types", "./test", "./test/types"],
+
+    // Skip type checking of third-party libraries
+    "skipLibCheck": true
+  },
+  "include": ["test/**/*.ts", "test/**/*.tsx", "test/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

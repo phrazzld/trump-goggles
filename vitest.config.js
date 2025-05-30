@@ -1,11 +1,11 @@
 import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./test/setup.js'],
-    include: ['test/**/*.test.js'],
+    setupFiles: ['./test/setup.ts'],
+    include: ['test/**/*.test.js', 'test/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
@@ -19,4 +19,12 @@ export default defineConfig({
       },
     },
   },
-});
+  resolve: {
+    extensions: ['.ts', '.js', '.json'],
+  },
+  esbuild: {
+    // ESBuild for TypeScript transpilation
+    target: mode === 'test' ? 'node16' : 'esnext',
+    format: 'esm',
+  },
+}));

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trump Goggles Tooltip Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      p {
+        margin-bottom: 20px;
+      }
+      .test-section {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Trump Goggles Tooltip Test Page</h1>
+
+    <div class="test-section" id="static-text-section">
+      <h2>Static Text Test</h2>
+      <p>This paragraph contains words that should be converted, like Trump and Donald Trump.</p>
+      <p>Another paragraph with more instances of Trump and the full name Donald J. Trump.</p>
+      <p>This paragraph does not contain any words that should be converted.</p>
+    </div>
+
+    <div class="test-section" id="keyboard-navigation-section">
+      <h2>Keyboard Navigation Test</h2>
+      <p>
+        <a href="#" tabindex="1">This is a focusable link</a> followed by text with Trump which
+        should be converted and made focusable.
+        <span tabindex="2">This is another focusable element</span> followed by more instances of
+        Donald Trump which should also be converted and made focusable.
+      </p>
+    </div>
+
+    <div class="test-section" id="dynamic-content-section">
+      <h2>Dynamic Content Test</h2>
+      <div id="dynamic-content-container">
+        <!-- Content will be added here dynamically -->
+      </div>
+      <button id="add-content-btn">Add Content with Trump References</button>
+    </div>
+
+    <script>
+      // Script for adding dynamic content
+      document.getElementById('add-content-btn').addEventListener('click', function () {
+        const container = document.getElementById('dynamic-content-container');
+        const newParagraph = document.createElement('p');
+        newParagraph.textContent =
+          'This is dynamically added content that mentions Trump and Donald J. Trump.';
+        container.appendChild(newParagraph);
+      });
+    </script>
+  </body>
+</html>

@@ -7,6 +7,7 @@ export default [
       'node_modules/**',
       'coverage/**',
       '.vitest/**',
+      'dist/**',
       // Temporarily ignore existing files while we focus on testing
       'content.js',
       'background.js',

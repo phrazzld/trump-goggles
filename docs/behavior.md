@@ -43,6 +43,14 @@ Currently, the extension does not have configurable options. Clicking the extens
 - Social media posts and comments (on compatible sites)
 - Dynamic content loaded after the page initially loads
 
+### Tooltips for Original Text
+
+- Converted text appears with a subtle visual indicator (underline on focus)
+- **Hover Interaction**: When hovering over converted text, a tooltip appears showing the original text
+- **Keyboard Navigation**: Converted text can be focused using the Tab key, which also shows the tooltip
+- **Dismissal**: Tooltips automatically disappear when the mouse moves away or focus changes
+- **Escape Key**: Pressing the Escape key while a tooltip is visible will dismiss it
+
 ### What Doesn't Get Replaced
 
 - Text in form inputs, textareas, and editable fields
@@ -75,6 +83,8 @@ On most websites, you should not notice any performance degradation. However, on
 - **Case Sensitivity**: While the extension tries to preserve case, it may not always match the original text capitalization
 - **Dynamic Content**: Some web applications using complex JavaScript frameworks might load content in ways that bypass detection
 - **Browser Compatibility**: Some features might work differently across Chrome, Firefox, and Edge
+- **Tooltip Positioning**: In some cases, tooltips might be positioned suboptimally when very close to screen edges
+- **Focus Order**: The tab order may not always follow the natural reading order due to how converted text is detected
 
 ### Content Limitations
 
@@ -98,7 +108,13 @@ On most websites, you should not notice any performance degradation. However, on
    - Try refreshing the page to reprocess all content
    - Some dynamic content might load outside the extension's processing scope
 
-3. **Page Performance Issues**
+3. **Tooltip Issues**
+
+   - If tooltips don't appear when hovering, try refreshing the page to reinitialize tooltip functionality
+   - In rare cases, tooltips may be hidden by other page elements with high z-index values
+   - Some sites with custom mouseover behavior might interfere with tooltip functionality
+
+4. **Page Performance Issues**
    - On very large pages, try scrolling slowly to allow processing to keep up
    - The extension might have more impact on older computers or browsers
 
@@ -132,6 +148,17 @@ Trump Goggles respects your privacy:
 - All processing happens locally in your browser
 - No analytics or tracking is implemented
 - No external services are contacted
+
+## Accessibility
+
+The extension offers several accessibility features to ensure all users can access both the converted text and the original text:
+
+- **Keyboard Navigation**: All converted text spans are focusable with the Tab key
+- **Tooltip ARIA Support**: Tooltips use proper ARIA roles and attributes (`role="tooltip"`, `aria-hidden`, `aria-describedby`)
+- **Screen Reader Support**: Original text is available to screen readers via proper ARIA relationships
+- **High Contrast Support**: Tooltip styling accounts for high contrast mode
+- **Escape Key Dismissal**: Keyboard users can dismiss tooltips with the Escape key
+- **Programmatic Focus**: Focus styling makes it clear which element is currently focused
 
 ## Compatibility
 

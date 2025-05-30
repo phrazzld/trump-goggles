@@ -35,19 +35,35 @@ Each module is designed as a self-contained unit with a clear responsibility:
 
 ┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
 │                     │     │                     │     │                     │
-│     DOM Processor   │────▶│   Text Processor    │────▶│   Trump Mappings    │
+│     DOM Modifier    │────▶│   Text Processor    │────▶│   Trump Mappings    │
 │                     │     │                     │     │                     │
 └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
    Traverses the DOM         Handles text               Provides replacement
-   and finds text nodes      replacement logic          patterns and nicknames
+   and wraps text segments   replacement logic          patterns and nicknames
 
-┌─────────────────────┐     ┌─────────────────────┐
-│                     │     │                     │
-│  Mutation Observer  │     │      Logger         │
-│                     │     │                     │
-└─────────────────────┘     └─────────────────────┘
- Watches for DOM changes     Provides logging and
- and processes new content   diagnostics
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│                     │     │                     │     │                     │
+│  Tooltip Manager    │────▶│    Tooltip UI       │────▶│  Tooltip Browser    │
+│                     │     │                     │     │      Adapter         │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+ Manages tooltip events      Handles tooltip UI         Provides cross-browser
+ and user interactions       creation and positioning   compatibility for tooltips
+
+┌─────────────────────┐
+│                     │
+│      Logger         │
+│                     │
+└─────────────────────┘
+ Provides logging and
+ diagnostics
+
+┌─────────────────────┐
+│                     │
+│  Mutation Observer  │
+│                     │
+└─────────────────────┘
+ Watches for DOM changes
+ and processes new content
 ```
 
 ## Module Responsibilities
@@ -80,12 +96,13 @@ Each module is designed as a self-contained unit with a clear responsibility:
 - Handles differences between callback and promise-based APIs
 - Provides methods for common browser extension operations
 
-#### DOM Processor
+#### DOM Modifier
 
 - Traverses the DOM efficiently
 - Identifies text nodes for processing
-- Skips interactive elements and special content
-- Processes DOM in chunks to avoid UI freezing
+- Wraps converted text segments in spans with appropriate attributes
+- Sets data-original-text attributes for tooltips
+- Makes text focusable (tabindex=0) for accessibility
 
 #### Text Processor
 
@@ -119,24 +136,59 @@ Each module is designed as a self-contained unit with a clear responsibility:
 - Diagnostic information for debugging
 - Performance monitoring
 
+#### TooltipManager
+
+- Initializes tooltip functionality
+- Manages event delegation for mouseover/mouseout and focus/blur events
+- Shows and hides tooltips based on user interactions
+- Implements keyboard accessibility (Escape key dismissal)
+- Manages ARIA attributes for accessibility
+
+#### TooltipUI
+
+- Creates and manages the tooltip DOM element
+- Handles tooltip positioning and collision detection
+- Manages tooltip text content with XSS protection
+- Provides smooth transitions for tooltip appearance
+- Controls tooltip visibility and ARIA attributes
+
+#### TooltipBrowserAdapter
+
+- Provides cross-browser compatibility for tooltip functionality
+- Detects browser-specific features and capabilities
+- Applies appropriate browser-specific styles and workarounds
+- Handles browser differences in event handling
+- Ensures consistent tooltip appearance and behavior across browsers
+
 ## Data Flow
 
 1. **Initialization**:
 
    - Content script loads when a page is visited
    - Core modules are initialized
-   - DOM processor and MutationObserver are set up
+   - DOM Modifier, TooltipManager, TooltipUI, and MutationObserver are set up
 
 2. **Initial Processing**:
 
-   - DOM processor traverses the page
-   - Text nodes are identified and processed
-   - Text replacements are applied
+   - DOM content is traversed
+   - TextProcessor identifies segments to convert
+   - DOM Modifier wraps converted segments in spans
+   - TooltipManager sets up event listeners for tooltips
 
 3. **Ongoing Processing**:
+
    - MutationObserver watches for DOM changes
    - New content is processed as it appears
-   - Text replacements are applied to new content
+   - Text replacements and DOM modifications apply to new content
+
+4. **Tooltip Interaction Flow**:
+   - User hovers over or focuses on converted text
+   - TooltipManager detects interaction and retrieves original text
+   - TooltipUI updates tooltip content and position
+   - TooltipBrowserAdapter applies browser-specific optimizations
+   - Tooltip becomes visible with original text
+   - When user moves away, tooltip is hidden
+   - Browser-specific events (like page visibility changes) are properly handled
 
 ## Design Decisions
 
@@ -177,6 +229,8 @@ The extension supports multiple browsers through:
 - API abstraction layer
 - Feature detection and fallbacks
 - Manifest version handling
+- Tooltip browser adapter for consistent UI behavior
+- Browser-specific style and event handling
 
 ## Conclusion
 

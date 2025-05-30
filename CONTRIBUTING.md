@@ -205,7 +205,7 @@ Before pushing your changes, it's recommended to run the local CI verification s
 # Either run the script directly
 ./verify-ci.sh
 
-# Or use the npm script
+# Or use the pnpm script
 pnpm verify
 ```
 

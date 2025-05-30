@@ -13,23 +13,20 @@ mkdir -p "$CHROME_DIR"
 mkdir -p "$FIREFOX_DIR"
 
 echo "=== Building Chrome extension package ==="
-# Copy all files for Chrome
-cp -r *.js *.html *.json images "$CHROME_DIR"
-# Remove Firefox-specific files
+# First run rollup build
+pnpm run build:prod
+# Copy built files for Chrome
+cp -r dist/* "$CHROME_DIR"
+# Remove Firefox-specific files if any
 rm -f "$CHROME_DIR/background-firefox.js" "$CHROME_DIR/manifest-firefox.json"
-# Ensure the correct manifest is used
-mv "$CHROME_DIR/manifest.json" "$CHROME_DIR/manifest.json.bak"
-jq '.background.service_worker = "background-cross-browser.js"' "$CHROME_DIR/manifest.json.bak" > "$CHROME_DIR/manifest.json"
-rm "$CHROME_DIR/manifest.json.bak"
 
 echo "=== Building Firefox extension package ==="
-# Copy all files for Firefox
-cp -r *.js *.html *.json images "$FIREFOX_DIR"
-# Remove Chrome-specific files
-rm -f "$FIREFOX_DIR/background.js"
-# Ensure the correct manifest is used
-cp "$FIREFOX_DIR/manifest-firefox.json" "$FIREFOX_DIR/manifest.json"
-rm "$FIREFOX_DIR/manifest-firefox.json"
+# Copy built files for Firefox
+cp -r dist/* "$FIREFOX_DIR"
+# Use Firefox-specific manifest
+cp extension/manifest-firefox.json "$FIREFOX_DIR/manifest.json"
+# Update background script reference for Firefox
+sed -i '' 's/background.js/background-firefox.js/g' "$FIREFOX_DIR/manifest.json"
 
 echo "=== Creating browser-specific zip packages ==="
 # Create zip archives for each browser
