@@ -3,6 +3,146 @@
 - redesign and style up the popup -- or kill it, since it doesn't really do anything
 - bigly
 
+## CRITICAL ISSUES (From Code Review)
+
+### [SECURITY-XSS] BLOCKER: Potential XSS via Unescaped Data in Logs
+- **Type**: Security/Blocker
+- **Location**: `src/components/tooltip-manager.ts` and other logging sites
+- **Issue**: `originalText` from arbitrary web pages may contain HTML/script tags. If logged and viewed in systems that render HTML, could lead to XSS
+- **Violation**: DEVELOPMENT_PHILOSOPHY.md > Security Considerations > Logging Strategy
+- **Fix**: Mandate that ALL untrusted data is passed through `escapeHTML` before logging
+- **Severity**: blocker
+
+### [TS-ANY] BLOCKER: Widespread Use of `any` and Implicit `any`
+- **Type**: TypeScript/Blocker
+- **Location**: Throughout `.ts` files (event handlers, mocks, test helpers)
+- **Issue**: Pervasive use of `any` negates TypeScript benefits, hides runtime errors
+- **Violation**: DEVELOPMENT_PHILOSOPHY_APPENDIX_TYPESCRIPT.md > "`any` is FORBIDDEN"
+- **Fix**: Replace ALL instances of `any` with explicit interfaces and types
+- **Severity**: blocker
+
+### [ARCH-GLOBALS] BLOCKER: Excessive Global State via `window.*`
+- **Type**: Architecture/Blocker
+- **Location**: Multiple files accessing `window.Logger`, `window.DOMProcessor`, etc.
+- **Issue**: Modules not independent, hidden coupling, difficult testing, prevents tree-shaking
+- **Violation**: DEVELOPMENT_PHILOSOPHY.md > Modularity is Mandatory
+- **Fix**: Refactor to use ES Module imports, remove `window.*` assignments
+- **Severity**: blocker
+
+### [LOG-CONSOLE] BLOCKER: Direct Use of `console.*` for Logging
+- **Type**: Logging/Blocker
+- **Location**: `src/utils/logger.js`, background/content scripts
+- **Issue**: Unstructured logs, prevents aggregation/analysis
+- **Violation**: DEVELOPMENT_PHILOSOPHY.md > "`console.log` FORBIDDEN for operational logging"
+- **Fix**: Refactor Logger to produce structured JSON logs with mandatory context
+- **Severity**: blocker
+
+### [TEST-MOCKS] BLOCKER: Over-Mocking Internal Collaborators
+- **Type**: Testing/Blocker
+- **Location**: `test/mocks/`, integration tests
+- **Issue**: Tests mock internal logic instead of testing actual integration
+- **Violation**: DEVELOPMENT_PHILOSOPHY.md > "NO Mocking Internal Collaborators"
+- **Fix**: Remove mocks for internal modules, test actual interactions
+- **Severity**: blocker
+
+## HIGH PRIORITY ISSUES (From Code Review)
+
+### [TS-CONFIG] HIGH: Inconsistent TypeScript Configuration for Tests
+- **Type**: TypeScript/High
+- **Location**: `tsconfig.json`, `tsconfig.test.json`
+- **Issue**: `skipLibCheck: true` and permissive types might mask issues
+- **Fix**: Align test config with production config for strictness
+- **Severity**: high
+
+### [DATA-IMMUTABLE] HIGH: Core Mappings are Mutable
+- **Type**: Data Integrity/High
+- **Location**: `src/data/trump-mappings.js`
+- **Issue**: `trumpMap` object is mutable, could lead to runtime bugs
+- **Violation**: DEVELOPMENT_PHILOSOPHY.md > Default to Immutability
+- **Fix**: Deep-freeze `trumpMap` or use `readonly` types
+- **Severity**: high
+
+### [A11Y-VERIFY] HIGH: ARIA and Keyboard Navigation Needs Verification
+- **Type**: Accessibility/High
+- **Location**: `src/components/tooltip-ui.ts`, `src/components/tooltip-manager.ts`
+- **Issue**: ARIA implementation needs robust verification against WAI-ARIA practices
+- **Fix**: Thorough ARIA review, automated accessibility tests with axe-core
+- **Severity**: high
+
+### [ERROR-INCONSISTENT] HIGH: Inconsistent Error Handling and Logging
+- **Type**: Error Handling/High
+- **Location**: Various catch blocks, `src/utils/error-handler.js`
+- **Issue**: Non-uniform error handling patterns, inconsistent logging
+- **Fix**: Standardize error handling via structured Logger
+- **Severity**: high
+
+### [BUILD-HOOKS] HIGH: Pre-push Hook is Insufficient
+- **Type**: Build/High
+- **Location**: `.husky/pre-push`
+- **Issue**: Only checks for npm/yarn commands, doesn't run linters/type checks
+- **Fix**: Enhance pre-push hook to run `pnpm lint` and `pnpm typecheck`
+- **Severity**: high
+
+## MEDIUM PRIORITY ISSUES (From Code Review)
+
+### [CODE-MONOLITHIC] MEDIUM: Monolithic Functions in Content Script
+- **Type**: Code Quality/Medium
+- **Location**: `src/content/content-consolidated.js`
+- **Issue**: Large functions with multiple responsibilities
+- **Fix**: Refactor into smaller, focused functions
+- **Severity**: medium
+
+### [NAMING-VERBOSE] MEDIUM: Unclear or Verbose Naming Conventions
+- **Type**: Code Quality/Medium
+- **Location**: `src/content/dom-modifier.ts`, various files
+- **Issue**: Names like `processTextNodeAndWrapSegments` are overly verbose
+- **Fix**: Review and refactor names to be concise yet descriptive
+- **Severity**: medium
+
+### [TS-ORGANIZATION] MEDIUM: Inconsistent Type Definitions and Organization
+- **Type**: TypeScript/Medium
+- **Location**: `src/types/`, multiple `.d.ts` files
+- **Issue**: Type definitions spread across files, sometimes duplicated
+- **Fix**: Consolidate shared types, create `src/types/index.ts`
+- **Severity**: medium
+
+### [TEST-REDUNDANT] MEDIUM: Redundant Test Setup and Patterns
+- **Type**: Testing/Medium
+- **Location**: Various test files
+- **Issue**: Tests re-implement core logic instead of importing modules
+- **Fix**: Refactor tests to import actual modules, create shared test utilities
+- **Severity**: medium
+
+## LOW PRIORITY ISSUES (From Code Review)
+
+### [DOC-VERBOSE] LOW: Verbose Comments Describing Obvious Mechanics
+- **Type**: Documentation/Low
+- **Location**: `src/components/tooltip-ui.ts`, `src/components/tooltip-manager.ts`
+- **Issue**: Comments restate what code does instead of why
+- **Fix**: Focus comments on why decisions were made
+- **Severity**: low
+
+### [TS-ASSERTIONS] LOW: Superfluous Type Assertions in Tests
+- **Type**: TypeScript/Low
+- **Location**: Test files with `as any` usage
+- **Issue**: Type assertions can hide test setup issues
+- **Fix**: Define precise types for mock signatures and test data
+- **Severity**: low
+
+### [WORKFLOW-REDUNDANT] LOW: Potential Script Redundancy
+- **Type**: Workflow/Low
+- **Location**: Multiple package manager enforcement mechanisms
+- **Issue**: Possible redundancy between different enforcement scripts
+- **Fix**: Clarify roles of different enforcement mechanisms
+- **Severity**: low
+
+### [NAMING-FILES] LOW: Inconsistent File Naming for TypeScript Files
+- **Type**: Naming/Low
+- **Location**: `src/utils/` files
+- **Issue**: Inconsistent singular vs plural naming
+- **Fix**: Standardize on either singular or plural for utility modules
+- **Severity**: low
+
 ## High Priority
 
 ### Core User Features & Accessibility
