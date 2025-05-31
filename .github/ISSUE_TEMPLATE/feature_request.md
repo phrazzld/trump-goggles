@@ -1,39 +1,22 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: '[FEATURE] '
-labels: enhancement
+about: Suggest a new feature or enhancement
+title: ''
+labels: type:feature
 assignees: ''
 ---
 
 ## Feature Description
+[Brief description of the feature]
 
-<!-- A clear and concise description of the feature you're requesting -->
+## Acceptance Criteria
+- [ ] Criteria 1
+- [ ] Criteria 2
+- [ ] Criteria 3
 
-## Problem Statement
+## Technical Considerations
+[Any technical details, architecture decisions, or implementation notes]
 
-<!-- Describe the problem this feature would solve or the need it would address -->
-
-## Proposed Solution
-
-<!-- A clear and concise description of what you want to happen -->
-
-## Alternatives Considered
-
-<!-- Any alternative solutions or features you've considered -->
-
-## Example Use Case
-
-<!-- Describe how users would use this feature in practice -->
-
-## Additional Context
-
-<!-- Add any other context, screenshots, or mockups about the feature request here -->
-
-## Implementation Ideas (Optional)
-
-<!-- If you have specific ideas about how to implement this feature, share them here -->
-
-## Would you be willing to help implement this feature?
-
-<!-- Yes/No -->
+## Dependencies
+[List any dependencies or blockers]
+EOF < /dev/null
