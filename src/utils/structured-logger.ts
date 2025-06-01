@@ -80,6 +80,16 @@ export interface Logger {
  * This is a skeleton implementation with stubbed methods for future development.
  */
 export class StructuredLogger implements Logger {
+  private readonly component: string;
+
+  /**
+   * Creates a new StructuredLogger instance
+   * @param component - Component name for this logger instance
+   */
+  constructor(component: string = 'placeholder-component') {
+    this.component = component;
+  }
+
   /**
    * Creates a structured log entry with all required fields
    * @private
@@ -100,7 +110,7 @@ export class StructuredLogger implements Logger {
       service_name: 'trump-goggles',
       correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
       function_name: 'placeholder-function-name', // TODO: T008 - implement caller detection
-      component: 'placeholder-component', // TODO: T005 - implement component hierarchy
+      component: this.component,
       ...(context && Object.keys(context).length > 0 && { context }),
     };
 
@@ -162,8 +172,7 @@ export class StructuredLogger implements Logger {
    * @param component - Component name for the child logger
    * @returns New logger instance configured for the specified component
    */
-  child(_component: string): Logger {
-    // TODO: Implement child logger creation
-    return this;
+  child(component: string): Logger {
+    return new StructuredLogger(component);
   }
 }

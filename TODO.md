@@ -43,7 +43,7 @@
   - **Verification:**
     1. Unit tests for `StructuredLogger` assert the presence and validity of `correlation_id`.
   - **Depends‑on:** [T003, T009]
-- [ ] **T005 · Feature · P1: implement child method for component hierarchy in structuredlogger**
+- [x] **T005 · Feature · P1: implement child method for component hierarchy in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > Implementation Details: Component hierarchy
   - **Action:**
     1. Implement the `child(component: string): Logger` method in `StructuredLogger`.
