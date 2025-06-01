@@ -21,7 +21,7 @@
     1. `StructuredLogger` class is defined and implements `Logger`.
     2. All required methods exist as stubs and the file compiles.
   - **Depends‑on:** [T001]
-- [ ] **T003 · Feature · P1: implement json-only output in structuredlogger**
+- [x] **T003 · Feature · P1: implement json-only output in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > Implementation Details: JSON-only output
   - **Action:**
     1. Implement the internal logging mechanism in `StructuredLogger` methods (`debug`, `info`, `warn`, `error`) to format a `LogEntry` object as a JSON string.

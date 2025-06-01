@@ -81,12 +81,40 @@ export interface Logger {
  */
 export class StructuredLogger implements Logger {
   /**
+   * Creates a structured log entry with all required fields
+   * @private
+   * @param level - The log level
+   * @param message - The log message
+   * @param context - Optional context data
+   * @returns Complete LogEntry object
+   */
+  private createLogEntry(
+    level: 'debug' | 'info' | 'warn' | 'error',
+    message: string,
+    context?: Record<string, unknown>
+  ): LogEntry {
+    const logEntry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      service_name: 'trump-goggles',
+      correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
+      function_name: 'placeholder-function-name', // TODO: T008 - implement caller detection
+      component: 'placeholder-component', // TODO: T005 - implement component hierarchy
+      ...(context && Object.keys(context).length > 0 && { context }),
+    };
+
+    return logEntry;
+  }
+
+  /**
    * Log a debug message with optional context
    * @param message - The message to log
    * @param context - Optional additional context data
    */
-  debug(_message: string, _context?: Record<string, unknown>): void {
-    // TODO: Implement debug logging
+  debug(message: string, context?: Record<string, unknown>): void {
+    const logEntry = this.createLogEntry('debug', message, context);
+    console.debug(JSON.stringify(logEntry));
   }
 
   /**
@@ -94,8 +122,9 @@ export class StructuredLogger implements Logger {
    * @param message - The message to log
    * @param context - Optional additional context data
    */
-  info(_message: string, _context?: Record<string, unknown>): void {
-    // TODO: Implement info logging
+  info(message: string, context?: Record<string, unknown>): void {
+    const logEntry = this.createLogEntry('info', message, context);
+    console.info(JSON.stringify(logEntry));
   }
 
   /**
@@ -103,8 +132,9 @@ export class StructuredLogger implements Logger {
    * @param message - The message to log
    * @param context - Optional additional context data
    */
-  warn(_message: string, _context?: Record<string, unknown>): void {
-    // TODO: Implement warning logging
+  warn(message: string, context?: Record<string, unknown>): void {
+    const logEntry = this.createLogEntry('warn', message, context);
+    console.warn(JSON.stringify(logEntry));
   }
 
   /**
@@ -112,8 +142,9 @@ export class StructuredLogger implements Logger {
    * @param message - The message to log
    * @param context - Optional additional context data
    */
-  error(_message: string, _context?: Record<string, unknown>): void {
-    // TODO: Implement error logging
+  error(message: string, context?: Record<string, unknown>): void {
+    const logEntry = this.createLogEntry('error', message, context);
+    console.error(JSON.stringify(logEntry));
   }
 
   /**
