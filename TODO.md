@@ -12,7 +12,7 @@
     1. Interfaces are correctly defined in `src/utils/structured-logger.ts`.
     2. TypeScript compiler raises no errors for these interface definitions.
   - **Depends‑on:** none
-- [ ] **T002 · Feature · P0: implement structuredlogger class skeleton**
+- [x] **T002 · Feature · P0: implement structuredlogger class skeleton**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`)
   - **Action:**
     1. Create the `StructuredLogger` class in `src/utils/structured-logger.ts`.
