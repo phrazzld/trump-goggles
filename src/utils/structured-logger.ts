@@ -117,6 +117,31 @@ export class StructuredLogger implements Logger {
   }
 
   /**
+   * Serializes Error objects from context into error_details format
+   * @private
+   * @param context - Context object that may contain Error instances
+   * @returns Serialized error details or undefined if no Error found
+   */
+  private serializeError(context?: Record<string, unknown>): LogEntry['error_details'] | undefined {
+    if (!context) return undefined;
+
+    try {
+      // Look for Error objects in context values
+      const errorObj = Object.values(context).find((value) => value instanceof Error);
+      if (!errorObj) return undefined;
+
+      return {
+        type: errorObj.constructor.name,
+        message: errorObj.message,
+        ...(errorObj.stack && { stack: errorObj.stack }),
+      };
+    } catch (error) {
+      // If error serialization fails, return undefined to avoid breaking logging
+      return undefined;
+    }
+  }
+
+  /**
    * Creates a structured log entry with all required fields
    * @private
    * @param level - The log level
@@ -135,6 +160,9 @@ export class StructuredLogger implements Logger {
       ...(methodContext || {}),
     };
 
+    // Serialize error details for error-level logs
+    const errorDetails = level === 'error' ? this.serializeError(finalContext) : undefined;
+
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -143,6 +171,7 @@ export class StructuredLogger implements Logger {
       correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
       function_name: this.extractCallerFunctionName(),
       component: this.component,
+      ...(errorDetails && { error_details: errorDetails }),
       ...(Object.keys(finalContext).length > 0 && { context: finalContext }),
     };
 
