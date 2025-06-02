@@ -81,13 +81,16 @@ export interface Logger {
  */
 export class StructuredLogger implements Logger {
   private readonly component: string;
+  private readonly context: Record<string, unknown>;
 
   /**
    * Creates a new StructuredLogger instance
    * @param component - Component name for this logger instance
+   * @param context - Logger-level context data
    */
-  constructor(component: string = 'placeholder-component') {
+  constructor(component: string = 'placeholder-component', context: Record<string, unknown> = {}) {
     this.component = component;
+    this.context = context;
   }
 
   /**
@@ -101,8 +104,14 @@ export class StructuredLogger implements Logger {
   private createLogEntry(
     level: 'debug' | 'info' | 'warn' | 'error',
     message: string,
-    context?: Record<string, unknown>
+    methodContext?: Record<string, unknown>
   ): LogEntry {
+    // Merge logger context with method context (method context overrides)
+    const finalContext = {
+      ...this.context,
+      ...(methodContext || {}),
+    };
+
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -111,7 +120,7 @@ export class StructuredLogger implements Logger {
       correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
       function_name: 'placeholder-function-name', // TODO: T008 - implement caller detection
       component: this.component,
-      ...(context && Object.keys(context).length > 0 && { context }),
+      ...(Object.keys(finalContext).length > 0 && { context: finalContext }),
     };
 
     return logEntry;
@@ -162,9 +171,9 @@ export class StructuredLogger implements Logger {
    * @param context - Context to merge with existing context
    * @returns New logger instance with merged context
    */
-  withContext(_context: Record<string, unknown>): Logger {
-    // TODO: Implement context merging
-    return this;
+  withContext(newContext: Record<string, unknown>): Logger {
+    const mergedContext = { ...this.context, ...newContext };
+    return new StructuredLogger(this.component, mergedContext);
   }
 
   /**
@@ -173,6 +182,6 @@ export class StructuredLogger implements Logger {
    * @returns New logger instance configured for the specified component
    */
   child(component: string): Logger {
-    return new StructuredLogger(component);
+    return new StructuredLogger(component, this.context);
   }
 }

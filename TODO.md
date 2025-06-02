@@ -60,7 +60,7 @@
   - **Done‑when:**
     1. Child loggers correctly inherit and merge parent context.
   - **Depends‑on:** [T005, T007]
-- [ ] **T007 · Feature · P1: implement withcontext method in structuredlogger**
+- [x] **T007 · Feature · P1: implement withcontext method in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > `Logger.withContext`
   - **Action:**
     1. Implement the `withContext(context: Record<string, unknown>): Logger` method in `StructuredLogger`.
