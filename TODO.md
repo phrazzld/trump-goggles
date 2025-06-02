@@ -69,7 +69,7 @@
     1. `withContext()` returns a new `Logger` instance.
     2. The new logger instance includes the merged context in its subsequent log entries.
   - **Depends‑on:** [T002]
-- [ ] **T008 · Feature · P1: implement automatic caller function name detection in structuredlogger**
+- [~] **T008 · Feature · P1: implement automatic caller function name detection in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > Implementation Details: Caller detection
   - **Action:**
     1. Implement logic within `StructuredLogger` to extract the calling function's name from the JavaScript call stack (e.g., by parsing `new Error().stack`).

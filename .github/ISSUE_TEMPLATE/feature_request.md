@@ -7,16 +7,20 @@ assignees: ''
 ---
 
 ## Feature Description
+
 [Brief description of the feature]
 
 ## Acceptance Criteria
+
 - [ ] Criteria 1
 - [ ] Criteria 2
 - [ ] Criteria 3
 
 ## Technical Considerations
+
 [Any technical details, architecture decisions, or implementation notes]
 
 ## Dependencies
+
 [List any dependencies or blockers]
 EOF < /dev/null

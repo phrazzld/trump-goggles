@@ -95,6 +95,28 @@ export class StructuredLogger implements Logger {
   }
 
   /**
+   * Extracts the calling function name from the JavaScript call stack
+   * @private
+   * @returns The function name or a fallback value
+   */
+  private extractCallerFunctionName(): string {
+    try {
+      const stack = new Error().stack;
+      if (!stack) return 'unknown-function';
+
+      const lines = stack.split('\n');
+      // Skip first 3 lines: Error, extractCallerFunctionName, createLogEntry
+      const callerLine = lines[3] || '';
+
+      // Extract function name using regex that handles different browser formats
+      const match = callerLine.match(/at\s+([^\s]+)/);
+      return match?.[1] || 'anonymous-function';
+    } catch (error) {
+      return 'parse-error';
+    }
+  }
+
+  /**
    * Creates a structured log entry with all required fields
    * @private
    * @param level - The log level
@@ -119,7 +141,7 @@ export class StructuredLogger implements Logger {
       message,
       service_name: 'trump-goggles',
       correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
-      function_name: 'placeholder-function-name', // TODO: T008 - implement caller detection
+      function_name: this.extractCallerFunctionName(),
       component: this.component,
       ...(Object.keys(finalContext).length > 0 && { context: finalContext }),
     };

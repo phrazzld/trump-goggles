@@ -5,11 +5,13 @@ This guide explains how to package Trump Goggles for submission to the Chrome We
 ## Quick Start
 
 ### For Production Submission
+
 ```bash
 pnpm run package:chrome
 ```
 
 This command will:
+
 1. Clean the build directory
 2. Run all tests
 3. Run linting
@@ -17,6 +19,7 @@ This command will:
 5. Create a store-ready zip package
 
 ### For Development Testing
+
 ```bash
 pnpm run package:quick
 ```
@@ -25,17 +28,18 @@ This skips tests and linting for faster iteration during development.
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
+| Script                    | Description                                                    |
+| ------------------------- | -------------------------------------------------------------- |
 | `pnpm run package:chrome` | **Full production package** - Runs tests, builds, and packages |
-| `pnpm run package:quick` | **Quick dev package** - Skips tests, faster for testing |
-| `pnpm run package:prep` | **Preparation only** - Clean, test, and lint |
-| `pnpm run package:build` | **Build only** - Production build |
-| `pnpm run package:zip` | **Package only** - Create zip from existing dist |
+| `pnpm run package:quick`  | **Quick dev package** - Skips tests, faster for testing        |
+| `pnpm run package:prep`   | **Preparation only** - Clean, test, and lint                   |
+| `pnpm run package:build`  | **Build only** - Production build                              |
+| `pnpm run package:zip`    | **Package only** - Create zip from existing dist               |
 
 ## What Gets Packaged
 
 ### Included Files
+
 - `background.js` - Background script
 - `content.js` - Main content script
 - `manifest.json` - Extension manifest (production version)
@@ -44,13 +48,16 @@ This skips tests and linting for faster iteration during development.
 - All dependency modules (logger, processors, etc.)
 
 ### Excluded Files
+
 - `content-debug.js` - Debug helper (removed in production)
 - `*.map` - Source maps
 - `*.DS_Store` - macOS system files
 - Any backup or temporary files
 
 ### Production Manifest Changes
+
 The production package uses `extension/manifest-production.json` which:
+
 - Removes debug scripts from content_scripts
 - Keeps only essential scripts for production
 - Maintains all permissions and metadata
@@ -70,6 +77,7 @@ packages/
 After packaging, you'll get a detailed checklist including:
 
 ### Technical Validation
+
 - [ ] Extension loads without errors
 - [ ] All features work as expected
 - [ ] Tooltips display correctly on hover
@@ -77,12 +85,14 @@ After packaging, you'll get a detailed checklist including:
 - [ ] No console errors or warnings
 
 ### Chrome Web Store Requirements
+
 - [ ] Manifest version is correct
 - [ ] Extension name and description are accurate
 - [ ] Icons are high quality and correct sizes
 - [ ] Screenshots are current and representative
 
 ### Store Listing
+
 - [ ] Title is compelling and accurate
 - [ ] Short description is under 132 characters
 - [ ] Detailed description explains functionality clearly
@@ -91,6 +101,7 @@ After packaging, you'll get a detailed checklist including:
 ## Uploading to Chrome Web Store
 
 1. **Build the package:**
+
    ```bash
    pnpm run package:chrome
    ```
@@ -102,6 +113,7 @@ After packaging, you'll get a detailed checklist including:
    `packages/trump-goggles-chrome-store.zip`
 
 4. **Complete the store listing** with:
+
    - Description
    - Screenshots
    - Category
@@ -112,6 +124,7 @@ After packaging, you'll get a detailed checklist including:
 ## Development Workflow
 
 ### Testing Before Packaging
+
 ```bash
 # Full test suite
 pnpm test
@@ -127,6 +140,7 @@ pnpm run lint
 ```
 
 ### Local Testing
+
 ```bash
 # Build for local testing
 pnpm run build
@@ -136,6 +150,7 @@ pnpm run build
 ```
 
 ### Quick Iteration
+
 ```bash
 # For rapid development testing
 pnpm run package:quick
@@ -148,13 +163,16 @@ pnpm run package:quick
 ### Common Issues
 
 1. **"dist directory not found"**
+
    - Run `pnpm run build` first
 
 2. **"Missing required files"**
+
    - Check that all modules built correctly
    - Verify the build process completed successfully
 
 3. **"Tests failed"**
+
    - Fix failing tests before packaging
    - Use `pnpm run package:quick` to skip tests temporarily
 
@@ -166,11 +184,13 @@ pnpm run package:quick
 ### Debugging
 
 1. **Check build output:**
+
    ```bash
    ls -la dist/
    ```
 
 2. **Verify manifest:**
+
    ```bash
    cat dist/manifest.json
    ```
