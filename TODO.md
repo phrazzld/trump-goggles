@@ -52,7 +52,7 @@
     1. `child()` method returns a new `Logger` instance.
     2. Log entries from child loggers correctly record their `component` name.
   - **Depends‑on:** [T002]
-- [ ] **T006 · Feature · P1: implement context inheritance for child loggers in structuredlogger**
+- [x] **T006 · Feature · P1: implement context inheritance for child loggers in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > Implementation Details: Context inheritance
   - **Action:**
     1. Ensure that child loggers created via `child()` and `withContext()` inherit the context of their parent logger.

@@ -77,7 +77,8 @@ export interface Logger {
 
 /**
  * Implementation of the Logger interface that produces structured JSON logs.
- * This is a skeleton implementation with stubbed methods for future development.
+ * Supports hierarchical loggers with context inheritance through child() and withContext() methods.
+ * Child loggers inherit all context from their parent, and contexts can be merged with new values.
  */
 export class StructuredLogger implements Logger {
   private readonly component: string;
@@ -167,8 +168,10 @@ export class StructuredLogger implements Logger {
   }
 
   /**
-   * Create a new logger instance with additional context merged in
-   * @param context - Context to merge with existing context
+   * Create a new logger instance with additional context merged in.
+   * The new context is merged with the existing context, with new values
+   * overriding existing ones for the same keys.
+   * @param newContext - Context to merge with existing context
    * @returns New logger instance with merged context
    */
   withContext(newContext: Record<string, unknown>): Logger {
@@ -177,9 +180,10 @@ export class StructuredLogger implements Logger {
   }
 
   /**
-   * Create a child logger for a specific component
+   * Create a child logger for a specific component.
+   * The child logger inherits all context from the parent logger.
    * @param component - Component name for the child logger
-   * @returns New logger instance configured for the specified component
+   * @returns New logger instance configured for the specified component with inherited context
    */
   child(component: string): Logger {
     return new StructuredLogger(component, this.context);
