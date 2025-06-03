@@ -117,7 +117,7 @@
 
 ## Logger Foundation: Legacy Adapter
 
-- [ ] **T013 · Feature · P1: define legacyloggerinterface in logger-adapter.ts**
+- [x] **T013 · Feature · P1: define legacyloggerinterface in logger-adapter.ts**
   - **Context:** Plan Details > Phase 1: Foundation > 1.3 Legacy Adapter (`src/utils/logger-adapter.ts`)
   - **Action:**
     1. Create `src/utils/logger-adapter.ts`.
