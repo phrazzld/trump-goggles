@@ -98,7 +98,7 @@
   - **Done‑when:**
     1. `LoggerContext.getInstance()` consistently returns the same instance.
   - **Depends‑on:** none
-- [ ] **T011 · Feature · P1: implement createcorrelationid method in loggercontext**
+- [x] **T011 · Feature · P1: implement createcorrelationid method in loggercontext**
   - **Context:** Plan Details > Phase 1: Foundation > 1.2 Context Propagation (`src/utils/logger-context.ts`)
   - **Action:**
     1. Implement `createCorrelationId(): string` method in `LoggerContext` to generate and return a UUID v4 string.
