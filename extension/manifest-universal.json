@@ -17,7 +17,7 @@
     "service_worker": "dist/background.js"
   },
 
-  "permissions": ["storage", "contextMenus"],
+  "permissions": ["storage"],
 
   "host_permissions": ["*://*/*"],
 
