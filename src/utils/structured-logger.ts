@@ -6,6 +6,8 @@
  * in compliance with DEVELOPMENT_PHILOSOPHY.md logging requirements.
  */
 
+import { LoggerContext } from './logger-context';
+
 /**
  * Represents a single structured log entry with all mandatory fields
  * for JSON logging as specified in DEVELOPMENT_PHILOSOPHY.md
@@ -168,7 +170,7 @@ export class StructuredLogger implements Logger {
       level,
       message,
       service_name: 'trump-goggles',
-      correlation_id: 'placeholder-correlation-id', // TODO: T004 - implement correlation ID
+      correlation_id: LoggerContext.getInstance().getCurrentCorrelation(),
       function_name: this.extractCallerFunctionName(),
       component: this.component,
       ...(errorDetails && { error_details: errorDetails }),

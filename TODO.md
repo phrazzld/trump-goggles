@@ -33,7 +33,7 @@
   - **Verification:**
     1. Manually invoke logger methods and inspect console output for valid, unstyled JSON.
   - **Depends‑on:** [T002]
-- [ ] **T004 · Feature · P1: implement correlation id inclusion in structuredlogger**
+- [x] **T004 · Feature · P1: implement correlation id inclusion in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger & 1.2 Context Propagation
   - **Action:**
     1. Modify `StructuredLogger` methods to retrieve the current correlation ID from `LoggerContext.getInstance().getCurrentCorrelation()`.
@@ -42,7 +42,7 @@
     1. Every log entry JSON includes a non-empty `correlation_id` field.
   - **Verification:**
     1. Unit tests for `StructuredLogger` assert the presence and validity of `correlation_id`.
-  - **Depends‑on:** [T003, T009]
+  - **Depends‑on:** [T003, T009, T012]
 - [x] **T005 · Feature · P1: implement child method for component hierarchy in structuredlogger**
   - **Context:** Plan Details > Phase 1: Foundation > 1.1 Core Structured Logger (`src/utils/structured-logger.ts`) > Implementation Details: Component hierarchy
   - **Action:**
@@ -105,7 +105,7 @@
   - **Done‑when:**
     1. Method returns a valid UUID v4 string.
   - **Depends‑on:** [T010]
-- [ ] **T012 · Feature · P1: implement correlation stack operations in loggercontext**
+- [x] **T012 · Feature · P1: implement correlation stack operations in loggercontext**
   - **Context:** Plan Details > Phase 1: Foundation > 1.2 Context Propagation (`src/utils/logger-context.ts`)
   - **Action:**
     1. Implement `pushCorrelation(id: string): void` method.
