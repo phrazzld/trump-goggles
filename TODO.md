@@ -166,7 +166,7 @@
   - **Verification:**
     1. After calling `initialize()`, `window.Logger` should exist and use the new system.
   - **Depends‑on:** [T002, T015, T016]
-- [ ] **T018 · Feature · P1: implement loggerfactory.getlogger() method**
+- [x] **T018 · Feature · P1: implement loggerfactory.getlogger() method**
   - **Context:** Plan Details > Phase 2: Integration > 2.1 Logger Factory (`src/utils/logger-factory.ts`)
   - **Action:**
     1. Implement `LoggerFactory.getLogger(component: string): Logger` to call `this.structured.child(component)`.

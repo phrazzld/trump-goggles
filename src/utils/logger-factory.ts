@@ -59,12 +59,11 @@ export class LoggerFactory {
    * logger.info('Tooltip initialized');
    * ```
    */
-  public static getLogger(_component: string): Logger {
-    // Implementation will be added in T018
-    // Temporary check to satisfy TypeScript - will be properly implemented in T018
+  public static getLogger(component: string): Logger {
     if (!this._structured) {
-      throw new Error('LoggerFactory not initialized');
+      throw new Error('LoggerFactory.initialize() must be called before getLogger()');
     }
-    throw new Error('LoggerFactory.getLogger() not yet implemented');
+
+    return this._structured.child(component);
   }
 }
