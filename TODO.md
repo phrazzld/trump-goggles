@@ -231,7 +231,7 @@
   - **Done‑when:**
     1. `src/content/dom-modifier.ts` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T025 · Refactor · P2: migrate src/content/text-processor.js to new logger**
+- [x] **T025 · Refactor · P2: migrate src/content/text-processor.js to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.
