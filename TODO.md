@@ -173,7 +173,7 @@
   - **Done‑when:**
     1. `getLogger(component)` returns a child logger instance configured for that component.
   - **Depends‑on:** [T005, T016, T017]
-- [ ] **T019 · Chore · P1: update manifest.json for new logging scripts**
+- [x] **T019 · Chore · P1: update manifest.json for new logging scripts**
   - **Context:** Plan Details > Phase 2: Integration > 2.2 Manifest Integration
   - **Action:**
     1. Modify `manifest.json` to include the compiled JavaScript files for `structured-logger.ts`, `logger-context.ts`, `logger-adapter.ts`, and `logger-factory.ts` in the `content_scripts` `js` array.
