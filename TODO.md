@@ -215,7 +215,7 @@
   - **Done‑when:**
     1. `src/utils/error-handler.js` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T023 · Refactor · P1: migrate src/utils/security-utils.ts to new logger**
+- [x] **T023 · Refactor · P1: migrate src/utils/security-utils.ts to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.
