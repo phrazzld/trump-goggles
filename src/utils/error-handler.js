@@ -284,7 +284,10 @@ const ErrorHandler = (function () {
         currentLogger.error('Failed to initialize ErrorHandler', { initError: error });
       } else {
         // Fallback to console if no structured logging available
-        console.error('Failed to initialize ErrorHandler', error);
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.error('Error handler: Failed to initialize ErrorHandler', { error });
+        }
       }
 
       return false;

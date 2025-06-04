@@ -263,7 +263,7 @@
   - **Done‑when:**
     1. `src/background/background-polyfill.js` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T029 · Refactor · P3: migrate all remaining components with console.\* usage**
+- [x] **T029 · Refactor · P3: migrate all remaining components with console.\* usage**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order > Remaining Components
   - **Action:**
     1. Identify all other files in the codebase with `console.*` usage intended for operational logging.

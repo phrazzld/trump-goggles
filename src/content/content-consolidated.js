@@ -50,7 +50,21 @@ const TrumpGoggles = (function () {
   function initialize() {
     // Initialize Logger with proper configuration based on DEBUG setting
     if (!window.Logger) {
-      console.error('Trump Goggles Error: Logger module not found! Check script loading order.');
+      // Try to use LoggerFactory if available
+      if (window.LoggerFactory) {
+        try {
+          const structuredLogger = window.LoggerFactory.getLogger('content-consolidated');
+          structuredLogger.error(
+            'Content consolidated: Logger module not found! Check script loading order.'
+          );
+        } catch {
+          console.error(
+            'Trump Goggles Error: Logger module not found! Check script loading order.'
+          );
+        }
+      } else {
+        console.error('Trump Goggles Error: Logger module not found! Check script loading order.');
+      }
       return;
     }
 

@@ -54,6 +54,17 @@ const BrowserAdapter = (function () {
     logger = {
       debug: function (msg, data) {
         if (config.debug) {
+          // Try to use LoggerFactory first
+          if (window.LoggerFactory) {
+            try {
+              const structuredLogger = window.LoggerFactory.getLogger('browser-adapter');
+              structuredLogger.debug(`Browser adapter: ${msg}`, data ? { data } : undefined);
+              return;
+            } catch {
+              // Fall through to console fallback
+            }
+          }
+          // Fallback to console
           if (data) {
             console.debug(`BrowserAdapter: ${msg}`, data);
           } else {
@@ -62,6 +73,17 @@ const BrowserAdapter = (function () {
         }
       },
       info: function (msg, data) {
+        // Try to use LoggerFactory first
+        if (window.LoggerFactory) {
+          try {
+            const structuredLogger = window.LoggerFactory.getLogger('browser-adapter');
+            structuredLogger.info(`Browser adapter: ${msg}`, data ? { data } : undefined);
+            return;
+          } catch {
+            // Fall through to console fallback
+          }
+        }
+        // Fallback to console
         if (data) {
           console.info(`BrowserAdapter: ${msg}`, data);
         } else {
@@ -69,6 +91,17 @@ const BrowserAdapter = (function () {
         }
       },
       warn: function (msg, data) {
+        // Try to use LoggerFactory first
+        if (window.LoggerFactory) {
+          try {
+            const structuredLogger = window.LoggerFactory.getLogger('browser-adapter');
+            structuredLogger.warn(`Browser adapter: ${msg}`, data ? { data } : undefined);
+            return;
+          } catch {
+            // Fall through to console fallback
+          }
+        }
+        // Fallback to console
         if (data) {
           console.warn(`BrowserAdapter: ${msg}`, data);
         } else {
@@ -76,6 +109,17 @@ const BrowserAdapter = (function () {
         }
       },
       error: function (msg, data) {
+        // Try to use LoggerFactory first
+        if (window.LoggerFactory) {
+          try {
+            const structuredLogger = window.LoggerFactory.getLogger('browser-adapter');
+            structuredLogger.error(`Browser adapter: ${msg}`, data ? { data } : undefined);
+            return;
+          } catch {
+            // Fall through to console fallback
+          }
+        }
+        // Fallback to console
         if (data) {
           console.error(`BrowserAdapter: ${msg}`, data);
         } else {
