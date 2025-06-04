@@ -207,7 +207,7 @@
     2. No `console.*` calls (for operational logging) remain in the file.
     3. Functionality of `tooltip-manager` is preserved.
   - **Depends‑on:** [T018, T036]
-- [ ] **T022 · Refactor · P1: migrate src/utils/error-handler.js to new logger**
+- [x] **T022 · Refactor · P1: migrate src/utils/error-handler.js to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.

@@ -35,6 +35,9 @@ const ErrorHandler = (function () {
   let errorHistory = [];
   let isInitialized = false;
 
+  // Logger instance for this module
+  let logger = null;
+
   // Original handlers (to restore when disabled)
   /** @type {OnErrorEventHandler|null} */
   let originalOnError = null;
@@ -42,6 +45,26 @@ const ErrorHandler = (function () {
   let originalOnUnhandledRejection = null;
 
   // ===== PRIVATE METHODS =====
+
+  /**
+   * Gets or initializes the logger instance for this module
+   *
+   * @private
+   * @returns {Object|null} Logger instance or null if LoggerFactory unavailable
+   */
+  function getLogger() {
+    if (!logger && window.LoggerFactory) {
+      try {
+        logger = window.LoggerFactory.getLogger('error-handler');
+      } catch {
+        // Fall back to legacy Logger if available
+        if (window.Logger) {
+          logger = window.Logger;
+        }
+      }
+    }
+    return logger;
+  }
 
   /**
    * Formats an error for logging
@@ -100,16 +123,20 @@ const ErrorHandler = (function () {
     }
 
     // Log the error if logging is enabled and Logger is available
-    if (config.logErrors && window.Logger) {
-      window.Logger.error(`Unhandled error from ${source}`, {
-        error: formattedError,
-      });
+    if (config.logErrors) {
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error(`Unhandled error from ${source}`, {
+          error: formattedError,
+        });
+      }
     }
 
     // Disable error handling if we've hit the max error count
     if (config.maxErrors > 0 && errorCount >= config.maxErrors) {
-      if (window.Logger) {
-        window.Logger.warn(
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.warn(
           `Maximum error count (${config.maxErrors}) reached, disabling error handler`
         );
       }
@@ -199,8 +226,9 @@ const ErrorHandler = (function () {
     config = { ...config, ...options };
 
     // Log the configuration change if debug mode is enabled
-    if (window.Logger && window.Logger.debug) {
-      window.Logger.debug('ErrorHandler configuration updated', config);
+    const currentLogger = getLogger();
+    if (currentLogger && currentLogger.debug) {
+      currentLogger.debug('ErrorHandler configuration updated', config);
     }
 
     return config;
@@ -243,16 +271,19 @@ const ErrorHandler = (function () {
       isInitialized = true;
 
       // Log initialization if Logger is available
-      if (window.Logger) {
-        window.Logger.info('ErrorHandler initialized', config);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.info('ErrorHandler initialized', config);
       }
 
       return true;
     } catch (error) {
       // Log initialization error if Logger is available
-      if (window.Logger) {
-        window.Logger.error('Failed to initialize ErrorHandler', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Failed to initialize ErrorHandler', { initError: error });
       } else {
+        // Fallback to console if no structured logging available
         console.error('Failed to initialize ErrorHandler', error);
       }
 
@@ -282,8 +313,9 @@ const ErrorHandler = (function () {
     isInitialized = false;
 
     // Log disabling if Logger is available
-    if (window.Logger) {
-      window.Logger.info('ErrorHandler disabled');
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.info('ErrorHandler disabled');
     }
   }
 
@@ -348,8 +380,9 @@ const ErrorHandler = (function () {
     errorHistory = [];
 
     // Log reset if Logger is available
-    if (window.Logger) {
-      window.Logger.debug('ErrorHandler stats reset');
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.debug('ErrorHandler stats reset');
     }
   }
 
