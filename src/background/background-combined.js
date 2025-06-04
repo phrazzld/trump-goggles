@@ -6,6 +6,48 @@
  */
 
 /**
+ * Gets or initializes the logger instance for this module
+ *
+ * @private
+ * @returns Logger instance or null if LoggerFactory unavailable
+ */
+function getLogger() {
+  // Always check for LoggerFactory first (don't cache for tests)
+  if (typeof window !== 'undefined' && window.LoggerFactory) {
+    try {
+      return window.LoggerFactory.getLogger('background-combined');
+    } catch {
+      // Fall back to legacy Logger if available
+      if (window.Logger) {
+        return window.Logger;
+      }
+    }
+  }
+
+  // Check for self context (background scripts)
+  if (typeof self !== 'undefined' && self.LoggerFactory) {
+    try {
+      return self.LoggerFactory.getLogger('background-combined');
+    } catch {
+      // Fall back to legacy Logger if available
+      if (self.Logger) {
+        return self.Logger;
+      }
+    }
+  }
+
+  // If no LoggerFactory, try legacy Logger in either context
+  if (typeof window !== 'undefined' && window.Logger) {
+    return window.Logger;
+  }
+  if (typeof self !== 'undefined' && self.Logger) {
+    return self.Logger;
+  }
+
+  return null;
+}
+
+/**
  * Browser Detect Module - Detects and reports browser information
  */
 const BrowserDetect = (function () {
@@ -121,7 +163,10 @@ const BrowserDetect = (function () {
       manifestVersion = manifest.manifest_version;
       return manifestVersion;
     } catch (error) {
-      console.warn('Error getting manifest version', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.warn('Background: Error getting manifest version', { error });
+      }
       return 3; // Default to manifest v3 if we can't determine it
     }
   }
@@ -161,7 +206,10 @@ const BrowserDetect = (function () {
         version = 'unknown';
       }
     } catch (e) {
-      console.warn('Error parsing browser version', e);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.warn('Background: Error parsing browser version', { error: e });
+      }
     }
 
     browserVersion = version;
@@ -291,32 +339,28 @@ const BrowserAdapter = (function () {
   const logger = {
     debug: function (msg, data) {
       if (config.debug) {
-        if (data) {
-          console.debug(`BrowserAdapter: ${msg}`, data);
-        } else {
-          console.debug(`BrowserAdapter: ${msg}`);
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.debug(`Browser adapter: ${msg}`, data ? { data } : undefined);
         }
       }
     },
     info: function (msg, data) {
-      if (data) {
-        console.info(`BrowserAdapter: ${msg}`, data);
-      } else {
-        console.info(`BrowserAdapter: ${msg}`);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.info(`Browser adapter: ${msg}`, data ? { data } : undefined);
       }
     },
     warn: function (msg, data) {
-      if (data) {
-        console.warn(`BrowserAdapter: ${msg}`, data);
-      } else {
-        console.warn(`BrowserAdapter: ${msg}`);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.warn(`Browser adapter: ${msg}`, data ? { data } : undefined);
       }
     },
     error: function (msg, data) {
-      if (data) {
-        console.error(`BrowserAdapter: ${msg}`, data);
-      } else {
-        console.error(`BrowserAdapter: ${msg}`);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error(`Browser adapter: ${msg}`, data ? { data } : undefined);
       }
     },
   };
@@ -762,17 +806,31 @@ const BackgroundLogger = {
    * @param {any} [data] - Optional data to include
    */
   log: function (level, message, data) {
-    const timestamp = new Date().toISOString();
-    const prefix = `[${timestamp}] TrumpGoggles (background):`;
-
     if (level === 'debug' && !this.DEBUG) {
       return;
     }
 
-    if (data) {
-      console[level](`${prefix} ${message}`, data);
-    } else {
-      console[level](`${prefix} ${message}`);
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      const logMessage = `Background logger: ${message}`;
+      const context = data ? { data } : undefined;
+
+      switch (level) {
+      case 'debug':
+        currentLogger.debug(logMessage, context);
+        break;
+      case 'info':
+        currentLogger.info(logMessage, context);
+        break;
+      case 'warn':
+        currentLogger.warn(logMessage, context);
+        break;
+      case 'error':
+        currentLogger.error(logMessage, context);
+        break;
+      default:
+        currentLogger.info(logMessage, context);
+      }
     }
   },
 

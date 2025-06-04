@@ -247,7 +247,7 @@
   - **Done‑when:**
     1. `src/content/mutation-observer.js` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T027 · Refactor · P2: migrate src/background/background-combined.js to new logger**
+- [x] **T027 · Refactor · P2: migrate src/background/background-combined.js to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.
