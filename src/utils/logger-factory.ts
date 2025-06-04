@@ -6,19 +6,30 @@
  * and provides a centralized point for logger initialization.
  */
 
-import { StructuredLogger, Logger } from './structured-logger';
-import { createLegacyShim } from './logger-adapter';
+/// <reference path="../types/globals.d.ts" />
+
+/**
+ * Logger interface type definition (matches structured-logger.ts)
+ */
+interface Logger {
+  debug(message: string, context?: Record<string, unknown>): void;
+  info(message: string, context?: Record<string, unknown>): void;
+  warn(message: string, context?: Record<string, unknown>): void;
+  error(message: string, context?: Record<string, unknown>): void;
+  withContext(context: Record<string, unknown>): Logger;
+  child(component: string): Logger;
+}
 
 /**
  * Factory class for creating and managing logger instances.
  * Provides centralized initialization and component-specific logger creation.
  */
-export class LoggerFactory {
+class LoggerFactory {
   /**
    * The singleton StructuredLogger instance used by the factory
    * @internal Will be used in T017/T018 implementations
    */
-  private static _structured: StructuredLogger;
+  private static _structured: Logger;
 
   /**
    * Initializes the logger factory with a configured StructuredLogger instance.
@@ -31,17 +42,22 @@ export class LoggerFactory {
    * - Prepare the factory for logger creation
    */
   public static initialize(): void {
+    // Ensure dependencies are loaded
+    if (!(window as any).StructuredLogger || !(window as any).LoggerAdapter) {
+      throw new Error(
+        'LoggerFactory dependencies not loaded: StructuredLogger and LoggerAdapter required'
+      );
+    }
+
     // Create the root structured logger with application metadata
-    this._structured = new StructuredLogger('trump-goggles', {
+    this._structured = new (window as any).StructuredLogger.Logger('trump-goggles', {
       service_name: 'trump-goggles',
       version: '18.5.0',
       environment: 'extension',
     });
 
     // Create and assign the legacy compatibility shim
-    const legacyShim = createLegacyShim(this._structured);
-    // Type assertion needed due to existing LoggerInterface declaration
-    // This will be resolved when we complete the migration to structured logging
+    const legacyShim = (window as any).LoggerAdapter.createLegacyShim(this._structured);
     (window as any).Logger = legacyShim;
   }
 
@@ -66,4 +82,25 @@ export class LoggerFactory {
 
     return this._structured.child(component);
   }
+}
+
+// Export types for module system
+export { LoggerFactory };
+export type { Logger };
+
+// Export to window for global access
+declare global {
+  interface Window {
+    LoggerFactory: {
+      initialize: () => void;
+      getLogger: (component: string) => Logger;
+    };
+  }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).LoggerFactory = {
+    initialize: () => LoggerFactory.initialize(),
+    getLogger: (component: string) => LoggerFactory.getLogger(component),
+  };
 }

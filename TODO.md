@@ -180,14 +180,18 @@
   - **Done‑when:**
     1. `manifest.json` is updated with the paths to the new logging scripts.
   - **Depends‑on:** [T001, T010, T013, T016]
-- [ ] **T020 · Chore · P1: ensure correct script initialization order in manifest.json**
+- [x] **T020 · Chore · P1: ensure correct script initialization order in manifest.json**
   - **Context:** Plan Details > Phase 2: Integration > 2.2 Manifest Integration > Initialization Order
   - **Action:**
     1. Verify and adjust the order of scripts in the `content_scripts` `js` array in `manifest.json` to ensure the four new logging system scripts are listed before any existing scripts that might use `window.Logger` or `LoggerFactory`.
+    2. Convert TypeScript modules to use global window objects instead of ES6 imports to match existing codebase pattern (like `performance-utils.ts`).
+    3. Update build configuration to copy TypeScript files with .js rename like other individual modules.
   - **Done‑when:**
     1. Logging system scripts are guaranteed to load and initialize before other dependent scripts.
+    2. TypeScript modules work with individual file copying by using window globals instead of imports.
   - **Verification:**
     1. Load the extension locally and confirm no "Logger undefined" errors from existing scripts.
+    2. Verify TypeScript compilation still works and logging modules load properly.
   - **Depends‑on:** [T019]
 
 ## Migration Strategy: File-by-File

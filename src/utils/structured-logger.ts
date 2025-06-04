@@ -1,12 +1,12 @@
 /**
- * Structured Logger Interfaces
+ * Structured Logger Implementation
  *
- * Defines TypeScript interfaces for the structured JSON logging system.
- * These interfaces establish contracts for log entries and logger behavior
+ * Provides structured JSON logging functionality for the extension.
+ * Implements structured logging with correlation ID propagation and context inheritance
  * in compliance with DEVELOPMENT_PHILOSOPHY.md logging requirements.
  */
 
-import { LoggerContext } from './logger-context';
+/// <reference path="../types/globals.d.ts" />
 
 /**
  * Represents a single structured log entry with all mandatory fields
@@ -170,7 +170,8 @@ export class StructuredLogger implements Logger {
       level,
       message,
       service_name: 'trump-goggles',
-      correlation_id: LoggerContext.getInstance().getCurrentCorrelation(),
+      correlation_id:
+        (window as any).LoggerContext?.getInstance().getCurrentCorrelation() || 'no-correlation',
       function_name: this.extractCallerFunctionName(),
       component: this.component,
       ...(errorDetails && { error_details: errorDetails }),
@@ -241,4 +242,19 @@ export class StructuredLogger implements Logger {
   child(component: string): Logger {
     return new StructuredLogger(component, this.context);
   }
+}
+
+// Export to window for global access
+declare global {
+  interface Window {
+    StructuredLogger: {
+      Logger: typeof StructuredLogger;
+    };
+  }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).StructuredLogger = {
+    Logger: StructuredLogger,
+  };
 }

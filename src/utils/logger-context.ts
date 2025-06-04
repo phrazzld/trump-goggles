@@ -6,7 +6,10 @@
  * It maintains a stack of correlation IDs to support nested operations
  * and ensures consistent correlation tracking across the application.
  */
-export class LoggerContext {
+
+/// <reference path="../types/globals.d.ts" />
+
+class LoggerContext {
   private static instance: LoggerContext;
   private correlationStack: string[];
 
@@ -98,4 +101,22 @@ export class LoggerContext {
     // Return ID from top of stack
     return this.correlationStack[this.correlationStack.length - 1];
   }
+}
+
+// Export types for module system
+export { LoggerContext };
+
+// Export to window for global access
+declare global {
+  interface Window {
+    LoggerContext: {
+      getInstance: () => LoggerContext;
+    };
+  }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).LoggerContext = {
+    getInstance: () => LoggerContext.getInstance(),
+  };
 }

@@ -5,8 +5,26 @@
 
 console.log('[Trump Goggles Debug] Content script loading started');
 
+// Initialize the new structured logging system
+try {
+  if (window.LoggerFactory) {
+    window.LoggerFactory.initialize();
+    console.log('[Trump Goggles Debug] Structured logging system initialized');
+  } else {
+    console.error('[Trump Goggles Debug] LoggerFactory not available');
+  }
+} catch (error) {
+  console.error('[Trump Goggles Debug] Failed to initialize logging system:', error);
+}
+
 // Check which modules are available
 const modules = {
+  // New structured logging modules
+  StructuredLogger: typeof window.StructuredLogger !== 'undefined',
+  LoggerContext: typeof window.LoggerContext !== 'undefined',
+  LoggerAdapter: typeof window.LoggerAdapter !== 'undefined',
+  LoggerFactory: typeof window.LoggerFactory !== 'undefined',
+  // Legacy logger
   Logger: typeof window.Logger !== 'undefined',
   ErrorHandler: typeof window.ErrorHandler !== 'undefined',
   BrowserDetect: typeof window.BrowserDetect !== 'undefined',

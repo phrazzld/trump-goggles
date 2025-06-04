@@ -75,6 +75,10 @@ export default [
           { src: 'images/*', dest: 'dist/images' },
           { src: 'extension/*.html', dest: 'dist' },
           // Copy all dependency modules
+          { src: 'src/utils/structured-logger.ts', dest: 'dist', rename: 'structured-logger.js' },
+          { src: 'src/utils/logger-context.ts', dest: 'dist', rename: 'logger-context.js' },
+          { src: 'src/utils/logger-adapter.ts', dest: 'dist', rename: 'logger-adapter.js' },
+          { src: 'src/utils/logger-factory.ts', dest: 'dist', rename: 'logger-factory.js' },
           { src: 'src/content/content-debug.js', dest: 'dist' },
           { src: 'src/utils/logger.js', dest: 'dist' },
           { src: 'src/utils/error-handler.js', dest: 'dist' },
