@@ -4,6 +4,48 @@
  */
 
 /**
+ * Gets or initializes the logger instance for this module
+ *
+ * @private
+ * @returns Logger instance or null if LoggerFactory unavailable
+ */
+function getLogger() {
+  // Always check for LoggerFactory first (don't cache for tests)
+  if (typeof window !== 'undefined' && window.LoggerFactory) {
+    try {
+      return window.LoggerFactory.getLogger('background-polyfill');
+    } catch {
+      // Fall back to legacy Logger if available
+      if (window.Logger) {
+        return window.Logger;
+      }
+    }
+  }
+
+  // Check for self context (background scripts)
+  if (typeof self !== 'undefined' && self.LoggerFactory) {
+    try {
+      return self.LoggerFactory.getLogger('background-polyfill');
+    } catch {
+      // Fall back to legacy Logger if available
+      if (self.Logger) {
+        return self.Logger;
+      }
+    }
+  }
+
+  // If no LoggerFactory, try legacy Logger in either context
+  if (typeof window !== 'undefined' && window.Logger) {
+    return window.Logger;
+  }
+  if (typeof self !== 'undefined' && self.Logger) {
+    return self.Logger;
+  }
+
+  return null;
+}
+
+/**
  * Determine the correct browser API namespace ('chrome' or 'browser').
  * This variable holds the API root object for consistent cross-browser access.
  *
@@ -25,9 +67,12 @@ function openOptionsOnClick() {
   if (browserAPI && browserAPI.runtime && browserAPI.runtime.openOptionsPage) {
     browserAPI.runtime.openOptionsPage();
   } else {
-    console.error(
-      'Trump Goggles: Cannot open options page - browserAPI.runtime.openOptionsPage not found.'
-    );
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.error(
+        'Background polyfill: Cannot open options page - browserAPI.runtime.openOptionsPage not found'
+      );
+    }
   }
 }
 
@@ -49,7 +94,10 @@ if (browserAPI && browserAPI.action && browserAPI.action.onClicked) {
   // Manifest V2 API (browser.browserAction or chrome.browserAction)
   browserAPI.browserAction.onClicked.addListener(openOptionsOnClick);
 } else {
-  console.error(
-    'Trump Goggles: Could not attach listener - browserAPI.action/browserAction.onClicked not found.'
-  );
+  const currentLogger = getLogger();
+  if (currentLogger) {
+    currentLogger.error(
+      'Background polyfill: Could not attach listener - browserAPI.action/browserAction.onClicked not found'
+    );
+  }
 }

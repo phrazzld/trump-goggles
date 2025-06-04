@@ -255,7 +255,7 @@
   - **Done‑when:**
     1. `src/background/background-combined.js` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T028 · Refactor · P2: migrate src/background/background-polyfill.js to new logger**
+- [x] **T028 · Refactor · P2: migrate src/background/background-polyfill.js to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.
