@@ -7,6 +7,7 @@
  */
 
 import { StructuredLogger, Logger } from './structured-logger';
+import { createLegacyShim } from './logger-adapter';
 
 /**
  * Factory class for creating and managing logger instances.
@@ -30,8 +31,18 @@ export class LoggerFactory {
    * - Prepare the factory for logger creation
    */
   public static initialize(): void {
-    // Implementation will be added in T017
-    throw new Error('LoggerFactory.initialize() not yet implemented');
+    // Create the root structured logger with application metadata
+    this._structured = new StructuredLogger('trump-goggles', {
+      service_name: 'trump-goggles',
+      version: '18.5.0',
+      environment: 'extension',
+    });
+
+    // Create and assign the legacy compatibility shim
+    const legacyShim = createLegacyShim(this._structured);
+    // Type assertion needed due to existing LoggerInterface declaration
+    // This will be resolved when we complete the migration to structured logging
+    (window as any).Logger = legacyShim;
   }
 
   /**

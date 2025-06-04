@@ -154,7 +154,7 @@
   - **Done‑when:**
     1. `LoggerFactory` class structure is defined as per the plan.
   - **Depends‑on:** [T001, T002]
-- [ ] **T017 · Feature · P1: implement loggerfactory.initialize() method**
+- [x] **T017 · Feature · P1: implement loggerfactory.initialize() method**
   - **Context:** Plan Details > Phase 2: Integration > 2.1 Logger Factory (`src/utils/logger-factory.ts`)
   - **Action:**
     1. In `LoggerFactory.initialize()`:
