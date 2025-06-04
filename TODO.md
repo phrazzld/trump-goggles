@@ -239,7 +239,7 @@
   - **Done‑when:**
     1. `src/content/text-processor.js` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T026 · Refactor · P2: migrate src/content/mutation-observer.js to new logger**
+- [x] **T026 · Refactor · P2: migrate src/content/mutation-observer.js to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.
