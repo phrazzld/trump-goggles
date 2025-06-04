@@ -42,6 +42,13 @@ describe('DOMModifier', () => {
 
     // Attach Logger to window
     window.Logger = mockLogger;
+
+    // Mock LoggerFactory for new structured logging
+    const mockLoggerFactory = {
+      getLogger: vi.fn().mockReturnValue(mockLogger),
+      initialize: vi.fn(),
+    };
+    window.LoggerFactory = mockLoggerFactory;
   });
 
   afterEach(() => {

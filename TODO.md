@@ -223,7 +223,7 @@
   - **Done‑when:**
     1. `src/utils/security-utils.ts` uses `LoggerFactory` exclusively for logging.
   - **Depends‑on:** [T018]
-- [ ] **T024 · Refactor · P2: migrate src/content/dom-modifier.ts to new logger**
+- [x] **T024 · Refactor · P2: migrate src/content/dom-modifier.ts to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order
   - **Action:**
     1. Import `LoggerFactory`.

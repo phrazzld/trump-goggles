@@ -11,6 +11,33 @@
 
 'use strict';
 
+/**
+ * Gets or initializes the logger instance for this module
+ *
+ * @private
+ * @returns Logger instance or null if LoggerFactory unavailable
+ */
+function getLogger(): any {
+  // Always check for LoggerFactory first (don't cache for tests)
+  if ((window as any).LoggerFactory) {
+    try {
+      return (window as any).LoggerFactory.getLogger('dom-modifier');
+    } catch {
+      // Fall back to legacy Logger if available
+      if ((window as any).Logger) {
+        return (window as any).Logger;
+      }
+    }
+  }
+
+  // If no LoggerFactory, try legacy Logger
+  if ((window as any).Logger) {
+    return (window as any).Logger;
+  }
+
+  return null;
+}
+
 // Import interfaces from types.d.ts
 interface TextSegmentConversion {
   readonly originalText: string;
@@ -41,15 +68,10 @@ const ORIGINAL_TEXT_DATA_ATTR: string = 'data-original-text';
  * @returns True if modifications were made, false otherwise
  */
 function innerImplementation(textNode: Text, segments: TextSegmentConversion[]): boolean {
-  // Use window.Logger if available, otherwise fall back to console
-  if (window.Logger) {
-    window.Logger.debug('DOMModifier: Starting innerImplementation', {
-      hasTextNode: !!textNode,
-      textNodeType: textNode?.nodeType,
-      segmentsLength: segments?.length,
-    });
-  } else {
-    console.log('DOMModifier: Starting innerImplementation', {
+  // Log entry to the function
+  const currentLogger = getLogger();
+  if (currentLogger) {
+    currentLogger.debug('DOMModifier: Starting innerImplementation', {
       hasTextNode: !!textNode,
       textNodeType: textNode?.nodeType,
       segmentsLength: segments?.length,
@@ -58,19 +80,17 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
 
   // Validate inputs
   if (!textNode || !textNode.nodeValue || textNode.nodeType !== Node.TEXT_NODE) {
-    if (window.Logger) {
-      window.Logger.debug('DOMModifier: Invalid text node provided', { textNode });
-    } else {
-      console.log('DOMModifier: Invalid text node provided', { textNode });
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.debug('DOMModifier: Invalid text node provided', { textNode });
     }
     return false;
   }
 
   if (!segments || !Array.isArray(segments) || segments.length === 0) {
-    if (window.Logger) {
-      window.Logger.debug('DOMModifier: No segments to process', { segments });
-    } else {
-      console.log('DOMModifier: No segments to process', { segments });
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.debug('DOMModifier: No segments to process', { segments });
     }
     return false;
   }
@@ -79,10 +99,9 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
   const originalText = textNode.nodeValue;
 
   if (!parentNode) {
-    if (window.Logger) {
-      window.Logger.debug('DOMModifier: Text node has no parent', { textNode });
-    } else {
-      console.log('DOMModifier: Text node has no parent', { textNode });
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.debug('DOMModifier: Text node has no parent', { textNode });
     }
     return false;
   }
@@ -103,10 +122,9 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
         segment.endIndex > originalText.length ||
         segment.startIndex >= segment.endIndex
       ) {
-        if (window.Logger) {
-          window.Logger.warn('DOMModifier: Invalid segment indices', { segment });
-        } else {
-          console.warn('DOMModifier: Invalid segment indices', { segment });
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.warn('DOMModifier: Invalid segment indices', { segment });
         }
         continue;
       }
@@ -132,14 +150,9 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
       textNode = afterSegment;
       modified = true;
 
-      if (window.Logger) {
-        window.Logger.debug('DOMModifier: Text segment wrapped', {
-          originalText: segment.originalText,
-          convertedText: segment.convertedText,
-          element: wrapper,
-        });
-      } else {
-        console.log('DOMModifier: Text segment wrapped', {
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.debug('DOMModifier: Text segment wrapped', {
           originalText: segment.originalText,
           convertedText: segment.convertedText,
           element: wrapper,
@@ -149,14 +162,9 @@ function innerImplementation(textNode: Text, segments: TextSegmentConversion[]):
 
     return modified;
   } catch (err) {
-    if (window.Logger) {
-      window.Logger.error('DOMModifier: Error during text node processing', {
-        error: err,
-        textNode,
-        segments,
-      });
-    } else {
-      console.error('DOMModifier: Error during text node processing', {
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.error('DOMModifier: Error during text node processing', {
         error: err,
         textNode,
         segments,
@@ -179,8 +187,9 @@ function processTextNodeAndWrapSegments(
   segments: TextSegmentConversion[]
 ): boolean {
   // Debug log entry point
-  if (window.Logger) {
-    window.Logger.debug('DOMModifier: processTextNodeAndWrapSegments called', {
+  const currentLogger = getLogger();
+  if (currentLogger) {
+    currentLogger.debug('DOMModifier: processTextNodeAndWrapSegments called', {
       textContent: textNode?.nodeValue?.substring(0, 50) + '...',
       segmentsLength: segments?.length,
       segments: segments,
@@ -192,25 +201,14 @@ function processTextNodeAndWrapSegments(
     return innerImplementation(textNode, segments);
   }
 
-  // Use error protection if available
-  if (window.Logger && typeof window.Logger.protect === 'function') {
-    const protectedFn = window.Logger.protect(
-      processImplementation,
-      'processTextNodeAndWrapSegments',
-      false
-    );
-    return protectedFn();
-  }
-
-  // Fallback to direct execution
+  // Execute with error handling
   try {
     return processImplementation();
   } catch (error) {
     // Log error and return false
-    if (window.Logger) {
-      window.Logger.error('DOMModifier: Error processing text node', { error });
-    } else {
-      console.error('DOMModifier: Error processing text node', { error });
+    const currentLogger = getLogger();
+    if (currentLogger) {
+      currentLogger.error('DOMModifier: Error processing text node', { error });
     }
     return false;
   }
