@@ -125,7 +125,7 @@
   - **Done‑when:**
     1. `LegacyLoggerInterface` is defined and matches the plan's implied structure.
   - **Depends‑on:** none
-- [ ] **T014 · Feature · P1: implement createlegacyshim function in logger-adapter.ts**
+- [x] **T014 · Feature · P1: implement createlegacyshim function in logger-adapter.ts**
   - **Context:** Plan Details > Phase 1: Foundation > 1.3 Legacy Adapter (`src/utils/logger-adapter.ts`)
   - **Action:**
     1. Implement the `createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface` function.
@@ -133,7 +133,7 @@
   - **Done‑when:**
     1. `createLegacyShim` function is implemented and returns an object conforming to `LegacyLoggerInterface`.
   - **Depends‑on:** [T001, T013]
-- [ ] **T015 · Feature · P1: map legacy logger methods to structuredlogger in createlegacyshim**
+- [x] **T015 · Feature · P1: map legacy logger methods to structuredlogger in createlegacyshim**
   - **Context:** Plan Details > Phase 1: Foundation > 1.3 Legacy Adapter (`src/utils/logger-adapter.ts`)
   - **Action:**
     1. Implement the methods of the returned object in `createLegacyShim` (e.g., `debug`, `info`, `warn`, `error`).
