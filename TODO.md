@@ -196,7 +196,7 @@
 
 ## Migration Strategy: File-by-File
 
-- [ ] **T021 · Refactor · P1: migrate src/components/tooltip-manager.ts to new logger**
+- [x] **T021 · Refactor · P1: migrate src/components/tooltip-manager.ts to new logger**
   - **Context:** Plan Details > Phase 3: Migration Strategy > 3.1 Priority Order & 3.2 Per-File Migration Pattern
   - **Action:**
     1. Import `LoggerFactory` from `../utils/logger-factory`.
@@ -275,7 +275,7 @@
 
 ## Testing Strategy
 
-- [ ] **T030 · Test · P1: write unit tests for structured-logger.ts core logic**
+- [x] **T030 · Test · P1: write unit tests for structured-logger.ts core logic**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.1 Unit Tests > `structured-logger.test.ts`
   - **Action:**
     1. Create `test/utils/structured-logger.test.ts`.
@@ -292,7 +292,7 @@
   - **Done‑when:**
     1. Unit tests achieve >95% coverage for `logger-context.ts`.
   - **Depends‑on:** [T010, T011, T012, T041, T042]
-- [ ] **T032 · Test · P1: write unit tests for logger-adapter.ts**
+- [x] **T032 · Test · P1: write unit tests for logger-adapter.ts**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.1 Unit Tests > `logger-adapter.test.ts`
   - **Action:**
     1. Create `test/utils/logger-adapter.test.ts`.
@@ -301,7 +301,7 @@
     1. Unit tests achieve >95% coverage for `logger-adapter.ts`.
     2. Existing API calls work unchanged via the adapter.
   - **Depends‑on:** [T015]
-- [ ] **T033 · Test · P1: write integration tests for logger-factory and end-to-end flows**
+- [x] **T033 · Test · P1: write integration tests for logger-factory and end-to-end flows**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.1 Unit Tests > `logger-integration.test.ts`
   - **Action:**
     1. Create `test/utils/logger-integration.test.ts`.
@@ -309,7 +309,7 @@
   - **Done‑when:**
     1. Integration tests validate the logger factory and cross-module logging flows.
   - **Depends‑on:** [T018]
-- [ ] **T034 · Test · P1: implement e2e test for structured logging in browser extension context**
+- [x] **T034 · Test · P1: implement e2e test for structured logging in browser extension context**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.2 Integration Tests > `test/e2e/logging.spec.ts`
   - **Action:**
     1. Create or update `test/e2e/logging.spec.ts`.
@@ -330,7 +330,7 @@
 
 ## Observability & Monitoring
 
-- [ ] **T036 · Feature · P1: implement input sanitization utility for logging**
+- [x] **T036 · Feature · P1: implement input sanitization utility for logging**
   - **Context:** Plan Details > Security Considerations > Input Sanitization
   - **Action:**
     1. Create a utility function `sanitizeForLogging(data: unknown): unknown`.
@@ -342,7 +342,7 @@
     2. `StructuredLogger` uses this utility to sanitize all contextual data.
     3. Logs from `tooltip-manager.ts` (especially `originalText`) are confirmed to be sanitized.
   - **Depends‑on:** [T002]
-- [ ] **T037 · Feature · P1: implement secret detection and filtering in structuredlogger**
+- [x] **T037 · Feature · P1: implement secret detection and filtering in structuredlogger**
   - **Context:** Plan Details > Security Considerations > Secret Detection
   - **Action:**
     1. Enhance `StructuredLogger` or the sanitization process to include pre-logging content filtering.
@@ -351,7 +351,7 @@
   - **Done‑when:**
     1. Logs do not contain forbidden sensitive content in clear text.
   - **Depends‑on:** [T002, T036]
-- [ ] **T038 · Chore · P2: implement log structure validation script (validate-logs.ts)**
+- [x] **T038 · Chore · P2: implement log structure validation script (validate-logs.ts)**
   - **Context:** Plan Details > Phase 5: Observability & Monitoring > 5.1 Log Analysis Validation > Required Fields Checker
   - **Action:**
     1. Create `scripts/validate-logs.ts`.
@@ -359,7 +359,7 @@
   - **Done‑when:**
     1. `validateLogEntry` function correctly validates log entries against the required fields list.
   - **Depends‑on:** none
-- [ ] **T039 · Chore · P2: integrate log structure validation into ci pipeline**
+- [x] **T039 · Chore · P2: integrate log structure validation into ci pipeline**
   - **Context:** Plan Details > Phase 5: Observability & Monitoring > 5.1 Log Analysis Validation > Automated Checks
   - **Action:**
     1. Add a CI step that runs E2E tests, captures their log output, and pipes it to a script that uses `scripts/validate-logs.ts` (or similar jq command) to validate structure.
