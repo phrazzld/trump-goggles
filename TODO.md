@@ -320,7 +320,7 @@
   - **Done‑when:**
     1. E2E test successfully validates structured JSON output in the browser console.
   - **Depends‑on:** [T020, T029]
-- [ ] **T035 · Chore · P2: ensure mock policy compliance in all tests**
+- [x] **T035 · Chore · P2: ensure mock policy compliance in all tests**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.3 Mock Policy Compliance
   - **Action:**
     1. Review all new and existing tests related to the logging system.
@@ -328,6 +328,8 @@
     3. Ensure no mocking of internal Logger interfaces or the `LoggerContext` class.
   - **Done‑when:**
     1. All logging system tests comply with the specified mock policy.
+    2. Refactored logger-adapter.test.ts to use real StructuredLogger instead of mocking internal collaborators.
+    3. All 8 logging test files reviewed and 7/8 compliant, 1 violation fixed.
   - **Depends‑on:** [T030, T031, T032, T033, T034]
 
 ## Observability & Monitoring
