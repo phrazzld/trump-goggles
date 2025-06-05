@@ -284,13 +284,15 @@
     1. Unit tests achieve >95% coverage for `structured-logger.ts`.
     2. All specified key test cases pass.
   - **Depends‑on:** [T003, T004, T005, T006, T007, T008, T009, T036]
-- [ ] **T031 · Test · P1: write unit tests for logger-context.ts**
+- [x] **T031 · Test · P1: write unit tests for logger-context.ts**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.1 Unit Tests > `logger-context.test.ts`
   - **Action:**
     1. Create `test/utils/logger-context.test.ts`.
     2. Write tests covering: singleton behavior, correlation ID generation (UUID v4 format), stack operations (`push`, `pop`, `getCurrentCorrelation`), and context propagation logic.
   - **Done‑when:**
     1. Unit tests achieve >95% coverage for `logger-context.ts`.
+    2. All 27 test cases pass covering edge cases and integration scenarios.
+    3. 100% coverage achieved across all metrics.
   - **Depends‑on:** [T010, T011, T012, T041, T042]
 - [x] **T032 · Test · P1: write unit tests for logger-adapter.ts**
   - **Context:** Plan Details > Phase 4: Testing Strategy > 4.1 Unit Tests > `logger-adapter.test.ts`
