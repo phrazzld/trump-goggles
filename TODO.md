@@ -371,7 +371,7 @@
   - **Done‑when:**
     1. CI pipeline includes automated validation of log structure from test outputs.
   - **Depends‑on:** [T034, T038]
-- [ ] **T040 · Chore · P3: implement performance benchmarks for logging system**
+- [x] **T040 · Chore · P3: implement performance benchmarks for logging system**
   - **Context:** Plan Details > Phase 5: Observability & Monitoring > 5.2 Performance Monitoring > Benchmarks
   - **Action:**
     1. Create benchmarks to measure: logs/second throughput, memory overhead of context objects, and latency impact of logging calls.
@@ -379,6 +379,8 @@
     1. Performance benchmarks are implemented and can be run.
     2. Baseline performance metrics are established.
     3. Performance overhead is confirmed to be <5% vs current implementation.
+    4. Comprehensive benchmark system with 15 test cases validating all measurement functions.
+    5. Manual benchmark runner for real-world performance assessment.
   - **Depends‑on:** [T018]
 - [x] **T041 · Feature · P2: implement logger output throttling mechanism**
   - **Context:** Plan Details > Risk Assessment & Mitigation > Contingency Plans > Performance Issues
