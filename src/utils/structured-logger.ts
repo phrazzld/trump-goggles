@@ -30,6 +30,26 @@ export interface LogEntry {
 }
 
 /**
+ * Configuration for logger throttling behavior
+ */
+export interface ThrottlingConfig {
+  /** Whether throttling is enabled (default: true) */
+  enabled?: boolean;
+  /** Maximum logs per second allowed (default: 100) */
+  maxLogsPerSecond?: number;
+  /** Interval between throttling warning messages in ms (default: 10000) */
+  warningInterval?: number;
+}
+
+/**
+ * Configuration options for StructuredLogger
+ */
+export interface LoggerConfig {
+  /** Throttling configuration */
+  throttling?: ThrottlingConfig;
+}
+
+/**
  * Logger interface defining the contract for structured logging operations.
  * Supports hierarchical loggers with context inheritance and component naming.
  */
@@ -81,19 +101,126 @@ export interface Logger {
  * Implementation of the Logger interface that produces structured JSON logs.
  * Supports hierarchical loggers with context inheritance through child() and withContext() methods.
  * Child loggers inherit all context from their parent, and contexts can be merged with new values.
+ * Includes configurable throttling to prevent performance issues under high load.
  */
 export class StructuredLogger implements Logger {
   private readonly component: string;
   private readonly context: Record<string, unknown>;
+  private readonly throttlingConfig: ThrottlingConfig;
+
+  // Throttling state
+  private logTimestamps: number[] = [];
+  private throttledCount: number = 0;
+  private lastWarningTime: number = -1; // Use -1 as sentinel for "never warned"
 
   /**
    * Creates a new StructuredLogger instance
    * @param component - Component name for this logger instance
    * @param context - Logger-level context data
+   * @param config - Logger configuration options including throttling
    */
-  constructor(component: string = 'placeholder-component', context: Record<string, unknown> = {}) {
+  constructor(
+    component: string = 'placeholder-component',
+    context: Record<string, unknown> = {},
+    config: LoggerConfig = {}
+  ) {
     this.component = component;
     this.context = context;
+
+    // Set up throttling configuration with defaults
+    this.throttlingConfig = {
+      enabled: config.throttling?.enabled !== false, // Default to enabled
+      maxLogsPerSecond: Math.max(1, config.throttling?.maxLogsPerSecond || 100),
+      warningInterval: Math.max(1000, config.throttling?.warningInterval || 10000),
+    };
+  }
+
+  /**
+   * Gets current timestamp for throttling calculations
+   * @private
+   * @returns Current timestamp in milliseconds
+   */
+  private getCurrentTime(): number {
+    try {
+      return performance.now();
+    } catch {
+      // Fallback to Date.now() if performance.now() is not available
+      return Date.now();
+    }
+  }
+
+  /**
+   * Checks if a log should be allowed based on throttling configuration
+   * @private
+   * @returns True if log should be allowed, false if throttled
+   */
+  private shouldAllowLog(): boolean {
+    if (!this.throttlingConfig.enabled) {
+      return true;
+    }
+
+    const now = this.getCurrentTime();
+    const oneSecondAgo = now - 1000;
+
+    // Remove timestamps older than 1 second
+    this.logTimestamps = this.logTimestamps.filter((timestamp) => timestamp > oneSecondAgo);
+
+    // Check if we're under the rate limit
+    if (this.logTimestamps.length < this.throttlingConfig.maxLogsPerSecond!) {
+      this.logTimestamps.push(now);
+      return true;
+    }
+
+    // Rate limit exceeded
+    this.throttledCount++;
+    this.emitThrottlingWarningIfNeeded(now);
+    return false;
+  }
+
+  /**
+   * Emits a warning when throttling occurs, but throttles the warnings themselves
+   * @private
+   * @param currentTime - Current timestamp
+   */
+  private emitThrottlingWarningIfNeeded(currentTime: number): void {
+    // Only emit warning if enough time has passed since last warning
+    // OR if this is the very first warning (lastWarningTime === -1)
+    if (this.lastWarningTime === -1) {
+      // First warning - emit immediately
+      this.emitThrottlingWarning(currentTime);
+    } else {
+      // Check if enough time has passed for subsequent warnings
+      const timeSinceLastWarning = currentTime - this.lastWarningTime;
+      if (timeSinceLastWarning >= this.throttlingConfig.warningInterval!) {
+        this.emitThrottlingWarning(currentTime);
+      }
+      // Otherwise, silently increment throttled count but don't emit warning
+    }
+  }
+
+  /**
+   * Emits the actual throttling warning message
+   * @private
+   * @param currentTime - Current timestamp for recording warning time
+   */
+  private emitThrottlingWarning(currentTime: number): void {
+    // Create warning log entry directly to avoid recursion
+    const warningEntry = this.createLogEntry(
+      'warn',
+      `Logger throttling active: ${this.throttledCount} logs dropped`,
+      {
+        throttled_count: this.throttledCount,
+        rate_limit: this.throttlingConfig.maxLogsPerSecond,
+        time_window: '1 second',
+        component: this.component,
+      }
+    );
+
+    console.warn(JSON.stringify(warningEntry));
+
+    // Update last warning time and reset throttled count
+    this.lastWarningTime = currentTime;
+    this.throttledCount = 0;
   }
 
   /**
@@ -144,6 +271,26 @@ export class StructuredLogger implements Logger {
   }
 
   /**
+   * Sanitizes data for safe logging using the security utils
+   * @private
+   * @param data - Data to sanitize
+   * @returns Sanitized data
+   */
+  private sanitizeData(data: unknown): unknown {
+    try {
+      // Import sanitizeForLogging dynamically to avoid circular dependencies
+      if ((window as any).SecurityUtils?.sanitizeForLogging) {
+        return (window as any).SecurityUtils.sanitizeForLogging(data);
+      }
+      // Fallback if SecurityUtils not available
+      return data;
+    } catch (error) {
+      // If sanitization fails, return safe fallback
+      return '[SANITIZATION_FAILED]';
+    }
+  }
+
+  /**
    * Creates a structured log entry with all required fields
    * @private
    * @param level - The log level
@@ -162,20 +309,26 @@ export class StructuredLogger implements Logger {
       ...(methodContext || {}),
     };
 
-    // Serialize error details for error-level logs
-    const errorDetails = level === 'error' ? this.serializeError(finalContext) : undefined;
+    // Sanitize the message for safe logging
+    const sanitizedMessage = this.sanitizeData(message) as string;
+
+    // Sanitize the context for safe logging
+    const sanitizedContext = this.sanitizeData(finalContext) as Record<string, unknown>;
+
+    // Serialize error details for error-level logs (applied to sanitized context)
+    const errorDetails = level === 'error' ? this.serializeError(sanitizedContext) : undefined;
 
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
-      message,
+      message: sanitizedMessage,
       service_name: 'trump-goggles',
       correlation_id:
         (window as any).LoggerContext?.getInstance().getCurrentCorrelation() || 'no-correlation',
       function_name: this.extractCallerFunctionName(),
       component: this.component,
       ...(errorDetails && { error_details: errorDetails }),
-      ...(Object.keys(finalContext).length > 0 && { context: finalContext }),
+      ...(Object.keys(sanitizedContext).length > 0 && { context: sanitizedContext }),
     };
 
     return logEntry;
@@ -187,6 +340,9 @@ export class StructuredLogger implements Logger {
    * @param context - Optional additional context data
    */
   debug(message: string, context?: Record<string, unknown>): void {
+    if (!this.shouldAllowLog()) {
+      return;
+    }
     const logEntry = this.createLogEntry('debug', message, context);
     console.debug(JSON.stringify(logEntry));
   }
@@ -197,6 +353,9 @@ export class StructuredLogger implements Logger {
    * @param context - Optional additional context data
    */
   info(message: string, context?: Record<string, unknown>): void {
+    if (!this.shouldAllowLog()) {
+      return;
+    }
     const logEntry = this.createLogEntry('info', message, context);
     console.info(JSON.stringify(logEntry));
   }
@@ -207,6 +366,9 @@ export class StructuredLogger implements Logger {
    * @param context - Optional additional context data
    */
   warn(message: string, context?: Record<string, unknown>): void {
+    if (!this.shouldAllowLog()) {
+      return;
+    }
     const logEntry = this.createLogEntry('warn', message, context);
     console.warn(JSON.stringify(logEntry));
   }
@@ -217,6 +379,9 @@ export class StructuredLogger implements Logger {
    * @param context - Optional additional context data
    */
   error(message: string, context?: Record<string, unknown>): void {
+    if (!this.shouldAllowLog()) {
+      return;
+    }
     const logEntry = this.createLogEntry('error', message, context);
     console.error(JSON.stringify(logEntry));
   }
@@ -230,7 +395,9 @@ export class StructuredLogger implements Logger {
    */
   withContext(newContext: Record<string, unknown>): Logger {
     const mergedContext = { ...this.context, ...newContext };
-    return new StructuredLogger(this.component, mergedContext);
+    return new StructuredLogger(this.component, mergedContext, {
+      throttling: this.throttlingConfig,
+    });
   }
 
   /**
@@ -240,7 +407,7 @@ export class StructuredLogger implements Logger {
    * @returns New logger instance configured for the specified component with inherited context
    */
   child(component: string): Logger {
-    return new StructuredLogger(component, this.context);
+    return new StructuredLogger(component, this.context, { throttling: this.throttlingConfig });
   }
 }
 

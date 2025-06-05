@@ -376,7 +376,7 @@
     2. Baseline performance metrics are established.
     3. Performance overhead is confirmed to be <5% vs current implementation.
   - **Depends‑on:** [T018]
-- [ ] **T041 · Feature · P2: implement logger output throttling mechanism**
+- [x] **T041 · Feature · P2: implement logger output throttling mechanism**
   - **Context:** Plan Details > Risk Assessment & Mitigation > Contingency Plans > Performance Issues
   - **Action:**
     1. Add logic to `StructuredLogger` to throttle log output (e.g., max entries per second).
