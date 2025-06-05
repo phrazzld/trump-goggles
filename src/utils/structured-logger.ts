@@ -42,11 +42,27 @@ export interface ThrottlingConfig {
 }
 
 /**
+ * Configuration for context size limiting behavior
+ */
+export interface ContextSizeLimitConfig {
+  /** Whether context size limiting is enabled (default: true) */
+  enabled?: boolean;
+  /** Maximum context size in bytes (default: 1024) */
+  maxSizeBytes?: number;
+  /** Action to take when limit exceeded: 'truncate' or 'warn' (default: 'truncate') */
+  onExceed?: 'truncate' | 'warn';
+  /** Whether to emit warnings when truncating (default: true) */
+  emitWarnings?: boolean;
+}
+
+/**
  * Configuration options for StructuredLogger
  */
 export interface LoggerConfig {
   /** Throttling configuration */
   throttling?: ThrottlingConfig;
+  /** Context size limiting configuration */
+  contextSizeLimit?: ContextSizeLimitConfig;
 }
 
 /**
@@ -107,6 +123,7 @@ export class StructuredLogger implements Logger {
   private readonly component: string;
   private readonly context: Record<string, unknown>;
   private readonly throttlingConfig: ThrottlingConfig;
+  private readonly contextSizeLimitConfig: ContextSizeLimitConfig;
 
   // Throttling state
   private logTimestamps: number[] = [];
@@ -132,6 +149,14 @@ export class StructuredLogger implements Logger {
       enabled: config.throttling?.enabled !== false, // Default to enabled
       maxLogsPerSecond: Math.max(1, config.throttling?.maxLogsPerSecond || 100),
       warningInterval: Math.max(1000, config.throttling?.warningInterval || 10000),
+    };
+
+    // Set up context size limiting configuration with defaults
+    this.contextSizeLimitConfig = {
+      enabled: config.contextSizeLimit?.enabled !== false, // Default to enabled
+      maxSizeBytes: Math.max(100, config.contextSizeLimit?.maxSizeBytes || 1024), // Default 1KB
+      onExceed: config.contextSizeLimit?.onExceed || 'truncate', // Default to truncate
+      emitWarnings: config.contextSizeLimit?.emitWarnings !== false, // Default to enabled
     };
   }
 
@@ -291,6 +316,148 @@ export class StructuredLogger implements Logger {
   }
 
   /**
+   * Calculates the byte size of a context object using JSON serialization
+   * @private
+   * @param context - Context object to measure
+   * @returns Size in bytes
+   */
+  private calculateContextSize(context: Record<string, unknown>): number {
+    try {
+      return JSON.stringify(context).length;
+    } catch (error) {
+      // If serialization fails, assume it's oversized
+      return Number.MAX_SAFE_INTEGER;
+    }
+  }
+
+  /**
+   * Applies context size limiting based on configuration
+   * @private
+   * @param context - Context object to potentially limit
+   * @returns Limited context object
+   */
+  private limitContextSize(context: Record<string, unknown>): Record<string, unknown> {
+    if (!this.contextSizeLimitConfig.enabled) {
+      return context;
+    }
+
+    const contextSize = this.calculateContextSize(context);
+    const maxSize = this.contextSizeLimitConfig.maxSizeBytes!;
+
+    if (contextSize <= maxSize) {
+      return context;
+    }
+
+    // Size limit exceeded
+    if (this.contextSizeLimitConfig.onExceed === 'warn') {
+      // Log warning but keep full context
+      if (this.contextSizeLimitConfig.emitWarnings) {
+        this.emitContextSizeWarning(contextSize, maxSize);
+      }
+      return context;
+    } else {
+      // Truncate context
+      if (this.contextSizeLimitConfig.emitWarnings) {
+        this.emitContextSizeWarning(contextSize, maxSize);
+      }
+      return this.truncateContext(context, maxSize);
+    }
+  }
+
+  /**
+   * Emits a warning when context size limit is exceeded
+   * @private
+   * @param actualSize - Actual size of context in bytes
+   * @param maxSize - Maximum allowed size in bytes
+   */
+  private emitContextSizeWarning(actualSize: number, maxSize: number): void {
+    const warningEntry = this.createLogEntryDirect(
+      'warn',
+      `Context size limit exceeded: ${actualSize} bytes > ${maxSize} bytes`,
+      {
+        actual_size_bytes: actualSize,
+        max_size_bytes: maxSize,
+        action: this.contextSizeLimitConfig.onExceed,
+        component: this.component,
+      }
+    );
+
+    console.warn(JSON.stringify(warningEntry));
+  }
+
+  /**
+   * Truncates context to fit within size limit
+   * @private
+   * @param context - Original context object
+   * @param maxSize - Maximum allowed size in bytes
+   * @returns Truncated context object
+   */
+  private truncateContext(
+    context: Record<string, unknown>,
+    maxSize: number
+  ): Record<string, unknown> {
+    const truncatedContext: Record<string, unknown> = {};
+    let currentSize = 2; // Start with empty object "{}"
+
+    // Add the truncation marker first
+    const truncationMarker = { _truncated: true };
+    const markerSize = JSON.stringify(truncationMarker).length - 2; // Subtract "{}"
+    currentSize += markerSize;
+    Object.assign(truncatedContext, truncationMarker);
+
+    // Add fields one by one until we approach the limit
+    for (const [key, value] of Object.entries(context)) {
+      try {
+        const fieldEntry = { [key]: value };
+        const fieldSize = JSON.stringify(fieldEntry).length - 2; // Subtract "{}"
+
+        // Leave some buffer for JSON formatting (commas, etc.)
+        if (currentSize + fieldSize + 10 <= maxSize) {
+          truncatedContext[key] = value;
+          currentSize += fieldSize + 1; // +1 for comma
+        } else {
+          break;
+        }
+      } catch (error) {
+        // Skip fields that can't be serialized
+        continue;
+      }
+    }
+
+    return truncatedContext;
+  }
+
+  /**
+   * Creates a log entry directly without context size limiting (used for internal warnings)
+   * @private
+   * @param level - The log level
+   * @param message - The log message
+   * @param context - Context data (assumed to be small)
+   * @returns Complete LogEntry object
+   */
+  private createLogEntryDirect(
+    level: 'debug' | 'info' | 'warn' | 'error',
+    message: string,
+    context: Record<string, unknown>
+  ): LogEntry {
+    // Sanitize the message and context for safe logging
+    const sanitizedMessage = this.sanitizeData(message) as string;
+    const sanitizedContext = this.sanitizeData(context) as Record<string, unknown>;
+
+    return {
+      timestamp: new Date().toISOString(),
+      level,
+      message: sanitizedMessage,
+      service_name: 'trump-goggles',
+      correlation_id:
+        (window as any).LoggerContext?.getInstance().getCurrentCorrelation() || 'no-correlation',
+      function_name: this.extractCallerFunctionName(),
+      component: this.component,
+      context: sanitizedContext,
+    };
+  }
+
+  /**
    * Creates a structured log entry with all required fields
    * @private
    * @param level - The log level
@@ -315,8 +482,11 @@ export class StructuredLogger implements Logger {
     // Sanitize the context for safe logging
     const sanitizedContext = this.sanitizeData(finalContext) as Record<string, unknown>;
 
-    // Serialize error details for error-level logs (applied to sanitized context)
-    const errorDetails = level === 'error' ? this.serializeError(sanitizedContext) : undefined;
+    // Apply context size limiting
+    const limitedContext = this.limitContextSize(sanitizedContext);
+
+    // Serialize error details for error-level logs (applied to limited context)
+    const errorDetails = level === 'error' ? this.serializeError(limitedContext) : undefined;
 
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
@@ -328,7 +498,7 @@ export class StructuredLogger implements Logger {
       function_name: this.extractCallerFunctionName(),
       component: this.component,
       ...(errorDetails && { error_details: errorDetails }),
-      ...(Object.keys(sanitizedContext).length > 0 && { context: sanitizedContext }),
+      ...(Object.keys(limitedContext).length > 0 && { context: limitedContext }),
     };
 
     return logEntry;
@@ -397,6 +567,7 @@ export class StructuredLogger implements Logger {
     const mergedContext = { ...this.context, ...newContext };
     return new StructuredLogger(this.component, mergedContext, {
       throttling: this.throttlingConfig,
+      contextSizeLimit: this.contextSizeLimitConfig,
     });
   }
 
@@ -407,7 +578,10 @@ export class StructuredLogger implements Logger {
    * @returns New logger instance configured for the specified component with inherited context
    */
   child(component: string): Logger {
-    return new StructuredLogger(component, this.context, { throttling: this.throttlingConfig });
+    return new StructuredLogger(component, this.context, {
+      throttling: this.throttlingConfig,
+      contextSizeLimit: this.contextSizeLimitConfig,
+    });
   }
 }
 

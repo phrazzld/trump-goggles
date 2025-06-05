@@ -383,10 +383,13 @@
   - **Done‑when:**
     1. Logger output can be throttled to prevent performance degradation under high load.
   - **Depends‑on:** [T002]
-- [ ] **T042 · Feature · P2: implement context size limit in structuredlogger**
+- [x] **T042 · Feature · P2: implement context size limit in structuredlogger**
   - **Context:** Plan Details > Risk Assessment & Mitigation > Contingency Plans > Performance Issues
   - **Action:**
     1. Add logic to `StructuredLogger` to limit the size of the `context` object per log entry (e.g., max 1KB).
     2. If limit is exceeded, truncate or log a warning.
   - **Done‑when:**
-    1. Log entry context size is limited to prevent
+    1. Log entry context size is limited to prevent memory issues and excessive log verbosity.
+    2. Configuration supports both 'truncate' and 'warn' modes.
+    3. Comprehensive tests verify functionality.
+  - **Depends‑on:** [T002]
