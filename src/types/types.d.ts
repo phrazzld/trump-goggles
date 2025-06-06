@@ -1341,6 +1341,10 @@ interface SecurityUtilsInterface {
    * where the string might be interpreted as HTML (e.g., log viewers)
    */
   escapeHTML: (str: string | null | undefined) => string;
+  /**
+   * Sanitizes data for logging to prevent exposure of sensitive information
+   */
+  sanitizeForLogging: (data: unknown) => unknown;
 }
 
 interface Window {

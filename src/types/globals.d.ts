@@ -34,6 +34,7 @@ interface TooltipManagerInterface {
 
 interface SecurityUtilsInterface {
   escapeHTML: (str: string | null | undefined) => string;
+  sanitizeForLogging: (data: unknown) => unknown;
 }
 
 interface Window {

@@ -65,7 +65,7 @@ interface Logger {
  * @param structuredLogger - The StructuredLogger instance to wrap
  * @returns An object implementing LegacyLoggerInterface that delegates to the StructuredLogger
  */
-function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
+export function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
   return {
     /**
      * Log a debug message with optional data
