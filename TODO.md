@@ -499,3 +499,85 @@
     2. Test functionality is preserved (no mocking of internal collaborators)
     3. Tests use window globals consistently
   - **Depends‑on:** [T044, T045, T046, T047, T048]
+
+## CI Pipeline Failures - Critical
+
+- [x] **T050 · Fix · P0: Fix test setup dependency on compiled modules causing CI failure**
+  - **Context:** CI pipeline failing because test/setup.ts tries to load compiled JS modules from dist/ directory, but tests run before build step
+  - **Root Cause:** Test setup was modified to load from dist/ but compiled modules don't exist during CI test execution
+  - **Error:** `File not found: /home/runner/work/trump-goggles/trump-goggles/dist/structured-logger.js`
+  - **Action:**
+    1. Revert test/setup.ts changes that load compiled modules from dist/ directory
+    2. Replace with direct TypeScript imports or manual window global setup
+    3. Ensure logging window globals are properly initialized without requiring build artifacts
+    4. Remove dependency on eval() of compiled JavaScript for test setup
+  - **Done‑when:**
+    1. test/setup.ts no longer attempts to load from dist/ directory
+    2. All logging window globals are properly initialized for tests
+    3. Tests can run without requiring a prior build step
+  - **Verification:**
+    1. `pnpm test` passes locally without prior build
+    2. No "File not found" errors in test output
+  - **Depends‑on:** [T049]
+
+- [ ] **T051 · Fix · P0: Verify all tests work with corrected window global setup**
+  - **Context:** After fixing test setup, ensure all logging-dependent tests continue to work properly
+  - **Action:**
+    1. Run individual test files that use logging components to verify they work
+    2. Run full test suite locally to check for any missed dependencies
+    3. Verify test coverage is maintained across all logging functionality
+    4. Check that both manual and automatic test setups work correctly
+  - **Done‑when:**
+    1. All individual logging tests pass: logger-adapter.test.ts, logger-context.test.ts, structured-logger-context-size.test.ts
+    2. Full test suite passes with 0 failures
+    3. No test functionality regression compared to previous working state
+  - **Verification:**
+    1. Run `pnpm test test/utils/logger-*.test.ts` - all pass
+    2. Run `pnpm test` - full suite passes
+    3. Test coverage report shows no significant drops
+  - **Depends‑on:** [T050]
+
+- [ ] **T052 · Fix · P0: Validate CI pipeline passes with test setup fixes**
+  - **Context:** Verify that CI pipeline works correctly after fixing test setup dependency issues
+  - **Action:**
+    1. Push test setup fixes to trigger CI run
+    2. Monitor CI pipeline execution for any remaining failures
+    3. Verify that lint, typecheck, and test phases all pass
+    4. Check for any new warnings or edge cases
+    5. If failures occur, analyze and create follow-up tasks
+  - **Done‑when:**
+    1. CI pipeline shows all green checkmarks for latest commit
+    2. Build step completes successfully
+    3. No "File not found" or module loading errors in CI logs
+  - **Verification:**
+    1. GitHub Actions shows successful CI run
+    2. All CI steps (lint, typecheck, test) pass
+    3. No error messages related to missing dist/ files
+  - **Depends‑on:** [T051]
+
+- [ ] **T053 · Fix · P1: Add prevention measures for test setup build dependency issues**
+  - **Context:** Prevent similar issues where tests accidentally depend on build artifacts
+  - **Action:**
+    1. Add documentation in test/README.md about test setup requirements
+    2. Consider adding a pre-test check that verifies no dist/ dependencies exist
+    3. Add comments in test/setup.ts explaining the design constraints
+    4. Review if lint-staged or other tools might be introducing problematic changes
+  - **Done‑when:**
+    1. Clear documentation exists about test independence from build artifacts
+    2. Test setup includes safeguards against build dependencies
+    3. Future developers understand the test environment constraints
+  - **Verification:**
+    1. Documentation clearly explains test setup approach
+    2. Comments in code prevent accidental reintroduction of issue
+  - **Depends‑on:** [T052]
+
+- [ ] **T054 · Cleanup · P2: Remove CI failure analysis documents**
+  - **Context:** Clean up temporary files created during CI failure analysis
+  - **Action:**
+    1. Remove CI-FAILURE-SUMMARY.md after resolution is complete
+    2. Remove CI-RESOLUTION-PLAN.md after implementation
+    3. Ensure any useful information is captured in permanent documentation
+  - **Done‑when:**
+    1. Temporary analysis files are removed from repository
+    2. No temporary files remain in working directory
+  - **Depends‑on:** [T053]
