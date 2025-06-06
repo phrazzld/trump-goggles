@@ -7,10 +7,6 @@
  */
 
 import { describe, it, beforeEach, afterEach } from 'vitest';
-import { LoggerFactory } from '../../src/utils/logger-factory';
-import { StructuredLogger } from '../../src/utils/structured-logger';
-import { createLegacyShim } from '../../src/utils/logger-adapter';
-import { LoggerContext } from '../../src/utils/logger-context';
 
 describe('CI Log Structure Validation', () => {
   let originalWindow: any;
@@ -32,29 +28,22 @@ describe('CI Log Structure Validation', () => {
     };
 
     // Set up window globals for dependencies WITHOUT mocking console
+    // Note: Core logging modules already loaded by test setup
     (global as any).window = {
-      StructuredLogger: {
-        Logger: StructuredLogger,
-      },
-      LoggerAdapter: {
-        createLegacyShim,
-      },
-      LoggerContext: {
-        getInstance: () => LoggerContext.getInstance(),
-      },
+      ...(global as any).window, // Preserve existing globals from test setup
       SecurityUtils: {
         sanitizeForLogging: (data: unknown) => data, // Pass-through for testing
       },
     };
 
-    // Reset LoggerFactory state
-    (LoggerFactory as any)._structured = null;
+    // Reset (window as any).LoggerFactory state
+    ((window as any).LoggerFactory as any)._structured = null;
 
     // Clear any existing window.Logger
     delete (global as any).window.Logger;
 
     // Initialize logger factory
-    LoggerFactory.initialize();
+    (window as any).LoggerFactory.initialize();
   });
 
   afterEach(() => {
@@ -62,15 +51,15 @@ describe('CI Log Structure Validation', () => {
     (global as any).window = originalWindow;
     global.console = originalConsole;
 
-    // Reset LoggerFactory state
-    (LoggerFactory as any)._structured = null;
+    // Reset (window as any).LoggerFactory state
+    ((window as any).LoggerFactory as any)._structured = null;
   });
 
   it('should generate valid structured logs for CI validation', () => {
     // Generate various types of logs that the CI pipeline will capture and validate
 
     // Basic logger usage
-    const basicLogger = LoggerFactory.getLogger('ci-validation-basic');
+    const basicLogger = (window as any).LoggerFactory.getLogger('ci-validation-basic');
     basicLogger.info('CI validation test - basic info log', { test_data: 'basic_test' });
     basicLogger.debug('CI validation test - debug log');
     basicLogger.warn('CI validation test - warning log', { warning_type: 'test_warning' });
@@ -84,7 +73,7 @@ describe('CI Log Structure Validation', () => {
     contextLogger.info('CI validation test - context logger');
 
     // Error logging with error details
-    const errorLogger = LoggerFactory.getLogger('ci-validation-error');
+    const errorLogger = (window as any).LoggerFactory.getLogger('ci-validation-error');
     const testError = new Error('Test error for CI validation');
     errorLogger.error('CI validation test - error with details', {
       error: testError,
@@ -92,9 +81,9 @@ describe('CI Log Structure Validation', () => {
     });
 
     // Multiple components demonstrating correlation ID propagation
-    const componentA = LoggerFactory.getLogger('component-a');
-    const componentB = LoggerFactory.getLogger('component-b');
-    const componentC = LoggerFactory.getLogger('component-c');
+    const componentA = (window as any).LoggerFactory.getLogger('component-a');
+    const componentB = (window as any).LoggerFactory.getLogger('component-b');
+    const componentC = (window as any).LoggerFactory.getLogger('component-c');
 
     componentA.info('CI validation - component A operation start');
     componentB.debug('CI validation - component B processing');
@@ -105,19 +94,19 @@ describe('CI Log Structure Validation', () => {
     legacyLogger.info('CI validation - legacy logger test', { legacy_data: { key: 'value' } });
 
     // Nested child loggers
-    const parentLogger = LoggerFactory.getLogger('parent-service');
+    const parentLogger = (window as any).LoggerFactory.getLogger('parent-service');
     const nestedChild = parentLogger.child('nested').child('deep-nested');
     nestedChild.info('CI validation - deeply nested logger');
 
     // Logger with complex context
-    const complexLogger = LoggerFactory.getLogger('complex-service');
+    const complexLogger = (window as any).LoggerFactory.getLogger('complex-service');
     const richContextLogger = complexLogger
       .withContext({ user_id: 'user123', session_id: 'session456' })
       .withContext({ transaction_id: 'txn789', operation: 'complex_test' });
     richContextLogger.info('CI validation - complex context logger');
 
     // High-level workflow simulation
-    const workflowLogger = LoggerFactory.getLogger('workflow-manager');
+    const workflowLogger = (window as any).LoggerFactory.getLogger('workflow-manager');
     workflowLogger.info('CI validation - workflow started', {
       workflow_id: 'ci_test_workflow',
       user_id: 'test_user',
@@ -135,7 +124,7 @@ describe('CI Log Structure Validation', () => {
   });
 
   it('should generate logs with proper error serialization', () => {
-    const errorLogger = LoggerFactory.getLogger('error-test-service');
+    const errorLogger = (window as any).LoggerFactory.getLogger('error-test-service');
 
     // Test different types of errors
     const standardError = new Error('Standard error for CI test');
@@ -159,7 +148,7 @@ describe('CI Log Structure Validation', () => {
   });
 
   it('should generate logs demonstrating all log levels', () => {
-    const levelLogger = LoggerFactory.getLogger('level-test-service');
+    const levelLogger = (window as any).LoggerFactory.getLogger('level-test-service');
 
     // Test all log levels
     levelLogger.debug('CI validation - debug level test', {
@@ -175,7 +164,7 @@ describe('CI Log Structure Validation', () => {
   });
 
   it('should generate logs with various context types', () => {
-    const contextLogger = LoggerFactory.getLogger('context-test-service');
+    const contextLogger = (window as any).LoggerFactory.getLogger('context-test-service');
 
     // Different context types
     contextLogger

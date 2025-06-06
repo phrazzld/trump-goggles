@@ -7,7 +7,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest';
-import { StructuredLogger } from '../../src/utils/structured-logger';
+import '../../src/utils/structured-logger'; // Import to populate window.StructuredLogger
+import '../../src/utils/logger-context'; // Import to populate window.LoggerContext
 
 // Mock console methods (external boundary)
 interface MockConsole {
@@ -36,8 +37,9 @@ describe('StructuredLogger Context Size Limiting', () => {
     };
     global.console = mockConsole as any;
 
-    // Set up window globals for dependencies
+    // Set up window globals for dependencies (preserve existing globals from test setup)
     (global as any).window = {
+      ...(global as any).window, // Preserve existing window globals from test setup
       LoggerContext: {
         getInstance: () => ({
           getCurrentCorrelation: () => '12345678-1234-4123-8123-123456789012',
@@ -65,12 +67,17 @@ describe('StructuredLogger Context Size Limiting', () => {
       };
 
       expect(
-        () => new StructuredLogger('test-component', {}, { contextSizeLimit: contextConfig })
+        () =>
+          new (window as any).StructuredLogger.Logger(
+            'test-component',
+            {},
+            { contextSizeLimit: contextConfig }
+          )
       ).not.toThrow();
     });
 
     it('should use default context size configuration when not provided', () => {
-      const logger = new StructuredLogger('test-component');
+      const logger = new (window as any).StructuredLogger.Logger('test-component');
 
       // Should be able to log normally with defaults
       logger.info('test message', { small: 'context' });
@@ -78,7 +85,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should allow disabling context size limiting entirely', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -100,7 +107,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
     it('should enforce minimum size limits for safety', () => {
       // Should not allow size limits below 100 bytes
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -115,7 +122,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Context Size Calculation', () => {
     it('should calculate context size correctly for various data types', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -138,7 +145,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle context that cannot be serialized', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -157,7 +164,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Truncation Behavior', () => {
     it('should truncate context when size limit exceeded and onExceed is "truncate"', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -192,7 +199,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should preserve most important fields during truncation', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -224,7 +231,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle truncation gracefully when all fields are large', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -257,7 +264,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Warning Behavior', () => {
     it('should emit warning when size limit exceeded and onExceed is "warn"', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -290,7 +297,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should keep full context when onExceed is "warn"', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -317,7 +324,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should respect emitWarnings configuration', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -343,14 +350,14 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Instance Isolation', () => {
     it('should maintain separate configuration per logger instance', () => {
-      const logger1 = new StructuredLogger(
+      const logger1 = new (window as any).StructuredLogger.Logger(
         'component-1',
         {},
         {
           contextSizeLimit: { maxSizeBytes: 100, onExceed: 'truncate' },
         }
       );
-      const logger2 = new StructuredLogger(
+      const logger2 = new (window as any).StructuredLogger.Logger(
         'component-2',
         {},
         {
@@ -378,7 +385,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should inherit context size configuration in child loggers', () => {
-      const parentLogger = new StructuredLogger(
+      const parentLogger = new (window as any).StructuredLogger.Logger(
         'parent',
         {},
         {
@@ -398,7 +405,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should inherit context size configuration in withContext loggers', () => {
-      const baseLogger = new StructuredLogger(
+      const baseLogger = new (window as any).StructuredLogger.Logger(
         'base',
         {},
         {
@@ -423,7 +430,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Integration with Other Features', () => {
     it('should work correctly with logger context inheritance', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         { baseField: 'base' },
         {
@@ -443,7 +450,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should apply size limiting after context merging', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {
           baseField: 'x'.repeat(100),
@@ -464,7 +471,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle error serialization with size limits', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -490,7 +497,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should preserve all required log entry fields during size limiting', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -517,7 +524,7 @@ describe('StructuredLogger Context Size Limiting', () => {
 
   describe('Edge Cases and Error Handling', () => {
     it('should handle empty context gracefully', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -532,7 +539,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle null and undefined context values', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -549,7 +556,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle very small size limits gracefully', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {
@@ -563,7 +570,7 @@ describe('StructuredLogger Context Size Limiting', () => {
     });
 
     it('should handle context with special characters and unicode', () => {
-      const logger = new StructuredLogger(
+      const logger = new (window as any).StructuredLogger.Logger(
         'test-component',
         {},
         {

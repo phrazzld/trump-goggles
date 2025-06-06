@@ -15,7 +15,7 @@
  * This interface defines the core logging methods that existing code
  * expects from window.Logger, enabling a seamless transition.
  */
-export interface LegacyLoggerInterface {
+interface LegacyLoggerInterface {
   /**
    * Log a debug message with optional data
    * @param message - The message to log
@@ -65,7 +65,7 @@ interface Logger {
  * @param structuredLogger - The StructuredLogger instance to wrap
  * @returns An object implementing LegacyLoggerInterface that delegates to the StructuredLogger
  */
-export function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
+function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
   return {
     /**
      * Log a debug message with optional data
@@ -123,3 +123,6 @@ if (typeof window !== 'undefined') {
     createLegacyShim,
   };
 }
+
+// Empty export to make this a module for TypeScript
+export {};

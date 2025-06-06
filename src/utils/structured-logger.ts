@@ -12,7 +12,7 @@
  * Represents a single structured log entry with all mandatory fields
  * for JSON logging as specified in DEVELOPMENT_PHILOSOPHY.md
  */
-export interface LogEntry {
+interface LogEntry {
   readonly timestamp: string; // ISO 8601 UTC format
   readonly level: 'debug' | 'info' | 'warn' | 'error';
   readonly message: string;
@@ -32,7 +32,7 @@ export interface LogEntry {
 /**
  * Configuration for logger throttling behavior
  */
-export interface ThrottlingConfig {
+interface ThrottlingConfig {
   /** Whether throttling is enabled (default: true) */
   enabled?: boolean;
   /** Maximum logs per second allowed (default: 100) */
@@ -44,7 +44,7 @@ export interface ThrottlingConfig {
 /**
  * Configuration for context size limiting behavior
  */
-export interface ContextSizeLimitConfig {
+interface ContextSizeLimitConfig {
   /** Whether context size limiting is enabled (default: true) */
   enabled?: boolean;
   /** Maximum context size in bytes (default: 1024) */
@@ -58,7 +58,7 @@ export interface ContextSizeLimitConfig {
 /**
  * Configuration options for StructuredLogger
  */
-export interface LoggerConfig {
+interface LoggerConfig {
   /** Throttling configuration */
   throttling?: ThrottlingConfig;
   /** Context size limiting configuration */
@@ -69,7 +69,7 @@ export interface LoggerConfig {
  * Logger interface defining the contract for structured logging operations.
  * Supports hierarchical loggers with context inheritance and component naming.
  */
-export interface Logger {
+interface Logger {
   /**
    * Log a debug message with optional context
    * @param message - The message to log
@@ -119,7 +119,7 @@ export interface Logger {
  * Child loggers inherit all context from their parent, and contexts can be merged with new values.
  * Includes configurable throttling to prevent performance issues under high load.
  */
-export class StructuredLogger implements Logger {
+class StructuredLogger implements Logger {
   private readonly component: string;
   private readonly context: Record<string, unknown>;
   private readonly throttlingConfig: ThrottlingConfig;
@@ -599,3 +599,6 @@ if (typeof window !== 'undefined') {
     Logger: StructuredLogger,
   };
 }
+
+// Empty export to make this a module for TypeScript
+export {};

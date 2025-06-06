@@ -6,9 +6,7 @@
  * performance overhead is <5% vs legacy implementation.
  */
 
-import { StructuredLogger } from '../../src/utils/structured-logger';
-import { LoggerFactory } from '../../src/utils/logger-factory';
-import { createLegacyShim } from '../../src/utils/logger-adapter';
+// Logging modules loaded as window globals via test setup
 
 // Performance measurement utilities
 interface BenchmarkResult {
@@ -135,7 +133,7 @@ class PerformanceBenchmark {
    * Benchmarks basic structured logger performance
    */
   async benchmarkStructuredLogger(): Promise<BenchmarkResult> {
-    const logger = new StructuredLogger(
+    const logger = new (window as any).StructuredLogger.Logger(
       'benchmark-test',
       {},
       {
@@ -153,7 +151,7 @@ class PerformanceBenchmark {
    * Benchmarks legacy adapter performance
    */
   async benchmarkLegacyAdapter(): Promise<BenchmarkResult> {
-    const structuredLogger = new StructuredLogger(
+    const structuredLogger = new (window as any).StructuredLogger.Logger(
       'legacy-benchmark',
       {},
       {
@@ -161,7 +159,7 @@ class PerformanceBenchmark {
         contextSizeLimit: { enabled: false },
       }
     );
-    const legacyShim = createLegacyShim(structuredLogger);
+    const legacyShim = (window as any).LoggerAdapter.createLegacyShim(structuredLogger);
 
     return this.runThroughputBenchmark('Legacy Adapter', () =>
       legacyShim.info('Legacy benchmark message', { data: Math.random() })
@@ -172,8 +170,8 @@ class PerformanceBenchmark {
    * Benchmarks logger factory performance
    */
   async benchmarkLoggerFactory(): Promise<BenchmarkResult> {
-    LoggerFactory.initialize();
-    const logger = LoggerFactory.getLogger('factory-benchmark');
+    (window as any).LoggerFactory.initialize();
+    const logger = (window as any).LoggerFactory.getLogger('factory-benchmark');
 
     return this.runThroughputBenchmark('LoggerFactory', () =>
       logger.info('Factory benchmark message', { test: Math.random() })
@@ -184,7 +182,7 @@ class PerformanceBenchmark {
    * Benchmarks performance with various context sizes
    */
   async benchmarkContextSizes(): Promise<BenchmarkResult[]> {
-    const logger = new StructuredLogger(
+    const logger = new (window as any).StructuredLogger.Logger(
       'context-benchmark',
       {},
       {
@@ -221,7 +219,7 @@ class PerformanceBenchmark {
    * Benchmarks context size limiting performance impact
    */
   async benchmarkContextSizeLimiting(): Promise<BenchmarkResult[]> {
-    const loggerWithoutLimiting = new StructuredLogger(
+    const loggerWithoutLimiting = new (window as any).StructuredLogger.Logger(
       'no-limit-benchmark',
       {},
       {
@@ -230,7 +228,7 @@ class PerformanceBenchmark {
       }
     );
 
-    const loggerWithLimiting = new StructuredLogger(
+    const loggerWithLimiting = new (window as any).StructuredLogger.Logger(
       'with-limit-benchmark',
       {},
       {
@@ -272,7 +270,7 @@ class PerformanceBenchmark {
    * Benchmarks throttling performance impact
    */
   async benchmarkThrottling(): Promise<BenchmarkResult[]> {
-    const loggerWithoutThrottling = new StructuredLogger(
+    const loggerWithoutThrottling = new (window as any).StructuredLogger.Logger(
       'no-throttle-benchmark',
       {},
       {
@@ -281,7 +279,7 @@ class PerformanceBenchmark {
       }
     );
 
-    const loggerWithThrottling = new StructuredLogger(
+    const loggerWithThrottling = new (window as any).StructuredLogger.Logger(
       'with-throttle-benchmark',
       {},
       {

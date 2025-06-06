@@ -1,5 +1,5 @@
 /**
- * Unit tests for LoggerContext singleton class
+ * Unit tests for (window as any).LoggerContext singleton class
  *
  * Tests cover singleton behavior, correlation ID generation (UUID v4 format),
  * stack operations (push, pop, getCurrentCorrelation), and context propagation
@@ -8,9 +8,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { LoggerContext } from '../../src/utils/logger-context';
 
-describe('LoggerContext', () => {
+describe('(window as any).LoggerContext', () => {
   let originalCrypto: Crypto | undefined;
   let originalMathRandom: () => number;
 
@@ -41,9 +40,9 @@ describe('LoggerContext', () => {
 
   describe('Singleton Pattern', () => {
     it('should return the same instance on multiple calls to getInstance()', () => {
-      const instance1 = LoggerContext.getInstance();
-      const instance2 = LoggerContext.getInstance();
-      const instance3 = LoggerContext.getInstance();
+      const instance1 = (window as any).LoggerContext.getInstance();
+      const instance2 = (window as any).LoggerContext.getInstance();
+      const instance3 = (window as any).LoggerContext.getInstance();
 
       expect(instance1).toBe(instance2);
       expect(instance2).toBe(instance3);
@@ -51,7 +50,7 @@ describe('LoggerContext', () => {
     });
 
     it('should be the same instance across different access patterns', () => {
-      const directInstance = LoggerContext.getInstance();
+      const directInstance = (window as any).LoggerContext.getInstance();
 
       // Simulate access through window global (if available)
       if (typeof window !== 'undefined' && (window as any).LoggerContext) {
@@ -63,8 +62,8 @@ describe('LoggerContext', () => {
     it('should not allow direct instantiation', () => {
       // The constructor should be private, so we can't test this directly
       // But we can ensure only getInstance works
-      expect(LoggerContext.getInstance).toBeDefined();
-      expect(typeof LoggerContext.getInstance).toBe('function');
+      expect((window as any).LoggerContext.getInstance).toBeDefined();
+      expect(typeof (window as any).LoggerContext.getInstance).toBe('function');
     });
   });
 
@@ -80,7 +79,7 @@ describe('LoggerContext', () => {
         configurable: true,
       });
 
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const correlationId = context.createCorrelationId();
 
       expect(correlationId).toBe(mockUUID);
@@ -100,7 +99,7 @@ describe('LoggerContext', () => {
       const randomValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.0];
       Math.random = vi.fn(() => randomValues[callCount++ % randomValues.length]);
 
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const correlationId = context.createCorrelationId();
 
       // Should match UUID v4 pattern
@@ -120,7 +119,7 @@ describe('LoggerContext', () => {
         configurable: true,
       });
 
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const correlationId = context.createCorrelationId();
 
       // Should still generate a valid UUID using fallback
@@ -129,7 +128,7 @@ describe('LoggerContext', () => {
     });
 
     it('should generate different UUIDs on successive calls', () => {
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const id1 = context.createCorrelationId();
       const id2 = context.createCorrelationId();
       const id3 = context.createCorrelationId();
@@ -140,7 +139,7 @@ describe('LoggerContext', () => {
     });
 
     it('should generate valid UUID v4 with correct version and variant bits', () => {
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const correlationId = context.createCorrelationId();
 
       // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
@@ -163,10 +162,10 @@ describe('LoggerContext', () => {
   });
 
   describe('Stack Operations', () => {
-    let context: LoggerContext;
+    let context: any;
 
     beforeEach(() => {
-      context = LoggerContext.getInstance();
+      context = (window as any).LoggerContext.getInstance();
       // Clear any existing correlation stack state
       // Since we can't directly access the stack, we'll use pop operations
       // to clear it, but first we need to ensure we don't cause issues
@@ -279,10 +278,10 @@ describe('LoggerContext', () => {
   });
 
   describe('Context Propagation Logic', () => {
-    let context: LoggerContext;
+    let context: any;
 
     beforeEach(() => {
-      context = LoggerContext.getInstance();
+      context = (window as any).LoggerContext.getInstance();
       // Clear any existing state
       for (let i = 0; i < 10; i++) {
         context.popCorrelation();
@@ -411,10 +410,10 @@ describe('LoggerContext', () => {
   });
 
   describe('Edge Cases and Error Handling', () => {
-    let context: LoggerContext;
+    let context: any;
 
     beforeEach(() => {
-      context = LoggerContext.getInstance();
+      context = (window as any).LoggerContext.getInstance();
     });
 
     it('should handle empty string correlation IDs', () => {
@@ -487,7 +486,7 @@ describe('LoggerContext', () => {
         return value;
       });
 
-      const context = LoggerContext.getInstance();
+      const context = (window as any).LoggerContext.getInstance();
       const correlationId = context.createCorrelationId();
 
       // Should still be valid UUID v4
@@ -505,7 +504,7 @@ describe('LoggerContext', () => {
         expect(typeof (window as any).LoggerContext.getInstance).toBe('function');
 
         const windowInstance = (window as any).LoggerContext.getInstance();
-        const directInstance = LoggerContext.getInstance();
+        const directInstance = (window as any).LoggerContext.getInstance();
 
         expect(windowInstance).toBe(directInstance);
       }
@@ -515,7 +514,7 @@ describe('LoggerContext', () => {
       if (typeof window !== 'undefined' && (window as any).LoggerContext) {
         const instance1 = (window as any).LoggerContext.getInstance();
         const instance2 = (window as any).LoggerContext.getInstance();
-        const instance3 = LoggerContext.getInstance();
+        const instance3 = (window as any).LoggerContext.getInstance();
 
         expect(instance1).toBe(instance2);
         expect(instance2).toBe(instance3);

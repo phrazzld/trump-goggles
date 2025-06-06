@@ -415,7 +415,7 @@
     3. Extension loads without syntax errors in browser console
   - **Depends‑on:** none
 
-- [ ] **T044 · Refactor · P0: Convert TypeScript logging modules to browser globals pattern**
+- [x] **T044 · Refactor · P0: Convert TypeScript logging modules to browser globals pattern**
   - **Context:** ES6 import/export syntax doesn't work in browser extension content scripts
   - **Root Cause:** TypeScript modules use ES6 exports but browser requires window globals pattern
   - **Action:**
@@ -430,7 +430,7 @@
     3. No import/export statements remain in the modules
   - **Depends‑on:** [T043]
 
-- [ ] **T045 · Build · P0: Update rollup configuration for proper TypeScript compilation**
+- [x] **T045 · Build · P0: Update rollup configuration for proper TypeScript compilation**
   - **Context:** Build system needs to compile TypeScript modules through rollup pipeline instead of copying
   - **Action:**
     1. Create individual rollup configurations for each TypeScript logging module
@@ -443,7 +443,7 @@
     3. Development and production builds both work correctly
   - **Depends‑on:** [T043, T044]
 
-- [ ] **T046 · Fix · P0: Resolve manifest.json script loading order**
+- [x] **T046 · Fix · P0: Resolve manifest.json script loading order**
   - **Context:** Logging modules must load before dependent scripts to avoid "LoggerFactory not available" errors
   - **Action:**
     1. Verify logging modules are listed first in manifest.json content_scripts
@@ -456,7 +456,7 @@
     3. Extension initializes without script loading errors
   - **Depends‑on:** [T045]
 
-- [ ] **T047 · Test · P1: Verify browser extension functionality end-to-end**
+- [x] **T047 · Test · P1: Verify browser extension functionality end-to-end**
   - **Context:** Ensure structured logging works in actual browser extension context
   - **Action:**
     1. Load extension in Chrome, Firefox, and Edge browsers
@@ -471,7 +471,7 @@
     4. No console errors related to logging system
   - **Depends‑on:** [T046]
 
-- [ ] **T048 · Performance · P2: Optimize browser extension bundle size**
+- [x] **T048 · Performance · P2: Optimize browser extension bundle size**
   - **Context:** Additional logging modules may increase extension size
   - **Action:**
     1. Measure impact of new logging system on extension bundle size
@@ -483,3 +483,19 @@
     2. Extension loading performance is not degraded
     3. Minification removes debug code and comments in production
   - **Depends‑on:** [T045]
+
+## Test Suite Compatibility
+
+- [x] **T049 · Fix · P1: Update test suite to use window globals instead of ES6 imports**
+  - **Context:** Tests are failing because they import logging classes directly, but modules now only export via window globals
+  - **Root Cause:** Tests still use `import { StructuredLogger }` pattern, but modules were converted to window globals for browser compatibility
+  - **Action:**
+    1. Update test files to remove ES6 imports for logging modules
+    2. Access classes through window globals (window.StructuredLogger.Logger, etc.)
+    3. Ensure window globals are properly initialized in test environment
+    4. Verify all test functionality still works with new access pattern
+  - **Done‑when:**
+    1. All logging-related tests pass without import errors
+    2. Test functionality is preserved (no mocking of internal collaborators)
+    3. Tests use window globals consistently
+  - **Depends‑on:** [T044, T045, T046, T047, T048]

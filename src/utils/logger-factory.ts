@@ -84,9 +84,7 @@ class LoggerFactory {
   }
 }
 
-// Export types for module system
-export { LoggerFactory };
-export type { Logger };
+// Types are now available through window global access only
 
 // Export to window for global access
 declare global {
@@ -104,3 +102,6 @@ if (typeof window !== 'undefined') {
     getLogger: (component: string) => LoggerFactory.getLogger(component),
   };
 }
+
+// Empty export to make this a module for TypeScript
+export {};

@@ -103,8 +103,7 @@ class LoggerContext {
   }
 }
 
-// Export types for module system
-export { LoggerContext };
+// Types are now available through window global access only
 
 // Export to window for global access
 declare global {
@@ -120,3 +119,6 @@ if (typeof window !== 'undefined') {
     getInstance: () => LoggerContext.getInstance(),
   };
 }
+
+// Empty export to make this a module for TypeScript
+export {};
