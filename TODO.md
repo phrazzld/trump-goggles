@@ -402,7 +402,7 @@
 
 ## CRITICAL: Browser Extension Compatibility Fixes
 
-- [ ] **T043 · Bug · P0: Fix TypeScript module copying in build system**
+- [x] **T043 · Bug · P0: Fix TypeScript module copying in build system**
   - **Context:** Rollup config is copying raw .ts files to dist/ instead of compiling them, causing "Unexpected token 'export'" errors in browser
   - **Root Cause:** Lines 78-101 in rollup.config.js use direct copy commands that rename .ts to .js without compilation
   - **Action:**

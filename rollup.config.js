@@ -60,8 +60,69 @@ const createConfig = (input, outputName) => ({
   },
 });
 
-// Export array of configs with shared copy plugin
-export default [
+/**
+ * Create config for individual TypeScript modules that need to be standalone files
+ * @param {string} input - TypeScript source file path
+ * @param {string} outputName - Output file name without extension
+ * @returns {import('rollup').RollupOptions}
+ */
+const createTypeScriptModuleConfig = (input, outputName) => ({
+  input,
+  output: {
+    file: `dist/${outputName}.js`,
+    format: 'iife',
+    sourcemap: !production ? 'inline' : false,
+    name: `TrumpGoggles${outputName.replace(/-/g, '')}`, // Convert kebab-case to PascalCase
+  },
+  plugins: [
+    nodeResolve({
+      browser: true,
+      extensions: ['.js', '.ts'],
+    }),
+    typescript({
+      tsconfig: './tsconfig.json',
+      compilerOptions: {
+        module: 'esnext',
+        target: 'es2020',
+        declaration: false,
+        declarationMap: false,
+        composite: false,
+        importHelpers: false,
+      },
+    }),
+    commonjs({
+      extensions: ['.js', '.ts'],
+    }),
+    production &&
+      terser({
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      }),
+  ].filter(Boolean),
+  external: (id) => /^chrome/.test(id),
+  watch: {
+    clearScreen: false,
+  },
+});
+
+// TypeScript modules that need individual compilation
+const typeScriptModules = [
+  { input: 'src/utils/structured-logger.ts', output: 'structured-logger' },
+  { input: 'src/utils/logger-context.ts', output: 'logger-context' },
+  { input: 'src/utils/logger-adapter.ts', output: 'logger-adapter' },
+  { input: 'src/utils/logger-factory.ts', output: 'logger-factory' },
+  { input: 'src/utils/performance-utils.ts', output: 'performance-utils' },
+  { input: 'src/utils/security-utils.ts', output: 'security-utils' },
+  { input: 'src/content/dom-modifier.ts', output: 'dom-modifier' },
+  { input: 'src/components/tooltip-browser-adapter.ts', output: 'tooltip-browser-adapter' },
+  { input: 'src/components/tooltip-ui.ts', output: 'tooltip-ui' },
+  { input: 'src/components/tooltip-manager.ts', output: 'tooltip-manager' },
+];
+
+// Main bundle configs
+const mainConfigs = [
   createConfig('src/content/content-consolidated.js', 'content'),
   createConfig('src/background/background-combined.js', 'background'),
 ].map((config, index) => {
@@ -74,30 +135,16 @@ export default [
           { src: 'extension/manifest.json', dest: 'dist' },
           { src: 'images/*', dest: 'dist/images' },
           { src: 'extension/*.html', dest: 'dist' },
-          // Copy all dependency modules
-          { src: 'src/utils/structured-logger.ts', dest: 'dist', rename: 'structured-logger.js' },
-          { src: 'src/utils/logger-context.ts', dest: 'dist', rename: 'logger-context.js' },
-          { src: 'src/utils/logger-adapter.ts', dest: 'dist', rename: 'logger-adapter.js' },
-          { src: 'src/utils/logger-factory.ts', dest: 'dist', rename: 'logger-factory.js' },
+          // Copy JavaScript modules (TypeScript modules are compiled separately)
           { src: 'src/content/content-debug.js', dest: 'dist' },
           { src: 'src/utils/logger.js', dest: 'dist' },
           { src: 'src/utils/error-handler.js', dest: 'dist' },
           { src: 'src/utils/browser-detect.js', dest: 'dist' },
           { src: 'src/utils/browser-adapter.js', dest: 'dist' },
-          { src: 'src/utils/performance-utils.ts', dest: 'dist', rename: 'performance-utils.js' },
-          { src: 'src/utils/security-utils.ts', dest: 'dist', rename: 'security-utils.js' },
           { src: 'src/data/trump-mappings.js', dest: 'dist' },
           { src: 'src/content/dom-processor.js', dest: 'dist' },
           { src: 'src/content/text-processor.js', dest: 'dist' },
           { src: 'src/content/mutation-observer.js', dest: 'dist' },
-          { src: 'src/content/dom-modifier.ts', dest: 'dist', rename: 'dom-modifier.js' },
-          {
-            src: 'src/components/tooltip-browser-adapter.ts',
-            dest: 'dist',
-            rename: 'tooltip-browser-adapter.js',
-          },
-          { src: 'src/components/tooltip-ui.ts', dest: 'dist', rename: 'tooltip-ui.js' },
-          { src: 'src/components/tooltip-manager.ts', dest: 'dist', rename: 'tooltip-manager.js' },
         ],
         hook: 'writeBundle', // Copy after bundle is written
       })
@@ -105,3 +152,11 @@ export default [
   }
   return config;
 });
+
+// TypeScript module configs
+const typeScriptConfigs = typeScriptModules.map(({ input, output }) =>
+  createTypeScriptModuleConfig(input, output)
+);
+
+// Export all configs
+export default [...mainConfigs, ...typeScriptConfigs];
