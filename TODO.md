@@ -399,3 +399,87 @@
     2. Configuration supports both 'truncate' and 'warn' modes.
     3. Comprehensive tests verify functionality.
   - **Depends‑on:** [T002]
+
+## CRITICAL: Browser Extension Compatibility Fixes
+
+- [ ] **T043 · Bug · P0: Fix TypeScript module copying in build system**
+  - **Context:** Rollup config is copying raw .ts files to dist/ instead of compiling them, causing "Unexpected token 'export'" errors in browser
+  - **Root Cause:** Lines 78-101 in rollup.config.js use direct copy commands that rename .ts to .js without compilation
+  - **Action:**
+    1. Remove direct copy commands for TypeScript files from rollup.config.js
+    2. Create proper entry points for TypeScript modules so they go through compilation pipeline
+    3. Ensure TypeScript compilation converts ES6 modules to browser-compatible IIFE format
+  - **Done‑when:**
+    1. All .js files in dist/ contain compiled JavaScript, not raw TypeScript
+    2. No "export" or "import" keywords appear in dist/ JavaScript files
+    3. Extension loads without syntax errors in browser console
+  - **Depends‑on:** none
+
+- [ ] **T044 · Refactor · P0: Convert TypeScript logging modules to browser globals pattern**
+  - **Context:** ES6 import/export syntax doesn't work in browser extension content scripts
+  - **Root Cause:** TypeScript modules use ES6 exports but browser requires window globals pattern
+  - **Action:**
+    1. Convert structured-logger.ts from ES6 exports to window.StructuredLogger pattern
+    2. Convert logger-context.ts from ES6 exports to window.LoggerContext pattern  
+    3. Convert logger-adapter.ts from ES6 exports to window.LoggerAdapter pattern
+    4. Convert logger-factory.ts from ES6 exports to window.LoggerFactory pattern
+    5. Update all internal references to use window globals instead of imports
+  - **Done‑when:**
+    1. All logging modules follow the same pattern as existing modules (performance-utils.ts, security-utils.ts)
+    2. Modules expose functionality via window.ModuleName objects
+    3. No import/export statements remain in the modules
+  - **Depends‑on:** [T043]
+
+- [ ] **T045 · Build · P0: Update rollup configuration for proper TypeScript compilation**
+  - **Context:** Build system needs to compile TypeScript modules through rollup pipeline instead of copying
+  - **Action:**
+    1. Create individual rollup configurations for each TypeScript logging module
+    2. Set output format to IIFE for browser compatibility
+    3. Configure TypeScript plugin to compile to browser-compatible ES5/ES2020
+    4. Ensure proper minification and source map generation for development
+  - **Done‑when:**
+    1. All TypeScript modules are compiled to valid browser JavaScript
+    2. Compiled output works in all target browsers (Chrome, Firefox, Edge)
+    3. Development and production builds both work correctly
+  - **Depends‑on:** [T043, T044]
+
+- [ ] **T046 · Fix · P0: Resolve manifest.json script loading order**
+  - **Context:** Logging modules must load before dependent scripts to avoid "LoggerFactory not available" errors
+  - **Action:**
+    1. Verify logging modules are listed first in manifest.json content_scripts
+    2. Ensure proper dependency order: context → logger → adapter → factory → dependent modules
+    3. Add initialization calls in correct sequence
+    4. Test that window.Logger is available when dependent scripts load
+  - **Done‑when:**
+    1. No "LoggerFactory not available" errors in browser console
+    2. All dependent modules can access logging functionality
+    3. Extension initializes without script loading errors
+  - **Depends‑on:** [T045]
+
+- [ ] **T047 · Test · P1: Verify browser extension functionality end-to-end**
+  - **Context:** Ensure structured logging works in actual browser extension context
+  - **Action:**
+    1. Load extension in Chrome, Firefox, and Edge browsers
+    2. Test that structured JSON logs appear in browser console
+    3. Verify correlation ID propagation across components
+    4. Test that all logging levels (debug, info, warn, error) work correctly
+    5. Confirm tooltip functionality still works with new logging system
+  - **Done‑when:**
+    1. Extension loads without errors in all target browsers
+    2. Structured JSON logs are generated correctly
+    3. All existing functionality (text replacement, tooltips) continues to work
+    4. No console errors related to logging system
+  - **Depends‑on:** [T046]
+
+- [ ] **T048 · Performance · P2: Optimize browser extension bundle size**
+  - **Context:** Additional logging modules may increase extension size
+  - **Action:**
+    1. Measure impact of new logging system on extension bundle size
+    2. Enable proper minification for production builds
+    3. Remove development-only code from production builds
+    4. Optimize TypeScript compilation for smaller output
+  - **Done‑when:**
+    1. Production bundle size increase is <20% vs baseline
+    2. Extension loading performance is not degraded
+    3. Minification removes debug code and comments in production
+  - **Depends‑on:** [T045]
