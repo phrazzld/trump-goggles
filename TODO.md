@@ -520,7 +520,7 @@
     2. No "File not found" errors in test output
   - **Depends‑on:** [T049]
 
-- [ ] **T051 · Fix · P0: Verify all tests work with corrected window global setup**
+- [x] **T051 · Fix · P0: Verify all tests work with corrected window global setup**
   - **Context:** After fixing test setup, ensure all logging-dependent tests continue to work properly
   - **Action:**
     1. Run individual test files that use logging components to verify they work
