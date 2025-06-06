@@ -20,41 +20,22 @@ import type { ChromeNamespace, LocalStorageMock } from './types';
 (global as any).BrowserDetect = MockBrowserDetect;
 (global as any).BrowserAdapter = MockBrowserAdapter;
 
-// Setup logging modules using compiled dist files for window globals
+// Setup logging modules using direct TypeScript imports
 // This ensures tests use the same window global pattern as the browser extension
-import fs from 'fs';
-import path from 'path';
+// without requiring compiled artifacts during test execution
 
-// Ensure window object exists for compiled modules to attach to
+// Ensure window object exists for modules to attach to
 if (typeof (global as any).window === 'undefined') {
   (global as any).window = {};
 }
 
-// Load compiled logging modules and execute them to setup window globals
-const distPath = path.join(__dirname, '../dist');
-
-// Load and execute each compiled logging module in dependency order
-const logModules = [
-  'structured-logger.js',
-  'logger-context.js',
-  'logger-adapter.js',
-  'logger-factory.js',
-];
-
-logModules.forEach((moduleFile) => {
-  try {
-    const filePath = path.join(distPath, moduleFile);
-    if (fs.existsSync(filePath)) {
-      const moduleCode = fs.readFileSync(filePath, 'utf8');
-      // Execute the module code in the global context to set up window globals
-      eval(moduleCode);
-    } else {
-      console.warn(`File not found: ${filePath}`);
-    }
-  } catch (error) {
-    console.warn(`Failed to load logging module ${moduleFile}:`, error);
-  }
-});
+// Import logging modules in dependency order to set up window globals
+// Each module will automatically export to window globals when imported
+import '../src/utils/security-utils'; // Required by structured-logger
+import '../src/utils/structured-logger'; // Exports window.StructuredLogger
+import '../src/utils/logger-context'; // Exports window.LoggerContext
+import '../src/utils/logger-adapter'; // Exports window.LoggerAdapter
+import '../src/utils/logger-factory'; // Exports window.LoggerFactory and window.Logger
 
 // Mock for console.* methods
 global.console = {

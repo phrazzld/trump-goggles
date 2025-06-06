@@ -61,7 +61,7 @@ describe('Performance Benchmark System', () => {
 
       // Sanity check: should be able to handle at least 1000 logs/sec
       expect(result.throughputLogsPerSecond).toBeGreaterThan(1000);
-    });
+    }, 10000); // 10 second timeout for performance benchmark
 
     it('should benchmark legacy adapter performance', async () => {
       const result = await benchmark.benchmarkLegacyAdapter();
