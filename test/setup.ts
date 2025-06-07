@@ -1,6 +1,14 @@
 /**
  * Test setup file for Trump Goggles
  * This file is loaded by Vitest before running tests
+ *
+ * CRITICAL DESIGN CONSTRAINT: Tests must be independent of build artifacts
+ *
+ * This setup uses direct TypeScript imports instead of loading compiled JavaScript
+ * from the dist/ directory. This ensures tests can run reliably in any environment
+ * without requiring a prior build step, which is essential for CI pipeline success.
+ *
+ * See test/README.md for comprehensive documentation on test setup architecture.
  */
 import { vi, beforeEach } from 'vitest';
 import { MockExtensionApi } from './mocks/extension-api.mock';
@@ -19,6 +27,46 @@ import type { ChromeNamespace, LocalStorageMock } from './types';
 // Add mocks for browser-specific modules
 (global as any).BrowserDetect = MockBrowserDetect;
 (global as any).BrowserAdapter = MockBrowserAdapter;
+
+// ============================================================================
+// LOGGING MODULE SETUP - CRITICAL: NO BUILD DEPENDENCIES ALLOWED
+// ============================================================================
+//
+// This section initializes logging components using direct TypeScript imports.
+// This approach is MANDATORY to prevent CI failures.
+//
+// ❌ WRONG APPROACH (causes CI failures):
+//   const distPath = path.join(__dirname, '../dist');
+//   const moduleCode = fs.readFileSync(path.join(distPath, 'structured-logger.js'));
+//   eval(moduleCode); // FAILS: dist/ doesn't exist during CI test execution
+//
+// ✅ CORRECT APPROACH (used below):
+//   Import TypeScript modules directly. Each module automatically exports to
+//   window globals when imported, providing the same API as the browser extension.
+//
+// Benefits of this approach:
+// - Tests run without requiring build step (CI friendly)
+// - Same window global pattern as browser extension
+// - Fast test startup (no file I/O operations)
+// - Environment independent (works locally and in CI)
+//
+// IMPORTANT: If you modify this section, ensure tests still pass without
+// running `pnpm build` first. Test with: `pnpm test`
+//
+// ============================================================================
+
+// Ensure window object exists for modules to attach to
+if (typeof (global as any).window === 'undefined') {
+  (global as any).window = {};
+}
+
+// Import logging modules in dependency order to set up window globals
+// Each module will automatically export to window globals when imported
+import '../src/utils/security-utils'; // Required by structured-logger
+import '../src/utils/structured-logger'; // Exports window.StructuredLogger
+import '../src/utils/logger-context'; // Exports window.LoggerContext
+import '../src/utils/logger-adapter'; // Exports window.LoggerAdapter
+import '../src/utils/logger-factory'; // Exports window.LoggerFactory and window.Logger
 
 // Mock for console.* methods
 global.console = {

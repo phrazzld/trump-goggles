@@ -2,7 +2,7 @@
   "manifest_version": 3,
 
   "name": "Trump Goggles",
-  "short_name": "trumpgoggles", 
+  "short_name": "trumpgoggles",
   "description": "See the world like Trump does.",
   "version": "18.5.0",
 
@@ -18,14 +18,17 @@
     "service_worker": "background.js"
   },
 
-  "permissions": ["storage", "contextMenus"],
+  "permissions": ["storage"],
 
   "host_permissions": ["*://*/*"],
 
   "content_scripts": [
     {
       "js": [
-        "logger.js",
+        "structured-logger.js",
+        "logger-context.js",
+        "logger-adapter.js",
+        "logger-factory.js",
         "error-handler.js",
         "browser-detect.js",
         "browser-adapter.js",

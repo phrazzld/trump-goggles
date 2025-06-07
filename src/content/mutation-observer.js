@@ -21,6 +21,33 @@
 const MutationObserverManager = (function () {
   'use strict';
 
+  /**
+   * Gets or initializes the logger instance for this module
+   *
+   * @private
+   * @returns Logger instance or null if LoggerFactory unavailable
+   */
+  function getLogger() {
+    // Always check for LoggerFactory first (don't cache for tests)
+    if (window.LoggerFactory) {
+      try {
+        return window.LoggerFactory.getLogger('mutation-observer');
+      } catch {
+        // Fall back to legacy Logger if available
+        if (window.Logger) {
+          return window.Logger;
+        }
+      }
+    }
+
+    // If no LoggerFactory, try legacy Logger
+    if (window.Logger) {
+      return window.Logger;
+    }
+
+    return null;
+  }
+
   // ===== CONSTANTS AND CONFIGURATION =====
 
   // Default mutation observer configuration
@@ -110,7 +137,10 @@ const MutationObserverManager = (function () {
    */
   function debugLog(message, data) {
     if (options.debug) {
-      console.log(`MutationObserverManager: ${message}`, data || '');
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.debug(`Mutation observer: ${message}`, { data: data || '' });
+      }
     }
   }
 
@@ -278,7 +308,10 @@ const MutationObserverManager = (function () {
         }
       }
     } catch (error) {
-      console.error('MutationObserverManager: Error processing mutations', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Mutation observer: Error processing mutations', { error });
+      }
     } finally {
       // Reset state and flags
       state = previousState;
@@ -304,7 +337,10 @@ const MutationObserverManager = (function () {
     try {
       // Check if MutationObserver is supported
       if (typeof MutationObserver !== 'function') {
-        console.error('MutationObserverManager: MutationObserver not supported in this browser');
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.error('Mutation observer: MutationObserver not supported in this browser');
+        }
         return false;
       }
 
@@ -312,7 +348,10 @@ const MutationObserverManager = (function () {
       observer = new MutationObserver(handleMutations);
       return true;
     } catch (error) {
-      console.error('MutationObserverManager: Error creating MutationObserver', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Mutation observer: Error creating MutationObserver', { error });
+      }
       observer = null;
       return false;
     }
@@ -369,7 +408,10 @@ const MutationObserverManager = (function () {
 
     // Make sure we have a target
     if (!target) {
-      console.error('MutationObserverManager: No target specified for observation');
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Mutation observer: No target specified for observation');
+      }
       return false;
     }
 
@@ -395,7 +437,10 @@ const MutationObserverManager = (function () {
       debugLog('Observer started on', target);
       return true;
     } catch (error) {
-      console.error('MutationObserverManager: Error starting observer', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Mutation observer: Error starting observer', { error });
+      }
       return false;
     }
   }
@@ -488,7 +533,10 @@ const MutationObserverManager = (function () {
 
       return true;
     } catch (error) {
-      console.error('MutationObserverManager: Error resuming observer', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Mutation observer: Error resuming observer', { error });
+      }
       return false;
     }
   }

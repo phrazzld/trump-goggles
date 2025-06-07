@@ -5,8 +5,17 @@
 
 console.log('[Trump Goggles Debug] Content script loading started');
 
+// Note: LoggerFactory initialization now handled in content-consolidated.js
+// to ensure it runs in all build configurations (debug and production)
+
 // Check which modules are available
 const modules = {
+  // New structured logging modules
+  StructuredLogger: typeof window.StructuredLogger !== 'undefined',
+  LoggerContext: typeof window.LoggerContext !== 'undefined',
+  LoggerAdapter: typeof window.LoggerAdapter !== 'undefined',
+  LoggerFactory: typeof window.LoggerFactory !== 'undefined',
+  // Legacy logger
   Logger: typeof window.Logger !== 'undefined',
   ErrorHandler: typeof window.ErrorHandler !== 'undefined',
   BrowserDetect: typeof window.BrowserDetect !== 'undefined',

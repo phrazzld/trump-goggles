@@ -18,15 +18,18 @@
     "service_worker": "background.js"
   },
 
-  "permissions": ["storage", "contextMenus"],
+  "permissions": ["storage"],
 
   "host_permissions": ["*://*/*"],
 
   "content_scripts": [
     {
       "js": [
+        "structured-logger.js",
+        "logger-context.js",
+        "logger-adapter.js",
+        "logger-factory.js",
         "content-debug.js",
-        "logger.js",
         "error-handler.js",
         "browser-detect.js",
         "browser-adapter.js",

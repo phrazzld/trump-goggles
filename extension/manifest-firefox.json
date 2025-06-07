@@ -17,7 +17,7 @@
     "scripts": ["dist/background.js"]
   },
 
-  "permissions": ["storage", "contextMenus", "*://*/*"],
+  "permissions": ["storage", "*://*/*"],
 
   "content_scripts": [
     {

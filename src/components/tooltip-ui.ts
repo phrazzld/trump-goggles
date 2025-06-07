@@ -13,6 +13,33 @@
 
 'use strict';
 
+/**
+ * Gets or initializes the logger instance for this module
+ *
+ * @private
+ * @returns Logger instance or null if LoggerFactory unavailable
+ */
+function getLogger(): any {
+  // Always check for LoggerFactory first (don't cache for tests)
+  if ((window as any).LoggerFactory) {
+    try {
+      return (window as any).LoggerFactory.getLogger('tooltip-ui');
+    } catch {
+      // Fall back to legacy Logger if available
+      if ((window as any).Logger) {
+        return (window as any).Logger;
+      }
+    }
+  }
+
+  // If no LoggerFactory, try legacy Logger
+  if ((window as any).Logger) {
+    return (window as any).Logger;
+  }
+
+  return null;
+}
+
 interface TooltipDebugInfo {
   isCreated: boolean;
   tooltipElement: {
@@ -116,7 +143,12 @@ function addAccessibilityStyles(): void {
       if (window.Logger && typeof window.Logger.warn === 'function') {
         window.Logger.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
       } else {
-        console.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.warn('Tooltip UI: TooltipBrowserAdapter not available for styles');
+        } else {
+          console.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
+        }
       }
 
       // Minimal fallback styles if adapter is not available
@@ -140,7 +172,12 @@ function addAccessibilityStyles(): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error adding accessibility styles', { error });
     } else {
-      console.error('TooltipUI: Error adding accessibility styles', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error adding accessibility styles', { error });
+      } else {
+        console.error('TooltipUI: Error adding accessibility styles', error);
+      }
     }
   }
 }
@@ -201,7 +238,16 @@ function applyTooltipStyles(element: HTMLElement): void {
           'TooltipUI: TooltipBrowserAdapter not available for browser-specific styles'
         );
       } else {
-        console.warn('TooltipUI: TooltipBrowserAdapter not available for browser-specific styles');
+        const currentLogger = getLogger();
+        if (currentLogger) {
+          currentLogger.warn(
+            'Tooltip UI: TooltipBrowserAdapter not available for browser-specific styles'
+          );
+        } else {
+          console.warn(
+            'TooltipUI: TooltipBrowserAdapter not available for browser-specific styles'
+          );
+        }
       }
     }
   } catch (error) {
@@ -209,7 +255,12 @@ function applyTooltipStyles(element: HTMLElement): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error applying tooltip styles', { error });
     } else {
-      console.error('TooltipUI: Error applying tooltip styles', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error applying tooltip styles', { error });
+      } else {
+        console.error('TooltipUI: Error applying tooltip styles', error);
+      }
     }
   }
 }
@@ -263,7 +314,12 @@ function ensureCreated(): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error creating tooltip element', { error });
     } else {
-      console.error('TooltipUI: Error creating tooltip element', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error creating tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error creating tooltip element', error);
+      }
     }
 
     // Reset state on error
@@ -310,7 +366,12 @@ function setText(text: string): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error setting tooltip text', { error });
     } else {
-      console.error('TooltipUI: Error setting tooltip text', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error setting tooltip text', { error });
+      } else {
+        console.error('TooltipUI: Error setting tooltip text', error);
+      }
     }
   }
 }
@@ -416,7 +477,12 @@ function updatePosition(targetElement: HTMLElement): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error positioning tooltip', { error });
     } else {
-      console.error('TooltipUI: Error positioning tooltip', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error positioning tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error positioning tooltip', error);
+      }
     }
 
     // Set fallback position in center of viewport if positioning fails
@@ -466,7 +532,12 @@ function show(): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error showing tooltip', { error });
     } else {
-      console.error('TooltipUI: Error showing tooltip', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error showing tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error showing tooltip', error);
+      }
     }
   }
 }
@@ -501,7 +572,12 @@ function hide(): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error hiding tooltip', { error });
     } else {
-      console.error('TooltipUI: Error hiding tooltip', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error hiding tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error hiding tooltip', error);
+      }
     }
   }
 }
@@ -532,7 +608,12 @@ function destroy(): void {
     if (window.Logger && typeof window.Logger.error === 'function') {
       window.Logger.error('TooltipUI: Error destroying tooltip element', { error });
     } else {
-      console.error('TooltipUI: Error destroying tooltip element', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Tooltip UI: Error destroying tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error destroying tooltip element', error);
+      }
     }
   } finally {
     // Reset state regardless of success or failure

@@ -21,6 +21,33 @@
 const TextProcessor = (function () {
   'use strict';
 
+  /**
+   * Gets or initializes the logger instance for this module
+   *
+   * @private
+   * @returns Logger instance or null if LoggerFactory unavailable
+   */
+  function getLogger() {
+    // Always check for LoggerFactory first (don't cache for tests)
+    if (window.LoggerFactory) {
+      try {
+        return window.LoggerFactory.getLogger('text-processor');
+      } catch {
+        // Fall back to legacy Logger if available
+        if (window.Logger) {
+          return window.Logger;
+        }
+      }
+    }
+
+    // If no LoggerFactory, try legacy Logger
+    if (window.Logger) {
+      return window.Logger;
+    }
+
+    return null;
+  }
+
   // ===== CONSTANTS AND CONFIGURATION =====
 
   // Cache configuration
@@ -387,7 +414,10 @@ const TextProcessor = (function () {
 
       return segments;
     } catch (error) {
-      console.error('Trump Goggles: Error finding matching segments', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Text processor: Error finding matching segments', { error });
+      }
       return segments;
     }
   }
@@ -424,7 +454,10 @@ const TextProcessor = (function () {
 
       return result;
     } catch (error) {
-      console.error('Trump Goggles: Error applying single replacement', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Text processor: Error applying single replacement', { error });
+      }
       return text;
     }
   }
@@ -673,7 +706,10 @@ const TextProcessor = (function () {
         return false;
       }
     } catch (error) {
-      console.error('Trump Goggles: Error processing text node', error);
+      const currentLogger = getLogger();
+      if (currentLogger) {
+        currentLogger.error('Text processor: Error processing text node', { error });
+      }
       return options.async ? Promise.resolve(false) : false;
     }
   }
