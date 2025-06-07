@@ -24,7 +24,6 @@
     "package:build": "NODE_ENV=production pnpm run build",
     "package:zip": "node scripts/package-chrome-store.js",
     "package:quick": "node scripts/package-quick.js",
-    "ci": "pnpm lint && pnpm typecheck && pnpm test",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "typecheck:targeted": "tsc --noEmit test/mocks/extension-api.mock.ts test/mocks/browser-adapter.mock.ts test/browser/tooltip-browser-adapter.test.ts test/content/dom-modifier.test.ts test/content/dom-processor.test.ts",
@@ -33,7 +32,6 @@
     "typecheck:test": "node scripts/check-test-types.js",
     "perf-test": "node setup-performance-test.js",
     "verify": "./verify-ci.sh",
-    "commit-changes": "git commit",
     "check:pnpm": "node scripts/check-package-manager.js"
   },
   "keywords": [
