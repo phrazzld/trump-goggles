@@ -5,17 +5,8 @@
 
 console.log('[Trump Goggles Debug] Content script loading started');
 
-// Initialize the new structured logging system
-try {
-  if (window.LoggerFactory) {
-    window.LoggerFactory.initialize();
-    console.log('[Trump Goggles Debug] Structured logging system initialized');
-  } else {
-    console.error('[Trump Goggles Debug] LoggerFactory not available');
-  }
-} catch (error) {
-  console.error('[Trump Goggles Debug] Failed to initialize logging system:', error);
-}
+// Note: LoggerFactory initialization now handled in content-consolidated.js
+// to ensure it runs in all build configurations (debug and production)
 
 // Check which modules are available
 const modules = {

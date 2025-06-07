@@ -601,7 +601,7 @@
     2. Verify CI no longer fails on legitimate logs
   - **Depends‑on:** [T039]
 
-- [ ] **T056 · Bug · P0: Fix logger initialization failure in production builds**
+- [x] **T056 · Bug · P0: Fix logger initialization failure in production builds**
   - **Context:** LoggerFactory.initialize() only runs in content-debug.js which is excluded from production manifests, causing undefined logger errors in production
   - **Root Cause:** Production builds don't include content-debug.js, so LoggerFactory never initializes, causing crashes when getLogger() is called
   - **Impact:** Complete extension failure in production due to unhandled runtime errors from undefined _structured logger

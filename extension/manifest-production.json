@@ -25,6 +25,10 @@
   "content_scripts": [
     {
       "js": [
+        "structured-logger.js",
+        "logger-context.js",
+        "logger-adapter.js",
+        "logger-factory.js",
         "logger.js",
         "error-handler.js",
         "browser-detect.js",

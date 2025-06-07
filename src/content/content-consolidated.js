@@ -48,6 +48,16 @@ const TrumpGoggles = (function () {
    * @public
    */
   function initialize() {
+    // Initialize the structured logging system FIRST, before any other operations
+    if (window.LoggerFactory) {
+      try {
+        window.LoggerFactory.initialize();
+        console.log('[Trump Goggles] Structured logging system initialized');
+      } catch (error) {
+        console.error('[Trump Goggles] Failed to initialize logging system:', error);
+      }
+    }
+
     // Initialize Logger with proper configuration based on DEBUG setting
     if (!window.Logger) {
       // Try to use LoggerFactory if available
