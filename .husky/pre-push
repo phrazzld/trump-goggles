@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # Check for npm or yarn usage in staged files
 INVALID_COMMANDS=$(git diff --cached --name-only -z | xargs -0 grep -l "npm install\|npm run\|yarn add\|yarn install\|yarn run" 2>/dev/null || true)
 
