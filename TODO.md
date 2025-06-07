@@ -555,7 +555,7 @@
     3. No error messages related to missing dist/ files
   - **Depends‑on:** [T051]
 
-- [ ] **T053 · Fix · P1: Add prevention measures for test setup build dependency issues**
+- [x] **T053 · Fix · P1: Add prevention measures for test setup build dependency issues**
   - **Context:** Prevent similar issues where tests accidentally depend on build artifacts
   - **Action:**
     1. Add documentation in test/README.md about test setup requirements
@@ -571,7 +571,7 @@
     2. Comments in code prevent accidental reintroduction of issue
   - **Depends‑on:** [T052]
 
-- [ ] **T054 · Cleanup · P2: Remove CI failure analysis documents**
+- [x] **T054 · Cleanup · P2: Remove CI failure analysis documents**
   - **Context:** Clean up temporary files created during CI failure analysis
   - **Action:**
     1. Remove CI-FAILURE-SUMMARY.md after resolution is complete

@@ -8,6 +8,7 @@
     "build:watch": "rollup -c -w",
     "build:prod": "NODE_ENV=production rollup -c",
     "build:clean": "rm -rf dist",
+    "pretest": "node scripts/validate-test-independence.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
