@@ -537,7 +537,7 @@
     3. Test coverage report shows no significant drops
   - **Depends‑on:** [T050]
 
-- [ ] **T052 · Fix · P0: Validate CI pipeline passes with test setup fixes**
+- [x] **T052 · Fix · P0: Validate CI pipeline passes with test setup fixes**
   - **Context:** Verify that CI pipeline works correctly after fixing test setup dependency issues
   - **Action:**
     1. Push test setup fixes to trigger CI run
