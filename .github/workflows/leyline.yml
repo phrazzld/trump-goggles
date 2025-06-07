@@ -1,0 +1,20 @@
+name: Sync Leyline
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Mondays
+  workflow_dispatch:  # Allow manual triggers
+
+permissions:
+  contents: write      # Required: Create commits and branches
+  pull-requests: write # Required: Create pull requests
+
+jobs:
+  sync:
+    uses: phrazzld/leyline/.github/workflows/sync-leyline-content.yml@master
+    with:
+      leyline_ref: master  # Pin to a specific Leyline version
+      categories: typescript  # Optional: only sync specific categories
+      target_path: docs/leyline  # Optional: customize target directory
+      create_pr: true  # Optional: create a PR instead of direct commit
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}  # Required: GitHub token for repo access
