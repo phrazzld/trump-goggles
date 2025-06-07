@@ -581,3 +581,41 @@
     1. Temporary analysis files are removed from repository
     2. No temporary files remain in working directory
   - **Depends‑on:** [T053]
+
+## CRITICAL: Pre-Merge Fixes Required
+
+- [x] **T055 · Bug · P0: Fix overly strict CI log validation causing false failures**
+  - **Context:** CI validation script incorrectly requires service_name, version, and environment in every log entry's context object, but StructuredLogger only guarantees these at logger level
+  - **Root Cause:** scripts/validate-logs.ts (+65 to +77) enforces context field validation that doesn't match actual StructuredLogger implementation
+  - **Impact:** CI pipeline will fail on valid logs, blocking all development and merges
+  - **Action:**
+    1. Remove strict validation for service_name, version, environment fields in context object validation
+    2. Keep context type validation (must be object if present) but remove required field checks
+    3. Focus validation only on top-level LogEntry fields that are actually guaranteed
+  - **Done‑when:**
+    1. CI validation passes on valid structured logs from current implementation
+    2. No false failures from missing context fields that aren't guaranteed per-entry
+    3. Context validation only checks type, not required internal fields
+  - **Verification:**
+    1. Run logging validation on actual log samples from structured logger
+    2. Verify CI no longer fails on legitimate logs
+  - **Depends‑on:** [T039]
+
+- [ ] **T056 · Bug · P0: Fix logger initialization failure in production builds**
+  - **Context:** LoggerFactory.initialize() only runs in content-debug.js which is excluded from production manifests, causing undefined logger errors in production
+  - **Root Cause:** Production builds don't include content-debug.js, so LoggerFactory never initializes, causing crashes when getLogger() is called
+  - **Impact:** Complete extension failure in production due to unhandled runtime errors from undefined _structured logger
+  - **Action:**
+    1. Move LoggerFactory.initialize() call from content-debug.js to content-consolidated.js
+    2. Ensure initialization happens as first operation before any logging attempts
+    3. Add proper error handling for initialization failures
+    4. Verify production manifest includes initialization script
+  - **Done‑when:**
+    1. LoggerFactory.initialize() runs in all build environments (debug and production)
+    2. No "LoggerFactory undefined" or similar errors in production builds
+    3. Extension loads successfully in production configuration
+  - **Verification:**
+    1. Test extension with production manifest (manifest-production.json)
+    2. Verify no console errors related to logging initialization
+    3. Confirm structured logging works in production build
+  - **Depends‑on:** [T020]

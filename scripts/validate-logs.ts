@@ -102,15 +102,10 @@ function validateLogEntry(entry: any, lineNumber: number): string[] {
   if ('context' in entry && entry.context !== null) {
     if (typeof entry.context !== 'object' || Array.isArray(entry.context)) {
       errors.push(`Line ${lineNumber}: Context must be an object, got ${typeof entry.context}`);
-    } else {
-      // Validate required context fields
-      const requiredContextFields = ['service_name', 'version', 'environment'];
-      for (const field of requiredContextFields) {
-        if (!(field in entry.context)) {
-          errors.push(`Line ${lineNumber}: Missing required context field '${field}'`);
-        }
-      }
     }
+    // Note: Context fields are per-log contextual data, not logger-level configuration.
+    // service_name, version, environment are guaranteed at the top level of LogEntry,
+    // not within the context object.
   }
 
   // Error details validation (optional but must be properly structured if present)
