@@ -423,7 +423,7 @@ function registerBrowserEvents(
 function getDefaultTooltipStyles(): string {
   // Base styles for all browsers
   let styles = `
-    .tg-tooltip {
+    #tg-tooltip {
       position: fixed;
       visibility: hidden;
       opacity: 0;

@@ -146,6 +146,8 @@ function addAccessibilityStyles(): void {
         const currentLogger = getLogger();
         if (currentLogger) {
           currentLogger.warn('Tooltip UI: TooltipBrowserAdapter not available for styles');
+        } else {
+          console.warn('TooltipUI: TooltipBrowserAdapter not available for styles');
         }
       }
 
@@ -173,6 +175,8 @@ function addAccessibilityStyles(): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error adding accessibility styles', { error });
+      } else {
+        console.error('TooltipUI: Error adding accessibility styles', error);
       }
     }
   }
@@ -239,6 +243,10 @@ function applyTooltipStyles(element: HTMLElement): void {
           currentLogger.warn(
             'Tooltip UI: TooltipBrowserAdapter not available for browser-specific styles'
           );
+        } else {
+          console.warn(
+            'TooltipUI: TooltipBrowserAdapter not available for browser-specific styles'
+          );
         }
       }
     }
@@ -250,6 +258,8 @@ function applyTooltipStyles(element: HTMLElement): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error applying tooltip styles', { error });
+      } else {
+        console.error('TooltipUI: Error applying tooltip styles', error);
       }
     }
   }
@@ -307,6 +317,8 @@ function ensureCreated(): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error creating tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error creating tooltip element', error);
       }
     }
 
@@ -357,6 +369,8 @@ function setText(text: string): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error setting tooltip text', { error });
+      } else {
+        console.error('TooltipUI: Error setting tooltip text', error);
       }
     }
   }
@@ -466,6 +480,8 @@ function updatePosition(targetElement: HTMLElement): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error positioning tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error positioning tooltip', error);
       }
     }
 
@@ -519,6 +535,8 @@ function show(): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error showing tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error showing tooltip', error);
       }
     }
   }
@@ -557,6 +575,8 @@ function hide(): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error hiding tooltip', { error });
+      } else {
+        console.error('TooltipUI: Error hiding tooltip', error);
       }
     }
   }
@@ -591,6 +611,8 @@ function destroy(): void {
       const currentLogger = getLogger();
       if (currentLogger) {
         currentLogger.error('Tooltip UI: Error destroying tooltip element', { error });
+      } else {
+        console.error('TooltipUI: Error destroying tooltip element', error);
       }
     }
   } finally {
