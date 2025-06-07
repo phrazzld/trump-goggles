@@ -30,7 +30,6 @@
         "logger-adapter.js",
         "logger-factory.js",
         "content-debug.js",
-        "logger.js",
         "error-handler.js",
         "browser-detect.js",
         "browser-adapter.js",

@@ -43,6 +43,22 @@ interface LegacyLoggerInterface {
    * @param data - Optional additional data to include
    */
   error(message: string, data?: unknown): void;
+
+  /**
+   * Log levels constant for backward compatibility
+   */
+  LEVELS: {
+    DEBUG: string;
+    INFO: string;
+    WARN: string;
+    ERROR: string;
+  };
+
+  /**
+   * Configure method for backward compatibility
+   * @param config - Configuration options (ignored in structured logging)
+   */
+  configure(config?: Record<string, unknown>): void;
 }
 
 /**
@@ -66,6 +82,7 @@ interface Logger {
  * @returns An object implementing LegacyLoggerInterface that delegates to the StructuredLogger
  */
 function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
+  // Create the shim object with all legacy Logger properties and methods
   return {
     /**
      * Log a debug message with optional data
@@ -105,6 +122,28 @@ function createLegacyShim(structuredLogger: Logger): LegacyLoggerInterface {
     error(message: string, data?: unknown): void {
       const context = data !== undefined ? { legacy_data: data } : undefined;
       structuredLogger.error(message, context);
+    },
+
+    /**
+     * Log levels constant for backward compatibility
+     * This matches the original Logger module's LEVELS constant
+     */
+    LEVELS: {
+      DEBUG: 'debug',
+      INFO: 'info',
+      WARN: 'warn',
+      ERROR: 'error',
+    },
+
+    /**
+     * Configure method for backward compatibility
+     * In structured logging, configuration is handled during initialization
+     * This method is a no-op to maintain API compatibility
+     * @param config - Configuration options (ignored in structured logging)
+     */
+    configure(_config?: Record<string, unknown>): void {
+      // No-op for backward compatibility
+      // Configuration is handled by LoggerFactory.initialize()
     },
   };
 }

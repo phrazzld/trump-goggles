@@ -29,7 +29,6 @@
         "logger-context.js",
         "logger-adapter.js",
         "logger-factory.js",
-        "logger.js",
         "error-handler.js",
         "browser-detect.js",
         "browser-adapter.js",

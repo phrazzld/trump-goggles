@@ -48,33 +48,66 @@ const TrumpGoggles = (function () {
    * @public
    */
   function initialize() {
-    // Initialize the structured logging system FIRST, before any other operations
-    if (window.LoggerFactory) {
-      try {
-        window.LoggerFactory.initialize();
-        console.log('[Trump Goggles] Structured logging system initialized');
-      } catch (error) {
-        console.error('[Trump Goggles] Failed to initialize logging system:', error);
-      }
+    console.log('[Trump Goggles] Content script initialize() called');
+
+    // Create a simple fallback logger to ensure extension works
+    if (!window.Logger) {
+      window.Logger = {
+        debug: function (msg, data) {
+          console.log('[TG-DEBUG]', msg, data || '');
+        },
+        info: function (msg, data) {
+          console.log('[TG-INFO]', msg, data || '');
+        },
+        warn: function (msg, data) {
+          console.warn('[TG-WARN]', msg, data || '');
+        },
+        error: function (msg, data) {
+          console.error('[TG-ERROR]', msg, data || '');
+        },
+        configure: function () {},
+        enableDebugMode: function () {},
+        disableDebugMode: function () {},
+        getStats: function () {
+          return { counts: { debug: 0, info: 0, warn: 0, error: 0 } };
+        },
+        resetStats: function () {},
+        time: function (name) {
+          const start = Date.now();
+          return {
+            stop: function (status, data) {
+              console.log(`[TG-TIMER] ${name}: ${Date.now() - start}ms (${status})`, data || '');
+            },
+          };
+        },
+        protect: function (fn, name, fallback) {
+          return function (...args) {
+            try {
+              return fn.apply(this, args);
+            } catch (e) {
+              console.error(`[TG-PROTECT] ${name}:`, e);
+              return fallback;
+            }
+          };
+        },
+        protectAsync: function (fn, name, fallback) {
+          return async function (...args) {
+            try {
+              return await fn.apply(this, args);
+            } catch (e) {
+              console.error(`[TG-PROTECT-ASYNC] ${name}:`, e);
+              return fallback;
+            }
+          };
+        },
+        LEVELS: { DEBUG: 'debug', INFO: 'info', WARN: 'warn', ERROR: 'error' },
+      };
+      console.log('[Trump Goggles] Created fallback logger');
     }
 
     // Initialize Logger with proper configuration based on DEBUG setting
     if (!window.Logger) {
-      // Try to use LoggerFactory if available
-      if (window.LoggerFactory) {
-        try {
-          const structuredLogger = window.LoggerFactory.getLogger('content-consolidated');
-          structuredLogger.error(
-            'Content consolidated: Logger module not found! Check script loading order.'
-          );
-        } catch {
-          console.error(
-            'Trump Goggles Error: Logger module not found! Check script loading order.'
-          );
-        }
-      } else {
-        console.error('Trump Goggles Error: Logger module not found! Check script loading order.');
-      }
+      console.error('Trump Goggles Error: Logger module not found! Check script loading order.');
       return;
     }
 
