@@ -241,6 +241,10 @@ const TrumpMappings = (function () {
     },
   };
 
+  // Apply deep freeze to ensure complete immutability at module initialization
+  // eslint-disable-next-line no-unused-vars -- Used in T005 to update accessor methods
+  const frozenMappings = deepFreeze(mappings);
+
   /**
    * Recursively freezes an object and all its nested properties
    *
@@ -257,7 +261,6 @@ const TrumpMappings = (function () {
    * @param {*} obj - Object to deep freeze
    * @returns {*} The frozen object (same reference, but immutable)
    */
-  // eslint-disable-next-line no-unused-vars -- Used in T004 to freeze mappings object
   function deepFreeze(obj) {
     // Handle null/undefined
     if (obj === null || obj === undefined) {

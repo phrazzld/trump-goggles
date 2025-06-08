@@ -30,7 +30,7 @@
         1. The `deepFreeze` function is implemented and documented with JSDoc.
     - **Depends‑on:** none
 
-- [ ] **T004 · Refactor · P1**: apply deep freeze to the core mappings object
+- [x] **T004 · Refactor · P1**: apply deep freeze to the core mappings object
     - **Context:** PLAN.md, Phase 2: Runtime Immutability Implementation / 2. Apply Deep Freeze to Mappings
     - **Action:**
         1. In `src/data/trump-mappings.js`, call `deepFreeze` on the `mappings` object immediately after its definition.
