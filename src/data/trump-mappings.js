@@ -242,6 +242,51 @@ const TrumpMappings = (function () {
   };
 
   /**
+   * Recursively freezes an object and all its nested properties
+   *
+   * This utility function provides deep immutability by freezing objects
+   * and recursively freezing all nested properties. Special handling is
+   * provided for different object types:
+   * - Primitives (string, number, boolean) are returned as-is
+   * - null/undefined values are returned as-is
+   * - RegExp objects are returned unfrozen to maintain functionality
+   * - Arrays are frozen after recursively freezing all items
+   * - Objects are frozen after recursively freezing all property values
+   *
+   * @private
+   * @param {*} obj - Object to deep freeze
+   * @returns {*} The frozen object (same reference, but immutable)
+   */
+  // eslint-disable-next-line no-unused-vars -- Used in T004 to freeze mappings object
+  function deepFreeze(obj) {
+    // Handle null/undefined
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    // Handle primitive types (string, number, boolean, symbol, bigint)
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+
+    // Handle RegExp objects - don't freeze them as they need to maintain functionality
+    // RegExp.prototype.test(), .exec(), and other methods may modify internal state
+    if (obj instanceof RegExp) {
+      return obj;
+    }
+
+    // Handle Arrays - recursively freeze all items, then freeze the array itself
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => deepFreeze(item));
+      return Object.freeze(obj);
+    }
+
+    // Handle Objects - recursively freeze all property values, then freeze the object
+    Object.values(obj).forEach((value) => deepFreeze(value));
+    return Object.freeze(obj);
+  }
+
+  /**
    * Gets all Trump mappings as a key-value object
    *
    * @private
