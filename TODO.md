@@ -49,7 +49,7 @@
     - **Depends‑on:** [T004]
 
 ## Core Mapping Immutability - Testing
-- [ ] **T006 · Test · P1**: implement core immutability tests for the mappings object
+- [x] **T006 · Test · P1**: implement core immutability tests for the mappings object
     - **Context:** PLAN.md, Phase 3: Comprehensive Testing Implementation / 1. Core Immutability Tests
     - **Action:**
         1. Create `test/content/trump-mappings-immutability.test.ts`.
