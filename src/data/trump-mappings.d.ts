@@ -35,6 +35,44 @@ export interface TrumpMappingsInterface {
   getKeys: () => string[];
 }
 
+/**
+ * Immutable trump mapping entry with readonly properties
+ */
+export interface ImmutableTrumpMapping {
+  /** Regular expression to match phrases */
+  readonly regex: RegExp;
+  /** Trump's nickname for the matched phrase */
+  readonly nick: string;
+  /** Optional key terms for additional matching */
+  readonly keyTerms?: readonly string[];
+  /** Whether to match partial words */
+  readonly matchesPartialWords?: boolean;
+}
+
+/**
+ * Immutable record type for trump mappings
+ */
+export type ImmutableTrumpMappingsRecord = {
+  readonly [K in string]: ImmutableTrumpMapping;
+};
+
+/**
+ * Immutable trump mappings interface with readonly return types
+ */
+export interface ImmutableTrumpMappingsInterface {
+  /**
+   * Returns immutable regex-nickname pairs for text replacement
+   * @returns Readonly object with mappings
+   */
+  readonly getReplacementMap: () => ImmutableTrumpMappingsRecord;
+
+  /**
+   * Gets the keys of all available mappings
+   * @returns Readonly array of mapping keys
+   */
+  readonly getKeys: () => readonly string[];
+}
+
 declare global {
   interface Window {
     /** Trump Mappings module */
