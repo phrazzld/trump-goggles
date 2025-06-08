@@ -76,10 +76,10 @@ export interface ImmutableTrumpMappingsInterface {
 declare global {
   interface Window {
     /** Trump Mappings module */
-    TrumpMappings: TrumpMappingsInterface;
+    readonly TrumpMappings: ImmutableTrumpMappingsInterface;
 
     /** @deprecated Use TrumpMappings.getReplacementMap() instead */
-    buildTrumpMap?: () => Record<string, TrumpMapping>;
+    readonly buildTrumpMap?: () => ImmutableTrumpMappingsRecord;
 
     /** Global initialization flag */
     trumpGogglesInitialized: boolean;
@@ -89,6 +89,6 @@ declare global {
 /**
  * The TrumpMappings module provides Trump nickname mappings and utilities.
  */
-declare const TrumpMappings: TrumpMappingsInterface;
+declare const TrumpMappings: ImmutableTrumpMappingsInterface;
 
 export default TrumpMappings;

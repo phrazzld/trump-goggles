@@ -10,7 +10,7 @@
         2. `tsc --noEmit` passes with strict mode enabled.
     - **Depends‑on:** none
 
-- [ ] **T002 · Refactor · P1**: update global window interface with readonly types
+- [x] **T002 · Refactor · P1**: update global window interface with readonly types
     - **Context:** PLAN.md, Phase 1: TypeScript Type System Enhancement / 2. Update Global Window Interface
     - **Action:**
         1. In `src/data/trump-mappings.d.ts`, update the `Window` interface to use `readonly TrumpMappings: ImmutableTrumpMappingsInterface`.
