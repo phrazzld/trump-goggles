@@ -39,7 +39,7 @@
         1. The `mappings` object is deep-frozen at module initialization.
     - **Depends‑on:** [T003]
 
-- [ ] **T005 · Refactor · P1**: update mapping accessors to return the frozen object
+- [x] **T005 · Refactor · P1**: update mapping accessors to return the frozen object
     - **Context:** PLAN.md, Phase 2: Runtime Immutability Implementation / 3. Update Return Methods
     - **Action:**
         1. Modify `getMappings()` and `getReplacementMap()` in `src/data/trump-mappings.js` to return `frozenMappings` directly.

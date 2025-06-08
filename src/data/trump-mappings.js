@@ -242,7 +242,6 @@ const TrumpMappings = (function () {
   };
 
   // Apply deep freeze to ensure complete immutability at module initialization
-  // eslint-disable-next-line no-unused-vars -- Used in T005 to update accessor methods
   const frozenMappings = deepFreeze(mappings);
 
   /**
@@ -290,33 +289,23 @@ const TrumpMappings = (function () {
   }
 
   /**
-   * Gets all Trump mappings as a key-value object
-   *
-   * @private
-   * @returns {Object.<string, {regex: RegExp, nick: string}>} The mappings object
-   */
-  function getMappings() {
-    return { ...mappings };
-  }
-
-  /**
    * Gets the keys of all available mappings
    *
    * @private
    * @returns {string[]} Array of mapping keys
    */
   function getMappingKeys() {
-    return Object.keys(mappings);
+    return Object.keys(frozenMappings);
   }
 
   /**
    * Returns regex-nickname pairs for text replacement
    *
    * @public
-   * @returns {Object.<string, {regex: RegExp, nick: string}>} Object with mappings
+   * @returns {Object.<string, {regex: RegExp, nick: string}>} Frozen object with mappings
    */
   function getReplacementMap() {
-    return getMappings();
+    return frozenMappings;
   }
 
   // Backward compatibility: provide global buildTrumpMap function
