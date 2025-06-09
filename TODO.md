@@ -68,7 +68,7 @@
         1. Functional verification tests pass, confirming no loss of functionality.
     - **Depends‑on:** [T006]
 
-- [ ] **T008 · Test · P2**: implement backward compatibility tests for `buildTrumpMap`
+- [x] **T008 · Test · P2**: implement backward compatibility tests for `buildTrumpMap`
     - **Context:** PLAN.md, Phase 3: Comprehensive Testing Implementation / 3. Backwards Compatibility Tests
     - **Action:**
         1. In `test/content/trump-mappings-immutability.test.ts`, add tests to verify `window.buildTrumpMap()`.

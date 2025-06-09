@@ -354,4 +354,104 @@ describe('Trump Mappings Immutability', () => {
       expect(keys.sort()).toEqual(Object.keys(mappings).sort());
     });
   });
+
+  describe('Backward compatibility - buildTrumpMap API', () => {
+    it('should provide the deprecated buildTrumpMap function', () => {
+      // Verify the deprecated function exists
+      expect(window.buildTrumpMap).toBeDefined();
+      expect(typeof window.buildTrumpMap).toBe('function');
+    });
+
+    it('should return a frozen object from buildTrumpMap', () => {
+      const legacyMappings = window.buildTrumpMap!();
+
+      // Verify the returned object is frozen
+      expect(Object.isFrozen(legacyMappings)).toBe(true);
+      expect(Object.isSealed(legacyMappings)).toBe(true);
+      expect(Object.isExtensible(legacyMappings)).toBe(false);
+    });
+
+    it('should return the same keys from buildTrumpMap as getReplacementMap', () => {
+      const legacyMappings = window.buildTrumpMap!();
+      const modernMappings = window.TrumpMappings.getReplacementMap();
+
+      // Keys should match exactly
+      expect(Object.keys(legacyMappings).sort()).toEqual(Object.keys(modernMappings).sort());
+    });
+
+    it('should return the same object reference from both APIs', () => {
+      const legacyMappings = window.buildTrumpMap!();
+      const modernMappings = window.TrumpMappings.getReplacementMap();
+
+      // Should be the exact same object reference
+      expect(legacyMappings).toBe(modernMappings);
+    });
+
+    it('should have identical content between buildTrumpMap and getReplacementMap', () => {
+      const legacyMappings = window.buildTrumpMap!();
+      const modernMappings = window.TrumpMappings.getReplacementMap();
+
+      // Compare all mappings are identical
+      Object.keys(legacyMappings).forEach((key) => {
+        expect(legacyMappings[key]).toBe(modernMappings[key]);
+        expect(legacyMappings[key].regex).toBe(modernMappings[key].regex);
+        expect(legacyMappings[key].nick).toBe(modernMappings[key].nick);
+      });
+    });
+
+    it('should maintain immutability through buildTrumpMap API', () => {
+      const legacyMappings = window.buildTrumpMap!();
+
+      // Test immutability through legacy API
+      expect(() => {
+        (legacyMappings as any).newKey = { regex: /test/, nick: 'test' };
+      }).toThrow(TypeError);
+
+      expect(() => {
+        delete (legacyMappings as any)[Object.keys(legacyMappings)[0]];
+      }).toThrow(TypeError);
+
+      // Test nested object immutability
+      const firstKey = Object.keys(legacyMappings)[0];
+      const mapping = legacyMappings[firstKey];
+
+      expect(() => {
+        (mapping as any).nick = 'Modified Nickname';
+      }).toThrow(TypeError);
+    });
+
+    it('should freeze all nested objects in buildTrumpMap result', () => {
+      const legacyMappings = window.buildTrumpMap!();
+
+      // Verify all nested mapping objects are frozen
+      Object.keys(legacyMappings).forEach((key) => {
+        const mapping = legacyMappings[key];
+        expect(Object.isFrozen(mapping)).toBe(true);
+        expect(Object.isSealed(mapping)).toBe(true);
+        expect(Object.isExtensible(mapping)).toBe(false);
+
+        // Verify RegExp objects are not frozen (for functionality)
+        expect(Object.isFrozen(mapping.regex)).toBe(false);
+      });
+    });
+
+    it('should work correctly for text replacement through buildTrumpMap', () => {
+      const legacyMappings = window.buildTrumpMap!();
+
+      // Test text replacement using legacy API
+      const testText = 'Hillary Clinton and Ted Cruz appeared on CNN';
+      let processedText = testText;
+
+      Object.keys(legacyMappings).forEach((key) => {
+        const mapping = legacyMappings[key];
+        processedText = processedText.replace(mapping.regex, mapping.nick);
+      });
+
+      // Verify replacements occurred
+      expect(processedText).not.toBe(testText);
+      expect(processedText).toContain('Crooked Hillary');
+      expect(processedText).toContain("Lyin' Ted");
+      expect(processedText).toContain('Fake News CNN');
+    });
+  });
 });
