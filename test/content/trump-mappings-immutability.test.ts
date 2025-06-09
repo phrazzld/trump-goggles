@@ -182,4 +182,176 @@ describe('Trump Mappings Immutability', () => {
       }).toThrow(TypeError);
     });
   });
+
+  describe('Functional verification - frozen mappings still work correctly', () => {
+    it('should maintain full functionality after freezing', () => {
+      // Get first mapping to test
+      const firstMapping = mappings[Object.keys(mappings)[0]];
+
+      // Verify mappings have expected structure
+      expect(firstMapping).toBeDefined();
+      expect(firstMapping.regex).toBeInstanceOf(RegExp);
+      expect(typeof firstMapping.nick).toBe('string');
+    });
+
+    it('should allow RegExp objects to function correctly for text matching', () => {
+      // Test various mappings to ensure regex functionality
+      Object.keys(mappings)
+        .slice(0, 10)
+        .forEach((key) => {
+          const mapping = mappings[key];
+
+          // Create test text that should match
+          const testText = `This text contains ${key} and should match`;
+
+          // RegExp should still work - it may or may not match depending on the pattern
+          // The important thing is that calling match() doesn't throw an error
+          expect(() => testText.match(mapping.regex)).not.toThrow();
+
+          // Test other RegExp methods
+          expect(() => mapping.regex.test(testText)).not.toThrow();
+          expect(() => mapping.regex.exec(testText)).not.toThrow();
+        });
+    });
+
+    it('should allow access to all properties of frozen mappings', () => {
+      Object.keys(mappings).forEach((key) => {
+        const mapping = mappings[key];
+
+        // Verify all properties are accessible
+        expect(() => mapping.regex).not.toThrow();
+        expect(() => mapping.nick).not.toThrow();
+
+        // Properties should have correct types
+        expect(mapping.regex).toBeInstanceOf(RegExp);
+        expect(typeof mapping.nick).toBe('string');
+        expect(mapping.nick.length).toBeGreaterThan(0);
+
+        // Optional properties should be accessible if present
+        if ('keyTerms' in mapping) {
+          expect(() => mapping.keyTerms).not.toThrow();
+          if (mapping.keyTerms) {
+            expect(Array.isArray(mapping.keyTerms)).toBe(true);
+          }
+        }
+
+        if ('matchesPartialWords' in mapping) {
+          expect(() => mapping.matchesPartialWords).not.toThrow();
+          expect(typeof mapping.matchesPartialWords).toBe('boolean');
+        }
+      });
+    });
+
+    it('should work correctly for text replacement operations', () => {
+      // Test actual text replacement functionality
+      const testCases = [
+        { text: 'Ted Cruz said something', expected: "Lyin' Ted said something" },
+        { text: 'Hillary Clinton announced', expected: 'Crooked Hillary announced' },
+        { text: 'CNN reported the news', expected: 'Fake News CNN reported the news' },
+        { text: 'The COVID-19 pandemic', expected: 'The China Virus pandemic' },
+      ];
+
+      testCases.forEach((testCase) => {
+        let modifiedText = testCase.text;
+
+        // Apply replacements using the frozen mappings
+        Object.keys(mappings).forEach((key) => {
+          const mapping = mappings[key];
+          modifiedText = modifiedText.replace(mapping.regex, mapping.nick);
+        });
+
+        // The text should be processable without errors
+        expect(typeof modifiedText).toBe('string');
+        // Verify the expected replacement occurred
+        expect(modifiedText).toBe(testCase.expected);
+      });
+    });
+
+    it('should maintain regex flags and options after freezing', () => {
+      Object.keys(mappings)
+        .slice(0, 5)
+        .forEach((key) => {
+          const mapping = mappings[key];
+          const regex = mapping.regex;
+
+          // Verify regex flags are preserved
+          expect(regex.flags).toContain('g'); // Global flag
+          expect(regex.flags).toContain('i'); // Case insensitive flag
+
+          // Verify regex properties are accessible
+          expect(typeof regex.source).toBe('string');
+          expect(regex.source.length).toBeGreaterThan(0);
+          expect(typeof regex.global).toBe('boolean');
+          expect(typeof regex.ignoreCase).toBe('boolean');
+          expect(regex.global).toBe(true);
+          expect(regex.ignoreCase).toBe(true);
+        });
+    });
+
+    it('should handle complex replacement scenarios with frozen mappings', () => {
+      const complexText = `
+        Ted Cruz met with Hillary Clinton at CNN headquarters.
+        They discussed COVID-19 and had coffee while watching NBC News.
+        Joe Biden and Kamala Harris were also mentioned on MSNBC.
+      `;
+
+      let processedText = complexText;
+      const replacementCount = new Map<string, number>();
+
+      // Process text with all mappings
+      Object.keys(mappings).forEach((key) => {
+        const mapping = mappings[key];
+        let count = 0;
+
+        processedText = processedText.replace(mapping.regex, () => {
+          count++;
+          return mapping.nick;
+        });
+
+        if (count > 0) {
+          replacementCount.set(key, count);
+        }
+      });
+
+      // Verify text was processed
+      expect(processedText).not.toBe(complexText);
+      expect(replacementCount.size).toBeGreaterThan(0);
+
+      // Verify some expected replacements occurred
+      // Note: The replacements contain the original words sometimes (e.g., "Fake News CNN")
+      expect(processedText).not.toBe(complexText);
+
+      // Verify specific transformations
+      expect(processedText).toContain("Lyin' Ted");
+      expect(processedText).toContain('Crooked Hillary');
+      expect(processedText).toContain('Fake News CNN');
+      expect(processedText).toContain('China Virus');
+      expect(processedText).toContain('covfefe'); // coffee replacement
+      expect(processedText).toContain('Fake News NBC News');
+      expect(processedText).toContain('Sleepy Joe');
+      expect(processedText).toContain('Comrade Kamala');
+      expect(processedText).toContain('MSDNC');
+
+      // Verify at least some replacements happened
+      expect(replacementCount.size).toBeGreaterThanOrEqual(8);
+    });
+
+    it('should support getKeys() method returning accessible array', () => {
+      const keys = window.TrumpMappings.getKeys();
+
+      // Verify keys array is returned
+      expect(Array.isArray(keys)).toBe(true);
+      expect(keys.length).toBeGreaterThan(0);
+
+      // Verify all keys correspond to actual mappings
+      keys.forEach((key) => {
+        expect(mappings[key]).toBeDefined();
+        expect(mappings[key].regex).toBeInstanceOf(RegExp);
+        expect(typeof mappings[key].nick).toBe('string');
+      });
+
+      // Verify keys match object keys
+      expect(keys.sort()).toEqual(Object.keys(mappings).sort());
+    });
+  });
 });

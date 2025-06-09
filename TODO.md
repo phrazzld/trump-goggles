@@ -59,7 +59,7 @@
         1. Core immutability tests are implemented and pass, demonstrating that mutations are prevented.
     - **Depends‑on:** [T005]
 
-- [ ] **T007 · Test · P1**: implement functional verification tests for frozen mappings
+- [x] **T007 · Test · P1**: implement functional verification tests for frozen mappings
     - **Context:** PLAN.md, Phase 3: Comprehensive Testing Implementation / 2. Functional Verification Tests
     - **Action:**
         1. In `test/content/trump-mappings-immutability.test.ts`, add tests to confirm that `RegExp` objects within the frozen mappings still function correctly for text matching.
