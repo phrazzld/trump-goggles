@@ -85,7 +85,7 @@
         1. The existing test suite passes with the new `Object.isFrozen` assertions.
     - **Depends‑on:** [T005]
 
-- [ ] **T010 · Test · P2**: implement performance benchmark for frozen objects
+- [x] **T010 · Test · P2**: implement performance benchmark for frozen objects
     - **Context:** PLAN.md, Phase 4: Integration and Validation / 2. Performance Benchmarking
     - **Action:**
         1. Add a performance test that simulates typical usage (1000 iterations of accessing and using mappings).

@@ -454,4 +454,137 @@ describe('Trump Mappings Immutability', () => {
       expect(processedText).toContain('Fake News CNN');
     });
   });
+
+  describe('Performance benchmarks - frozen objects performance', () => {
+    it('should maintain acceptable performance with frozen objects', () => {
+      const startTime = performance.now();
+
+      // Simulate typical usage pattern (1000 iterations)
+      for (let i = 0; i < 1000; i++) {
+        const mappings = window.TrumpMappings.getReplacementMap();
+        const keys = window.TrumpMappings.getKeys();
+
+        // Access random mappings (simulates real usage)
+        const randomKey = keys[i % keys.length];
+        const mapping = mappings[randomKey];
+
+        // Simulate text matching operations
+        const testText = `This is test ${i} with ${randomKey} content`;
+        mapping.regex.test(testText);
+
+        // Access properties
+        const nick = mapping.nick;
+        const regex = mapping.regex;
+
+        // Prevent optimization eliminating operations
+        expect(nick).toBeDefined();
+        expect(regex).toBeDefined();
+      }
+
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+
+      // Assert execution time is under 50ms threshold
+      expect(executionTime).toBeLessThan(50);
+    });
+
+    it('should perform efficiently for complex text replacement operations', () => {
+      const mappings = window.TrumpMappings.getReplacementMap();
+      const complexText = `
+        Hillary Clinton and Ted Cruz met with Joe Biden at CNN headquarters.
+        They discussed COVID-19 pandemic while drinking coffee and watching NBC News.
+        Donald Trump was mentioned in context of various political figures.
+        The meeting covered topics from MSNBC reporting to New York Times articles.
+      `;
+
+      const startTime = performance.now();
+
+      // Perform 1000 iterations of text replacement (simulates heavy usage)
+      for (let i = 0; i < 1000; i++) {
+        let processedText = complexText;
+
+        Object.keys(mappings).forEach((key) => {
+          const mapping = mappings[key];
+          processedText = processedText.replace(mapping.regex, mapping.nick);
+        });
+
+        // Ensure processing actually occurred
+        expect(processedText).not.toBe(complexText);
+      }
+
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+
+      // Assert execution time is under 50ms threshold for complex operations
+      expect(executionTime).toBeLessThan(50);
+    });
+
+    it('should efficiently handle multiple API calls in rapid succession', () => {
+      const startTime = performance.now();
+
+      // Simulate rapid successive API calls (1000 iterations)
+      for (let i = 0; i < 1000; i++) {
+        // Mix of API calls
+        const mappings1 = window.TrumpMappings.getReplacementMap();
+        const keys1 = window.TrumpMappings.getKeys();
+        const legacyMappings = window.buildTrumpMap!();
+        const mappings2 = window.TrumpMappings.getReplacementMap();
+        const keys2 = window.TrumpMappings.getKeys();
+
+        // Verify these are still the same references (should be fast)
+        expect(mappings1).toBe(mappings2);
+        expect(keys1).toBe(keys2);
+        expect(mappings1).toBe(legacyMappings);
+      }
+
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+
+      // Assert execution time is under 50ms threshold for rapid API calls
+      expect(executionTime).toBeLessThan(50);
+    });
+
+    it('should maintain performance when accessing nested properties', () => {
+      const mappings = window.TrumpMappings.getReplacementMap();
+      const keys = Object.keys(mappings);
+      const sampleKey = keys[0]; // Use just one key for consistent measurement
+
+      const startTime = performance.now();
+
+      let totalProperties = 0;
+
+      // Access nested properties (1000 iterations with single mapping)
+      for (let i = 0; i < 1000; i++) {
+        const mapping = mappings[sampleKey];
+
+        // Access all properties (pure property access without expect overhead)
+        const regex = mapping.regex;
+        const nick = mapping.nick;
+        const source = regex.source;
+        const flags = regex.flags;
+        const global = regex.global;
+        const ignoreCase = regex.ignoreCase;
+
+        // Count properties accessed to prevent optimization elimination
+        totalProperties += nick.length + source.length + flags.length;
+        if (global) totalProperties++;
+        if (ignoreCase) totalProperties++;
+
+        // Test frozen status occasionally (not every iteration)
+        if (i % 100 === 0) {
+          const isFrozen = Object.isFrozen(mapping);
+          if (isFrozen) totalProperties++;
+        }
+      }
+
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+
+      // Verify we actually did work
+      expect(totalProperties).toBeGreaterThan(1000);
+
+      // Assert execution time is under 50ms threshold for property access
+      expect(executionTime).toBeLessThan(50);
+    });
+  });
 });
