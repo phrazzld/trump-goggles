@@ -67,7 +67,7 @@ The extension follows a **modular architecture** with clear separation of concer
 - **DOM Modifier**: Traverses DOM, wraps converted text in interactive spans
 - **Tooltip System**: Three-component architecture (Manager, UI, Browser Adapter) providing original text on hover/focus
 - **Mutation Observer**: Watches for dynamic content changes
-- **Trump Mappings**: Defines replacement patterns and nicknames
+- **Trump Mappings**: Defines replacement patterns and nicknames with immutability guarantees
 - **Logger**: Structured JSON logging system with correlation ID propagation
 - **Browser Adapter**: Unified API across Chrome, Firefox, Edge
 
@@ -78,6 +78,25 @@ The extension follows a **modular architecture** with clear separation of concer
 3. Text replacements are applied and DOM is modified
 4. Tooltip system enables access to original text
 5. Mutation observer handles dynamically added content
+
+## Data Immutability Pattern
+
+The project implements a **comprehensive immutability pattern** for core data structures to ensure data integrity and prevent accidental mutations:
+
+### Trump Mappings Immutability
+
+- **Deep Freeze Implementation**: All mapping objects are recursively frozen using `Object.freeze()`
+- **Runtime Protection**: Attempts to modify frozen objects throw `TypeError` in strict mode
+- **Compile-time Safety**: TypeScript `readonly` modifiers provide additional type-level protection
+- **Performance Optimization**: Frozen objects are cached and reused across multiple calls
+- **RegExp Preservation**: RegExp objects remain unfrozen to maintain functionality for text matching
+
+### Immutability Benefits
+
+- **Data Integrity**: Prevents accidental mutations that could break text replacement functionality
+- **Predictable Behavior**: Ensures mappings remain consistent throughout the application lifecycle
+- **Testing Reliability**: Eliminates test pollution from shared mutable state
+- **Performance**: Cached frozen references avoid redundant object creation
 
 ## Development Philosophy Adherence
 

@@ -106,7 +106,7 @@
         1. Run `npm test` (or equivalent) and ensure all test suites are green.
     - **Depends‑on:** [T007, T008, T009]
 
-- [ ] **T012 · Chore · P3**: update code documentation for immutability
+- [x] **T012 · Chore · P3**: update code documentation for immutability
     - **Context:** PLAN.md, Milestone 4: Documentation
     - **Action:**
         1. Add/update JSDoc comments for the `deepFreeze` utility and all public mapping accessors to explain the immutability guarantee.
