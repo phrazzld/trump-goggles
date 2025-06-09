@@ -31,7 +31,7 @@
     "typecheck:watch": "tsc --noEmit --watch",
     "typecheck:test": "node scripts/check-test-types.js",
     "perf-test": "node setup-performance-test.js",
-    "verify": "./verify-ci.sh",
+    "verify": "./scripts/verify-ci.sh",
     "check:pnpm": "node scripts/check-package-manager.js"
   },
   "keywords": [

@@ -38,9 +38,9 @@ pnpm lint:fix
 pnpm format
 
 # Verify all CI checks locally
-./verify-ci.sh
+./scripts/verify-ci.sh
 # or
-pnpm ci
+pnpm verify
 ```
 
 ### Build System
