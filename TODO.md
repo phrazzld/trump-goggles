@@ -95,7 +95,7 @@
     - **Depends‑on:** [T005]
 
 ## Core Mapping Immutability - Integration & Documentation
-- [ ] **T011 · Test · P1**: validate all integrations with immutable mappings
+- [x] **T011 · Test · P1**: validate all integrations with immutable mappings
     - **Context:** PLAN.md, Phase 4: Integration and Validation / 1. Update Integration Tests
     - **Action:**
         1. Execute the full text-processor, DOM-modifier, and tooltip integration test suites.
