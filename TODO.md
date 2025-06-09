@@ -77,7 +77,7 @@
         1. Backwards compatibility tests are implemented and pass.
     - **Depends‑on:** [T006]
 
-- [ ] **T009 · Test · P2**: enhance existing tests with immutability checks
+- [x] **T009 · Test · P2**: enhance existing tests with immutability checks
     - **Context:** PLAN.md, Phase 3: Comprehensive Testing Implementation / 4. Enhance Existing Tests
     - **Action:**
         1. In `test/content/trump-mappings.test.ts`, add an assertion that `TrumpMappings.getReplacementMap()` and `TrumpMappings.getKeys()` return frozen objects/arrays.

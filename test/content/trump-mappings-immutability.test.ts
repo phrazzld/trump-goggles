@@ -350,8 +350,8 @@ describe('Trump Mappings Immutability', () => {
         expect(typeof mappings[key].nick).toBe('string');
       });
 
-      // Verify keys match object keys
-      expect(keys.sort()).toEqual(Object.keys(mappings).sort());
+      // Verify keys match object keys (create copy for sorting since keys is frozen)
+      expect([...keys].sort()).toEqual(Object.keys(mappings).sort());
     });
   });
 

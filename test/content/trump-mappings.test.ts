@@ -434,3 +434,73 @@ describe('Trump Mappings Integration', () => {
     });
   });
 });
+
+// Part 3: Real Module Immutability Integration Tests
+describe('Trump Mappings Real Module Immutability', () => {
+  // Import the real trump-mappings module for immutability testing
+  beforeEach(async () => {
+    // Dynamically import the real module to ensure it's loaded
+    await import('../../src/data/trump-mappings.js');
+  });
+
+  describe('API returns immutable objects', () => {
+    it('should return immutable objects from all public methods', () => {
+      // Verify TrumpMappings is available
+      expect(window.TrumpMappings).toBeDefined();
+
+      // Test getReplacementMap returns frozen object
+      const mappings = window.TrumpMappings.getReplacementMap();
+      expect(Object.isFrozen(mappings)).toBe(true);
+
+      // Test getKeys returns frozen array
+      const keys = window.TrumpMappings.getKeys();
+      expect(Object.isFrozen(keys)).toBe(true);
+    });
+
+    it('should return immutable object from deprecated buildTrumpMap', () => {
+      // Verify buildTrumpMap is available
+      expect(window.buildTrumpMap).toBeDefined();
+
+      // Test buildTrumpMap returns frozen object
+      const legacyMappings = window.buildTrumpMap!();
+      expect(Object.isFrozen(legacyMappings)).toBe(true);
+    });
+
+    it('should have consistent immutability across multiple calls', () => {
+      // Multiple calls should return the same frozen objects
+      const mappings1 = window.TrumpMappings.getReplacementMap();
+      const mappings2 = window.TrumpMappings.getReplacementMap();
+      const keys1 = window.TrumpMappings.getKeys();
+      const keys2 = window.TrumpMappings.getKeys();
+
+      // Should be same references and both frozen
+      expect(mappings1).toBe(mappings2);
+      expect(keys1).toBe(keys2);
+      expect(Object.isFrozen(mappings1)).toBe(true);
+      expect(Object.isFrozen(keys1)).toBe(true);
+    });
+
+    it('should maintain immutability contract in integration context', () => {
+      // This test ensures immutability works in the context of existing test patterns
+      const mappings = window.TrumpMappings.getReplacementMap();
+      const keys = window.TrumpMappings.getKeys();
+
+      // Verify basic structure (similar to existing tests)
+      expect(typeof mappings).toBe('object');
+      expect(Array.isArray(keys)).toBe(true);
+      expect(keys.length).toBeGreaterThan(0);
+
+      // Verify immutability
+      expect(Object.isFrozen(mappings)).toBe(true);
+      expect(Object.isFrozen(keys)).toBe(true);
+
+      // Verify individual mapping objects are also frozen
+      keys.forEach((key) => {
+        const mapping = mappings[key];
+        expect(Object.isFrozen(mapping)).toBe(true);
+        expect(mapping.regex).toBeInstanceOf(RegExp);
+        expect(typeof mapping.nick).toBe('string');
+      });
+    });
+  });
+});

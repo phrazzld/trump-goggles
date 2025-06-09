@@ -244,6 +244,9 @@ const TrumpMappings = (function () {
   // Apply deep freeze to ensure complete immutability at module initialization
   const frozenMappings = deepFreeze(mappings);
 
+  // Create and freeze the keys array once for consistent returns
+  const frozenKeys = Object.freeze(Object.keys(frozenMappings));
+
   /**
    * Recursively freezes an object and all its nested properties
    *
@@ -292,10 +295,10 @@ const TrumpMappings = (function () {
    * Gets the keys of all available mappings
    *
    * @private
-   * @returns {string[]} Array of mapping keys
+   * @returns {string[]} Frozen array of mapping keys
    */
   function getMappingKeys() {
-    return Object.keys(frozenMappings);
+    return frozenKeys;
   }
 
   /**
