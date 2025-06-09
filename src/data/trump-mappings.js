@@ -1,9 +1,17 @@
 /**
- * Trump Mappings - Map of phrases to Trump's nicknames
+ * Trump Mappings - Immutable Map of phrases to Trump's nicknames
  *
  * This module provides Trump nickname mappings and associated utilities
  * for text replacement functionality. It uses a proper module pattern with
  * encapsulated functionality and a clean public API.
+ *
+ * **Immutability Guarantee:**
+ * All mappings returned by this module are deeply frozen using Object.freeze()
+ * to prevent accidental mutations and ensure data integrity. This includes:
+ * - Root mapping objects are frozen
+ * - Individual mapping objects are frozen
+ * - Nested arrays and objects are frozen
+ * - RegExp objects remain unfrozen to maintain functionality
  *
  * @version 3.0.0
  */
@@ -241,34 +249,89 @@ const TrumpMappings = (function () {
     },
   };
 
+  // Apply deep freeze to ensure complete immutability at module initialization
+  const frozenMappings = deepFreeze(mappings);
+
+  // Create and freeze the keys array once for consistent returns
+  const frozenKeys = Object.freeze(Object.keys(frozenMappings));
+
   /**
-   * Gets all Trump mappings as a key-value object
+   * Recursively freezes an object and all its nested properties
+   *
+   * This utility function provides deep immutability by freezing objects
+   * and recursively freezing all nested properties. Special handling is
+   * provided for different object types:
+   * - Primitives (string, number, boolean) are returned as-is
+   * - null/undefined values are returned as-is
+   * - RegExp objects are returned unfrozen to maintain functionality
+   * - Arrays are frozen after recursively freezing all items
+   * - Objects are frozen after recursively freezing all property values
    *
    * @private
-   * @returns {Object.<string, {regex: RegExp, nick: string}>} The mappings object
+   * @param {*} obj - Object to deep freeze
+   * @returns {*} The frozen object (same reference, but immutable)
    */
-  function getMappings() {
-    return { ...mappings };
+  function deepFreeze(obj) {
+    // Handle null/undefined
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    // Handle primitive types (string, number, boolean, symbol, bigint)
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+
+    // Handle RegExp objects - don't freeze them as they need to maintain functionality
+    // RegExp.prototype.test(), .exec(), and other methods may modify internal state
+    if (obj instanceof RegExp) {
+      return obj;
+    }
+
+    // Handle Arrays - recursively freeze all items, then freeze the array itself
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => deepFreeze(item));
+      return Object.freeze(obj);
+    }
+
+    // Handle Objects - recursively freeze all property values, then freeze the object
+    Object.values(obj).forEach((value) => deepFreeze(value));
+    return Object.freeze(obj);
   }
 
   /**
    * Gets the keys of all available mappings
    *
+   * Returns a frozen array containing all mapping keys. The returned array
+   * is deeply immutable and cannot be modified. Multiple calls return the
+   * same frozen array reference for optimal performance.
+   *
    * @private
-   * @returns {string[]} Array of mapping keys
+   * @returns {string[]} Frozen array of mapping keys (immutable)
    */
   function getMappingKeys() {
-    return Object.keys(mappings);
+    return frozenKeys;
   }
 
   /**
    * Returns regex-nickname pairs for text replacement
    *
+   * Returns a deeply frozen object containing all Trump nickname mappings.
+   * The returned object and all nested mapping objects are immutable and
+   * cannot be modified. RegExp objects within mappings remain unfrozen to
+   * maintain their functionality for text matching operations.
+   *
+   * **Immutability Contract:**
+   * - Root mappings object: frozen and immutable
+   * - Individual mapping objects: frozen and immutable
+   * - RegExp objects: unfrozen for functionality
+   * - Multiple calls return the same frozen object reference
+   *
    * @public
-   * @returns {Object.<string, {regex: RegExp, nick: string}>} Object with mappings
+   * @returns {Object.<string, {regex: RegExp, nick: string}>} Deeply frozen immutable mappings object
    */
   function getReplacementMap() {
-    return getMappings();
+    return frozenMappings;
   }
 
   // Backward compatibility: provide global buildTrumpMap function
@@ -286,7 +349,13 @@ const TrumpMappings = (function () {
     };
 
     /**
+     * Legacy function for backward compatibility - returns immutable mappings
+     *
+     * This function returns the same deeply frozen, immutable mappings object
+     * as TrumpMappings.getReplacementMap(). All immutability guarantees apply.
+     *
      * @deprecated Use TrumpMappings.getReplacementMap() instead
+     * @returns {Object.<string, {regex: RegExp, nick: string}>} Deeply frozen immutable mappings object
      */
     // @ts-ignore: Complex function type overload for legacy compatibility
     window.buildTrumpMap = function buildTrumpMap() {

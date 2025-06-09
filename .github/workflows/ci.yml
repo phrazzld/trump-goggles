@@ -42,7 +42,7 @@ jobs:
         run: pnpm install
 
       - name: Run CI
-        run: pnpm ci
+        run: pnpm verify
 
       - name: Run tests with coverage
         run: pnpm test:coverage

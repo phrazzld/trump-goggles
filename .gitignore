@@ -18,6 +18,8 @@ node_modules/
 # Test files
 coverage/
 .vitest/
+playwright-report/
+test-results/
 
 # Build output
 dist/

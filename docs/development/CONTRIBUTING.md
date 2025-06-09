@@ -203,7 +203,7 @@ Before pushing your changes, it's recommended to run the local CI verification s
 
 ```bash
 # Either run the script directly
-./verify-ci.sh
+./scripts/verify-ci.sh
 
 # Or use the pnpm script
 pnpm verify
@@ -355,7 +355,7 @@ const element = document.getElementById('my-element');
 ## Pull Request Process
 
 1. **Create a pull request** from your branch to the main repository
-2. **Run the CI verification script** before submitting: `./verify-ci.sh`
+2. **Run the CI verification script** before submitting: `./scripts/verify-ci.sh`
 3. **Ensure all checks pass** (tests, linting, type checking)
 4. **Update documentation** if necessary
 5. **Update version numbers** following [semantic versioning](https://semver.org/)
@@ -389,7 +389,7 @@ When creating a pull request, include the following information:
 ## Checklist
 
 - [ ] I have tested my changes
-- [ ] I have run the CI verification script (`./verify-ci.sh`)
+- [ ] I have run the CI verification script (`./scripts/verify-ci.sh`)
 - [ ] I have updated the documentation
 - [ ] I have added tests that prove my fix/feature works
 - [ ] All new and existing tests pass
