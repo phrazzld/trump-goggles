@@ -3,6 +3,7 @@ derived_from: automation
 enforced_by: linters & code review
 id: use-structured-logging
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Implement Complete Observability with Structured Logs, Metrics, and Traces
 
@@ -1480,3 +1481,5 @@ function handleCheckout(req, res) {
   observability concerns. Instead, observability is typically implemented in the
   adapters and infrastructure layers of a hexagonal architecture, with domain events
   serving as the primary source of telemetry from the domain layer itself.
+
+- [authentication-authorization-patterns](../../docs/bindings/categories/security/authentication-authorization-patterns.md): Authentication and authorization events require comprehensive structured logging to enable security monitoring, incident response, and compliance auditing. Both bindings create systematic observability for security-critical operations while ensuring that sensitive data is properly protected in log outputs.

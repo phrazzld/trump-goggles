@@ -1,8 +1,8 @@
 ---
 id: simplicity
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Simplicity Above All
 
 Prefer the simplest design that solves the problem completely. Complexity is the root
@@ -154,3 +154,17 @@ choices).
   maintainability. Simple systems are easier to understand, modify, and extend. The
   relationship is bidirectional: following maintainability practices often naturally
   leads to simpler solutions as well.
+
+- [Empathize With Your User](empathize-with-your-user.md): User empathy naturally
+  leads to simpler solutions because complex interfaces and interactions are harder
+  for users to understand and navigate. When you truly understand user needs, you
+  often discover that simpler approaches serve them better than sophisticated but
+  confusing alternatives. Simplicity enhances empathy by reducing cognitive load
+  for users.
+
+- [Product Value First](product-value-first.md): Product value focus naturally drives
+  simplicity because unnecessary complexity doesn't serve users. When you consistently
+  ask "How does this complexity benefit users?", you eliminate technical sophistication
+  that exists purely for its own sake. Both tenets work together to ensure that
+  engineering effort goes toward user-beneficial outcomes rather than abstract
+  technical pursuits.

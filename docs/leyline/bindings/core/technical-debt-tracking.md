@@ -1,10 +1,10 @@
 ---
 id: technical-debt-tracking
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: fix-broken-windows
 enforced_by: 'Code review, architectural review, technical debt assessment processes'
 ---
-
 # Binding: Implement Systematic Technical Debt Management
 
 Establish comprehensive processes to identify, document, prioritize, and systematically address technical debt before it degrades system quality. Maintain explicit visibility into technical debt accumulation and create actionable plans for debt reduction.

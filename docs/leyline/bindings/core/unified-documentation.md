@@ -1,10 +1,10 @@
 ---
 id: unified-documentation
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: dry-dont-repeat-yourself
 enforced_by: 'Documentation tools, content review, automated generation'
 ---
-
 # Binding: Maintain Single Source Documentation
 
 Create a unified documentation system where each piece of knowledge is documented once in an authoritative location and referenced from all other locations that need it. This eliminates documentation duplication, inconsistencies, and maintenance overhead.

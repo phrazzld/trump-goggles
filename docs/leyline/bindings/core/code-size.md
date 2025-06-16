@@ -2,6 +2,7 @@
 derived_from: simplicity
 id: code-size
 last_modified: '2025-05-14'
+version: '0.1.0'
 enforced_by: code review & style guides
 ---
 # Binding: Keep Code Units Small and Focused

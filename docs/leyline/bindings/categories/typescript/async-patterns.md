@@ -2,6 +2,7 @@
 derived_from: simplicity
 id: async-patterns
 last_modified: '2025-05-14'
+version: '0.1.0'
 enforced_by: code review & style guides
 ---
 # Binding: Structure TypeScript Async Code with Best Practices

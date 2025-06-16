@@ -3,6 +3,7 @@ derived_from: simplicity
 enforced_by: dependency scanners & code review
 id: dependency-management
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Minimize and Maintain Dependencies Deliberately
 

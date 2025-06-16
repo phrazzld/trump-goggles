@@ -1,8 +1,8 @@
 ---
 id: fix-broken-windows
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Don't Live with Broken Windows
 
 Address quality problems immediately when they're discovered. Small defects, poor
@@ -151,3 +151,22 @@ importance of immediate action to prevent normalization of problems.
   visible quickly. Without good test coverage, broken windows can hide for long
   periods before being discovered. Tests also provide the safety net that makes
   fixing problems less risky.
+
+- [Deliver Value Continuously](deliver-value-continuously.md): A broken deployment
+  pipeline is a critical "broken window" that must be fixed immediately to maintain
+  the flow of value delivery. When the pipeline is unreliable, the entire team
+  loses confidence in continuous delivery, leading to batching and delays that
+  reduce overall effectiveness. Both tenets demand immediate issue resolution.
+
+- [Empathize With Your User](empathize-with-your-user.md): User-facing broken
+  windows—confusing interfaces, poor error messages, or accessibility issues—have
+  immediate impact on user experience and should be prioritized for fixing. Users
+  encounter these problems directly, making them more urgent than purely internal
+  technical debt. User empathy helps identify which broken windows matter most.
+
+- [Build Trust Through Collaboration](build-trust-through-collaboration.md):
+  Collective ownership empowers anyone on the team to fix broken windows rather
+  than waiting for the "owner" of problematic code. Trust enables team members to
+  make necessary improvements without fear of stepping on toes or being blamed for
+  changes that reveal existing problems. Team-wide quality ownership prevents
+  windows from staying broken.

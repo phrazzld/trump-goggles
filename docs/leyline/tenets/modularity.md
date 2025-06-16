@@ -1,8 +1,8 @@
 ---
 id: modularity
 last_modified: '2025-05-08'
+version: '0.1.0'
 ---
-
 # Tenet: Modularity is Mandatory
 
 Construct software from small, well-defined, independent components with clear

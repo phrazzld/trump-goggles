@@ -1,10 +1,10 @@
 ---
 id: normalized-data-design
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: dry-dont-repeat-yourself
 enforced_by: 'Database design review, schema validation, data modeling tools'
 ---
-
 # Binding: Design Normalized Data Structures
 
 Structure data to eliminate redundancy and ensure that each piece of information is stored in exactly one place. This creates a single source of truth for each data element and prevents inconsistencies that arise from duplicated information.

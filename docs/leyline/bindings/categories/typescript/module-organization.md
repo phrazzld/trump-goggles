@@ -3,6 +3,7 @@ derived_from: modularity
 enforced_by: code review & project linting rules
 id: module-organization
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Organize TypeScript Code Into Feature-Focused Modules
 
@@ -532,3 +533,7 @@ const userService = new UserService(orderService);
 - [immutable-by-default](../../docs/bindings/core/immutable-by-default.md): Module boundaries are more effective
   when data passed between them is immutable, preventing unexpected side effects when
   one module modifies data used by another.
+
+### Language-Specific Analogies
+- [package-structure](../python/package-structure.md) - Python equivalent: organizing by business domain with src/ layout and clear module boundaries
+- [dependency-management](../python/dependency-management.md) - Python patterns for managing module dependencies with virtual environments and lockfiles

@@ -1,8 +1,8 @@
 ---
 id: dry-dont-repeat-yourself
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Every Piece of Knowledge Must Have a Single Source of Truth
 
 Ensure that every piece of knowledge in your system has a single, unambiguous,

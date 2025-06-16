@@ -3,6 +3,7 @@ derived_from: explicit-over-implicit
 enforced_by: eslint("@typescript-eslint/no-explicit-any") & tsconfig("noImplicitAny")
 id: no-any
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Make Types Explicit, Never Use `any`
 
@@ -296,11 +297,14 @@ processUserInput({ isvalid: true, userData: { name: "User" } });
 
 ## Related Bindings
 
-- [external-configuration](../../docs/bindings/core/external-configuration.md) - Type safety extends to
+- [external-configuration](../../core/external-configuration.md) - Type safety extends to
   configuration, preventing undefined configuration values from causing runtime failures
-- [immutable-by-default](../../docs/bindings/core/immutable-by-default.md) - Type safety works best with
+- [immutable-by-default](../../core/immutable-by-default.md) - Type safety works best with
   immutable data, creating a stronger guarantee of correctness
-- [no-lint-suppression](../../docs/bindings/core/no-lint-suppression.md) - Enforces that developers don't
+- [no-lint-suppression](../../core/no-lint-suppression.md) - Enforces that developers don't
   suppress TypeScript type errors or linter warnings without documented justification
-- [hex-domain-purity](../../docs/bindings/core/hex-domain-purity.md) - Well-typed domain code ensures business
+- [hex-domain-purity](../../core/hex-domain-purity.md) - Well-typed domain code ensures business
   logic operates on valid, properly structured data
+
+### Language-Specific Analogies
+- [type-hinting](../python/type-hinting.md) - Python equivalent: using explicit type hints instead of dynamic typing

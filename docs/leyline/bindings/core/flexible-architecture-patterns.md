@@ -1,10 +1,10 @@
 ---
 id: flexible-architecture-patterns
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: adaptability-and-reversibility
 enforced_by: 'Architectural review, design patterns, refactoring practices'
 ---
-
 # Binding: Design Architecture for Change and Reversibility
 
 Implement architectural patterns that enable easy modification, extension, and reversal of design decisions. Design systems that can adapt to changing requirements without requiring fundamental restructuring or breaking existing functionality.

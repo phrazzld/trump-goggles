@@ -1,8 +1,8 @@
 ---
 id: explicit-over-implicit
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Explicit is Better than Implicit
 
 Make code behavior obvious by clearly expressing dependencies, data flow, control flow,
@@ -196,3 +196,11 @@ understood by reading rather than debugging.
   from explicitness when returning to code after months away. By making important
   behaviors and constraints visible, explicitness reduces the likelihood of accidental
   breakage during maintenance.
+
+## Related Bindings
+
+- [secure-by-design-principles](../bindings/categories/security/secure-by-design-principles.md): Security architecture implements explicit-over-implicit by making security assumptions, boundaries, and requirements visible rather than hidden in implementation details. Both approaches ensure that important system behaviors are transparent and can be verified rather than discovered through debugging.
+
+- [input-validation-standards](../bindings/categories/security/input-validation-standards.md): Security input validation makes data validation requirements explicit through clear validation rules, security boundaries, and threat prevention measures. Both approaches ensure that security assumptions are visible and testable rather than hidden in implementation details.
+
+- [authentication-authorization-patterns](../bindings/categories/security/authentication-authorization-patterns.md): Authentication and authorization patterns implement explicit-over-implicit by requiring that all security decisions be visible, documented, and auditable rather than relying on hidden assumptions or implicit trust relationships. Both approaches make system behavior clear and predictable.

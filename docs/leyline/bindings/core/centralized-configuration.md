@@ -1,10 +1,10 @@
 ---
 id: centralized-configuration
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: dry-dont-repeat-yourself
 enforced_by: 'Configuration management tools, environment validation, deployment scripts'
 ---
-
 # Binding: Centralize Configuration and Settings Management
 
 Establish a single, authoritative source for all configuration data, environment variables, feature flags, and application settings. This eliminates duplication of configuration knowledge and ensures consistent behavior across all parts of the system.

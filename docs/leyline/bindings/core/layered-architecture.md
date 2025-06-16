@@ -1,10 +1,10 @@
 ---
 id: layered-architecture
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: orthogonality
 enforced_by: 'Build system dependencies, architectural linting, code review'
 ---
-
 # Binding: Implement Layered Architecture with Dependency Flow Control
 
 Organize code into distinct horizontal layers with well-defined responsibilities, where higher-level layers depend on lower-level layers but never vice versa. This creates a clear hierarchy that separates concerns and enables flexible, testable, and maintainable systems.

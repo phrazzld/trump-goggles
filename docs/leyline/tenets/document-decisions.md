@@ -1,8 +1,8 @@
 ---
 id: document-decisions
 last_modified: '2025-05-08'
+version: '0.1.0'
 ---
-
 # Tenet: Document Decisions, Not Mechanics
 
 Document the "why" behind your code—the context, constraints, and reasoning that drove
@@ -166,3 +166,10 @@ reasoning that can't be derived from the code itself, no matter how well-written
   Understanding why code works a certain way helps in creating more targeted,
   comprehensive tests that verify the true requirements rather than just the current
   implementation.
+
+- [Build Trust Through Collaboration](build-trust-through-collaboration.md):
+  Documenting decisions is an act of collaboration that shares context with current
+  and future team members. When teams document their reasoning, they enable others
+  to understand and build upon their work, creating continuity that outlasts any
+  individual contributor. Documentation becomes a tool for knowledge sharing that
+  strengthens team trust and collective ownership.

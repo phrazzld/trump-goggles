@@ -3,6 +3,7 @@ derived_from: automation
 enforced_by: commit hooks & CI checks
 id: require-conventional-commits
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Express Intent Through Structured Commit Messages
 
@@ -281,3 +282,9 @@ Closes #256
   trigger patch version bumps, and breaking changes trigger major version bumps. This
   connection ensures your versioning accurately reflects the nature of changes, giving
   users clear expectations about compatibility.
+
+- [git-hooks-automation.md](../../docs/bindings/core/git-hooks-automation.md): Git hooks enforce conventional commit message standards through automated validation at commit time. Both bindings ensure consistent commit practices that enable reliable automation throughout the development workflow.
+
+- [version-control-workflows.md](../../docs/bindings/core/version-control-workflows.md): Version control workflows integrate conventional commits with branch protection and automated release processes. Both bindings create comprehensive commit standards that support automated project management.
+
+- [ci-cd-pipeline-standards.md](../../docs/bindings/core/ci-cd-pipeline-standards.md): CI/CD pipelines leverage conventional commit messages for automated changelog generation and semantic versioning. Both bindings enable reliable automation from commit messages through production deployment.
