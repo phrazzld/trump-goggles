@@ -1,10 +1,10 @@
 ---
 id: type-safe-state-management
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: orthogonality
 enforced_by: 'TypeScript compiler, state management libraries, code review'
 ---
-
 # Binding: Implement Type-Safe State Management with Isolated State Boundaries
 
 Design state management systems using TypeScript's type system to enforce clear boundaries between different domains of application state. Use discriminated unions, immutable patterns, and type guards to prevent state contamination and ensure predictable state transitions.

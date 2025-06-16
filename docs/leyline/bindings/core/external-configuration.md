@@ -2,6 +2,7 @@
 derived_from: no-secret-suppression
 id: external-configuration
 last_modified: '2025-05-14'
+version: '0.1.0'
 enforced_by: code review & style guides
 ---
 # Binding: Never Hardcode Configuration
@@ -389,3 +390,5 @@ def process_image(image_data, config):
   logic. Configuration becomes an infrastructure concern that's kept at the boundaries
   of your application, allowing your domain code to remain focused on the business
   problem rather than implementation details.
+
+- [secrets-management-practices](../../docs/bindings/categories/security/secrets-management-practices.md): Secrets management builds upon external configuration principles by ensuring that sensitive configuration is not only externalized but also properly secured, encrypted, and managed throughout its lifecycle. Both bindings work together to eliminate hardcoded values while adding security-specific protections for sensitive data.

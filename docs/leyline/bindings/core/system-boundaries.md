@@ -1,10 +1,10 @@
 ---
 id: system-boundaries
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: orthogonality
 enforced_by: 'Architectural review, module organization, build systems'
 ---
-
 # Binding: Establish Clear System and Module Boundaries
 
 Define explicit boundaries that separate different concerns, domains, or levels of abstraction within your system. These boundaries should be enforced through code organization, build systems, and architectural patterns that prevent unintended dependencies and coupling across boundary lines.

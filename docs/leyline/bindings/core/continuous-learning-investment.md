@@ -1,10 +1,10 @@
 ---
 id: continuous-learning-investment
 last_modified: '2025-06-03'
+version: '0.1.0'
 derived_from: maintainability
 enforced_by: 'team learning plans & skill development tracking'
 ---
-
 # Binding: Invest Regularly in Knowledge Portfolio Development
 
 Treat learning as a fundamental professional responsibility by dedicating consistent time to expanding technical skills, understanding new paradigms, and staying current with evolving best practices. Make learning investment as routine and measurable as other professional activities.

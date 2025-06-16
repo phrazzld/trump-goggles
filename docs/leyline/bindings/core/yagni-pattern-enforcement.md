@@ -1,10 +1,10 @@
 ---
 id: yagni-pattern-enforcement
 last_modified: '2025-06-03'
+version: '0.1.0'
 derived_from: simplicity
 enforced_by: 'code review & feature specification validation'
 ---
-
 # Binding: Apply YAGNI to Prevent Speculative Development
 
 Rigorously apply "You Aren't Gonna Need It" principles by only implementing features that solve immediate, demonstrated needs. Reject any functionality added "just in case" or for imagined future requirements without concrete evidence or user demand.
@@ -279,3 +279,5 @@ class APIClient {
 - [pure-functions](../../docs/bindings/core/pure-functions.md): Pure functions align perfectly with YAGNI principles because they naturally resist over-engineering. When you focus on pure functions that solve immediate problems, you avoid the complexity of side effects and global state management that often drives speculative development. Pure functions make it easier to add functionality incrementally when it's actually needed.
 
 - [no-internal-mocking](../../docs/bindings/core/no-internal-mocking.md): YAGNI principles help avoid the over-engineering that often leads to complex mocking scenarios. When you build only what's immediately needed, your components tend to be simpler and more focused, making them naturally easier to test without elaborate mock setups. Both bindings encourage starting simple and adding complexity only when justified by real requirements.
+
+- [value-driven-prioritization](../../docs/bindings/core/value-driven-prioritization.md): Value-driven prioritization extends YAGNI principles by requiring explicit user value justification for all development work. While YAGNI focuses on avoiding speculative features, value-driven prioritization ensures that all work—including technical improvements—serves demonstrable user needs. Together, they create a comprehensive framework for preventing both feature bloat and technical overengineering.

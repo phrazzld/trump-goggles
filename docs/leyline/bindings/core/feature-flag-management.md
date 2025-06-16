@@ -1,10 +1,10 @@
 ---
 id: feature-flag-management
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: adaptability-and-reversibility
 enforced_by: 'Feature flag platforms, deployment controls, runtime configuration'
 ---
-
 # Binding: Implement Comprehensive Feature Flag Management
 
 Use feature flags to control functionality at runtime, enabling safe rollouts, quick rollbacks, A/B testing, and gradual feature adoption. This provides the ability to reverse decisions and adapt behavior without code deployments.

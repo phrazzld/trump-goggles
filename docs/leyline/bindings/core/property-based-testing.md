@@ -1,10 +1,10 @@
 ---
 id: property-based-testing
 last_modified: '2025-06-03'
+version: '0.1.0'
 derived_from: testability
 enforced_by: 'testing framework configuration & code review'
 ---
-
 # Binding: Use Property-Based Testing to Verify System Invariants
 
 Complement example-based tests with property-based tests that verify invariants and relationships hold across entire classes of inputs. Define properties that must always be true and let testing frameworks generate hundreds of test cases automatically to validate these constraints.

@@ -1,8 +1,8 @@
 ---
 id: maintainability
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Maintainability Over Premature Optimization
 
 Write code primarily for human understanding and future modification, not machine
@@ -197,3 +197,10 @@ remains clean and comprehensible.
   magical behaviors, is inherently harder to maintain because it requires developers to
   discover and remember non-obvious details. Making code explicit is a direct investment
   in its maintainability.
+
+- [Build Trust Through Collaboration](build-trust-through-collaboration.md):
+  Collaborative practices like code reviews, knowledge sharing, and collective ownership
+  directly contribute to maintainability by ensuring that code is understandable and
+  improvable by multiple team members. Trust enables the honest feedback necessary to
+  identify and address maintainability issues early, preventing technical debt
+  accumulation.

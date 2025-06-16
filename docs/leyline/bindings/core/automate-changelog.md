@@ -2,6 +2,7 @@
 derived_from: automation
 id: automate-changelog
 last_modified: '2025-05-14'
+version: '0.1.0'
 enforced_by: code review & style guides
 ---
 # Binding: Automate Changelog Generation from Structured Commits

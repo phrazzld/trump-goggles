@@ -1,10 +1,10 @@
 ---
 id: automated-quality-gates
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: fix-broken-windows
 enforced_by: 'CI/CD pipelines, pre-commit hooks, automated testing, code analysis tools'
 ---
-
 # Binding: Establish Comprehensive Automated Quality Gates
 
 Implement automated validation checkpoints that prevent low-quality code from progressing through the development pipeline. Create systematic barriers that catch quality issues early, before they can compound into larger system problems.
@@ -808,3 +808,7 @@ if (!report.overallPassed) {
 - [no-lint-suppression.md](../../docs/bindings/core/no-lint-suppression.md): Quality gates should enforce lint rules without allowing suppressions. Both bindings prevent the accumulation of quality violations through systematic enforcement of coding standards.
 
 - [use-structured-logging.md](../../docs/bindings/core/use-structured-logging.md): Quality gates can validate that proper logging practices are followed throughout the codebase. Both bindings support systematic quality enforcement and operational excellence.
+
+- [git-hooks-automation.md](../../docs/bindings/core/git-hooks-automation.md): Git hooks provide the first layer of automated quality gates with immediate feedback at commit time. Both bindings create comprehensive quality automation that scales from local development to production deployment.
+
+- [ci-cd-pipeline-standards.md](../../docs/bindings/core/ci-cd-pipeline-standards.md): CI/CD pipelines implement comprehensive automated quality gates across the entire deployment pipeline. Both bindings establish systematic quality enforcement through automation at multiple validation layers.

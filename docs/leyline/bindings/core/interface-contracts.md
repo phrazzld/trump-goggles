@@ -1,10 +1,10 @@
 ---
 id: interface-contracts
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: orthogonality
 enforced_by: 'Type checking, API documentation, code review'
 ---
-
 # Binding: Define Clear Component Interface Contracts
 
 Establish explicit, well-documented contracts that define how components interact with each other. These contracts should specify inputs, outputs, behavior, error conditions, and guarantees, creating stable boundaries that enable independent development and reliable composition.

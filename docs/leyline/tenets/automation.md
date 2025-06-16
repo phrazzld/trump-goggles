@@ -1,8 +1,8 @@
 ---
 id: automation
 last_modified: '2025-05-08'
+version: '0.1.0'
 ---
-
 # Tenet: Automation as a Force Multiplier
 
 Treat manual, repetitive tasks as bugs in your process. Invest in automating every
@@ -127,3 +127,9 @@ by examining your automation artifacts.
   cognitive overhead. When repetitive tasks are automated, developers can focus their
   mental energy on solving core problems rather than remembering complex manual
   procedures. This supports simplicity's goal of reducing cognitive load.
+
+- [Deliver Value Continuously](deliver-value-continuously.md): Effective continuous
+  delivery requires a high degree of automation in testing, building, and deployment
+  processes. Without automation, frequent releases become prohibitively time-consuming
+  and error-prone. Automation is not just helpful for continuous delivery—it's
+  absolutely essential for maintaining quality while increasing deployment frequency.

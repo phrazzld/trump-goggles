@@ -1,10 +1,10 @@
 ---
 id: fail-fast-validation
 last_modified: '2025-06-03'
+version: '0.1.0'
 derived_from: explicit-over-implicit
 enforced_by: 'static analysis tools & runtime assertions'
 ---
-
 # Binding: Validate Inputs and Fail Fast When Preconditions Fail
 
 Immediately validate all inputs and assumptions at function entry points, failing with clear error messages when expectations aren't met. Prevent invalid data from propagating through the system by catching violations as early as possible in the execution flow.
@@ -297,3 +297,5 @@ public class BankAccount {
 - [pure-functions](../../docs/bindings/core/pure-functions.md): Pure functions make fail-fast validation more effective because validation logic itself can be pure and easily testable. When your validation functions are pure, you can thoroughly test them in isolation and compose them reliably. The combination leads to validation logic that is both robust and easy to reason about.
 
 - [dependency-inversion](../../docs/bindings/core/dependency-inversion.md): Dependency inversion supports fail-fast validation by making dependencies explicit and validatable. When dependencies are injected rather than hidden, you can validate them at construction time rather than discovering problems deep in execution. Both bindings make system requirements explicit rather than implicit.
+
+- [input-validation-standards](../../docs/bindings/categories/security/input-validation-standards.md): Input validation standards build upon fail-fast validation principles by adding security-specific validation rules and threat detection. Both bindings work together to create systems that validate assumptions early and fail securely when malicious input is detected, extending fail-fast validation into comprehensive security protection.

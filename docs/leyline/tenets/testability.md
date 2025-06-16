@@ -1,8 +1,8 @@
 ---
 id: testability
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: Design for Testability
 
 Code must be structured to enable comprehensive, reliable testing from the beginning.

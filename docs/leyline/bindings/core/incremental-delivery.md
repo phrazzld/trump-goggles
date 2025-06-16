@@ -1,10 +1,10 @@
 ---
 id: incremental-delivery
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: adaptability-and-reversibility
 enforced_by: 'CI/CD pipelines, deployment strategies, release management'
 ---
-
 # Binding: Practice Incremental Delivery and Continuous Deployment
 
 Deliver software in small, frequent increments that can be safely deployed and easily reversed. This enables rapid feedback, reduces deployment risk, and maintains the ability to quickly adapt to changing requirements or rollback problematic changes.

@@ -1,10 +1,10 @@
 ---
 id: extract-common-logic
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: dry-dont-repeat-yourself
 enforced_by: 'Code review, static analysis, refactoring tools'
 ---
-
 # Binding: Extract and Centralize Common Logic
 
 Identify recurring patterns, algorithms, and business rules in your codebase and extract them into reusable abstractions. This creates a single authoritative implementation that can be maintained, tested, and evolved in one place rather than scattered across multiple locations.

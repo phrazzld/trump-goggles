@@ -1,10 +1,10 @@
 ---
 id: runtime-adaptability
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: adaptability-and-reversibility
 enforced_by: 'Configuration management, runtime monitoring, adaptive systems'
 ---
-
 # Binding: Enable Runtime System Adaptation
 
 Design systems that can modify their behavior, performance characteristics, and resource allocation dynamically in response to changing conditions without requiring restarts or deployments. This enables real-time adaptation to load, failures, and environmental changes.

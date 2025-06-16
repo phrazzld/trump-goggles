@@ -1,8 +1,8 @@
 ---
 id: adaptability-and-reversibility
 last_modified: '2025-06-02'
+version: '0.1.0'
 ---
-
 # Tenet: There Are No Final Decisions
 
 Design your systems and make your decisions with the understanding that requirements
@@ -156,3 +156,10 @@ they weren't designed with change in mind.
   comprehensive tests, teams become afraid to modify systems, reducing adaptability
   over time. Tests also document current behavior, making it easier to understand
   what changes when adapting to new requirements.
+
+- [Deliver Value Continuously](deliver-value-continuously.md): Continuous delivery
+  directly enables adaptability by making course corrections quick and low-risk.
+  When you can deploy changes rapidly, you can experiment, learn, and adapt much
+  more effectively based on real user feedback. The ability to roll back changes
+  quickly makes decisions more reversible and encourages the kind of learning-based
+  adaptation that keeps software aligned with evolving needs.

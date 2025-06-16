@@ -1,10 +1,10 @@
 ---
 id: continuous-refactoring
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: fix-broken-windows
 enforced_by: 'Development practices, code review processes, refactoring guidelines'
 ---
-
 # Binding: Practice Continuous Code Improvement and Refactoring
 
 Integrate ongoing code improvement into regular development workflows rather than deferring refactoring to separate initiatives. Make incremental quality improvements a standard part of feature development and maintenance work.

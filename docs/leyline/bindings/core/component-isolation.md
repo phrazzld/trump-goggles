@@ -1,10 +1,10 @@
 ---
 id: component-isolation
 last_modified: '2025-06-02'
+version: '0.1.0'
 derived_from: orthogonality
 enforced_by: 'Code review, architectural guidelines'
 ---
-
 # Binding: Design Independent, Self-Contained Components
 
 Create components that operate independently without requiring knowledge of or dependencies on unrelated components. Each component should encapsulate its own state, behavior, and data, allowing it to be understood, tested, and modified in isolation.

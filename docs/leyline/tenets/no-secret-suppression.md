@@ -1,8 +1,8 @@
 ---
 id: no-secret-suppression
 last_modified: '2025-05-08'
+version: '0.1.0'
 ---
-
 # Tenet: Confront Issues, Don't Suppress Warnings
 
 Never disable or bypass quality safeguards without clear, documented justification.
@@ -168,3 +168,9 @@ reasoning behind the exception.
   preserving. Together, these tenets ensure that when exceptions to quality rules are
   made, the reasoning is preserved for future developers who will need to understand or
   reevaluate those decisions.
+
+## Related Bindings
+
+- [secrets-management-practices](../bindings/categories/security/secrets-management-practices.md): Secrets management practices directly implement no-secret-suppression by requiring that all secret detection warnings and security controls be addressed rather than bypassed or ignored. Both approaches ensure that security safeguards remain effective and are never compromised through suppression or avoidance.
+
+- [secure-coding-checklist](../bindings/categories/security/secure-coding-checklist.md): Secure coding checklist automation never allows bypassing or suppressing security controls by requiring explicit justification and documentation for any security overrides. Both approaches prevent the dangerous practice of suppressing security warnings or checks that could lead to vulnerabilities.

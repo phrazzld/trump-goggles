@@ -3,6 +3,7 @@ derived_from: explicit-over-implicit
 enforced_by: version checking tools & CI validation
 id: semantic-versioning
 last_modified: '2025-05-14'
+version: '0.1.0'
 ---
 # Binding: Make Breaking Changes Explicit with Semantic Versioning
 
@@ -335,3 +336,7 @@ v1.3.0 -> v2.0.0 (redesigned authentication API)
   occur through major version increments; with immutability, we prevent unexpected
   changes to data. Both create more predictable, reliable systems by making changes
   explicit rather than implicit.
+
+- [version-control-workflows.md](../../docs/bindings/core/version-control-workflows.md): Version control workflows integrate semantic versioning with automated release processes and branch protection. Both bindings ensure that version increments accurately reflect the nature of changes through systematic workflow automation.
+
+- [ci-cd-pipeline-standards.md](../../docs/bindings/core/ci-cd-pipeline-standards.md): CI/CD pipelines automate semantic version increments based on conventional commit messages and validate compatibility guarantees. Both bindings create reliable automation that ensures version numbers accurately communicate compatibility expectations.
