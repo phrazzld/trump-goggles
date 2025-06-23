@@ -1,6 +1,6 @@
 ---
 id: dry-dont-repeat-yourself
-last_modified: '2025-06-02'
+last_modified: '2025-06-16'
 version: '0.1.0'
 ---
 # Tenet: Every Piece of Knowledge Must Have a Single Source of Truth
@@ -129,10 +129,8 @@ software design.
 
 - [Simplicity](simplicity.md): While DRY focuses on eliminating knowledge
   duplication, Simplicity focuses on managing overall complexity. These tenets are
-  complementary—DRY helps maintain simplicity by reducing the number of places
-  where knowledge must be maintained, and simplicity helps make DRY violations more
-  obvious. However, taken to extremes, DRY can actually increase complexity through
-  over-abstraction.
+  complementary—DRY helps maintain simplicity by reducing maintenance points,
+  while simplicity helps make DRY violations more obvious.
 
 - [Explicit over Implicit](explicit-over-implicit.md): Both DRY and explicitness
   are about clarity, but they address different aspects. DRY ensures that knowledge
@@ -143,9 +141,7 @@ software design.
 
 - [Maintainability](maintainability.md): DRY directly supports maintainability by
   making changes easier and safer. When knowledge has a single source of truth,
-  modifications are localized and consistent. However, remember that maintainability
-  also depends on understanding—sometimes a small amount of duplication is better
-  than an abstraction that's difficult to comprehend.
+  modifications are localized and consistent.
 
 - [Modularity](modularity.md): DRY and modularity work together to create
   well-organized systems. Modules provide boundaries for where knowledge should

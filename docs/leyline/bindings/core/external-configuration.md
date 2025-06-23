@@ -270,7 +270,7 @@ public static void main(String[] args) {
 function sendAnalytics(eventData) {
   // Hardcoded endpoint, API key, and configuration
   const endpoint = "https://analytics.example.com/events";
-  const apiKey = "1a2b3c4d5e6f";
+  const apiKey = "[REDACTED]";
   const batchSize = 10;
   const retryCount = 3;
 
