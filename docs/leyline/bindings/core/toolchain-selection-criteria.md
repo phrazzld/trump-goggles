@@ -97,7 +97,7 @@ Even in exceptions, document the decision and schedule future review.
 
 ## Related Bindings
 
-- [dependency-management](./dependency-management.md): Shares similar evaluation principles for libraries and frameworks
-- [continuous-learning-investment](./continuous-learning-investment.md): Team expertise development supports tool adoption
+- [dependency-management](../../docs/bindings/categories/python/dependency-management.md): Shares similar evaluation principles for libraries and frameworks
+- [continuous-learning-investment](../../docs/bindings/core/continuous-learning-investment.md): Team expertise development supports tool adoption
 - [document-decisions](../../tenets/document-decisions.md): Formal documentation of tool choices
-- [yagni-pattern-enforcement](./yagni-pattern-enforcement.md): Avoid adopting tools for imagined future needs
+- [yagni-pattern-enforcement](../../docs/bindings/core/yagni-pattern-enforcement.md): Avoid adopting tools for imagined future needs
