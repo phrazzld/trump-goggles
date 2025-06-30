@@ -1,6 +1,6 @@
 ---
 id: adaptability-and-reversibility
-last_modified: '2025-06-02'
+last_modified: '2025-06-16'
 version: '0.1.0'
 ---
 # Tenet: There Are No Final Decisions
@@ -20,11 +20,8 @@ that embrace this reality and design for adaptation from the beginning.
 
 Think of your software decisions like choosing a route for a road trip. You can plan
 the optimal path based on current information, but traffic jams, road closures, or
-discovering an interesting detour might require you to adapt. If you've designed your
-journey to be flexible—keeping fuel in the tank, having alternative routes mapped,
-carrying updated navigation tools—then changes become opportunities rather than
-disasters. Rigid planning that can't accommodate new information leads to being stuck
-in traffic while more adaptable travelers find better paths.
+discovering an interesting detour might require you to adapt. Flexible planning with
+alternative routes turns changes into opportunities rather than disasters.
 
 Adaptability and reversibility are about designing systems with evolution in mind.
 This means making architectural choices that don't lock you into specific
@@ -35,16 +32,8 @@ current information, while acknowledging that better information may emerge tomo
 
 The power of adaptable systems lies in their ability to evolve gracefully with
 changing requirements. When change is anticipated and designed for, new features can
-be added naturally, performance bottlenecks can be addressed surgically, and
-technological advances can be incorporated incrementally. Systems built with
-adaptability in mind tend to have longer lifespans and require fewer costly
-rewrites.
-
-This tenet differs from modularity and simplicity in its temporal focus. While
-modularity addresses how components relate to each other, and simplicity addresses
-complexity management, adaptability specifically addresses how systems change over
-time. You can have modular, simple systems that are still difficult to adapt because
-they weren't designed with change in mind.
+be added naturally, performance bottlenecks addressed surgically, and technological
+advances incorporated incrementally.
 
 ## Practical Guidelines
 
@@ -91,19 +80,14 @@ they weren't designed with change in mind.
 
 - **Technology Lock-in**: When your system is tightly coupled to specific vendors,
   frameworks, or technologies that would be expensive or difficult to replace, you've
-  sacrificed adaptability for short-term convenience. This creates long-term
-  strategic risk as those technologies may become obsolete or inappropriate for your
-  evolving needs.
+  sacrificed adaptability for short-term convenience.
 
 - **Hardcoded Business Rules**: When business logic is embedded directly in code
-  rather than externalized through configuration or policy engines, simple business
-  changes require development cycles. This makes the system slow to adapt to changing
-  business requirements and reduces competitive agility.
+  rather than externalized through configuration, simple business changes require
+  development cycles and reduce competitive agility.
 
 - **Monolithic Data Models**: When all system data is forced into a single, rigid
-  schema that's difficult to evolve, you've created a bottleneck for adaptation.
-  Schema changes become expensive and risky, making it difficult to accommodate new
-  data requirements or optimize for new usage patterns.
+  schema that's difficult to evolve, schema changes become expensive and risky.
 
 - **Integration Tight Coupling**: When systems are integrated through mechanisms that
   require coordinated changes across multiple systems, you've created dependencies

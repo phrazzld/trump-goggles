@@ -13,9 +13,7 @@ Define explicit boundaries that separate different concerns, domains, or levels 
 
 This binding implements our orthogonality tenet by creating architectural separation that prevents components from becoming entangled across different levels of abstraction or domains of responsibility. Clear boundaries act as firewalls that contain complexity within appropriate contexts and prevent changes in one part of the system from unexpectedly affecting unrelated parts.
 
-Think of system boundaries like the walls and doors in a building. Walls separate different rooms (concerns) and provide structural integrity, while doors provide controlled access points between rooms. You wouldn't want the plumbing from the bathroom to run through the kitchen, or electrical systems to be mixed with plumbing—each system has its own dedicated pathways and boundaries. Similarly, software systems need clear separation between different concerns like business logic, data persistence, user interface, and external integrations.
-
-Without well-defined boundaries, systems tend to become "big balls of mud" where everything is connected to everything else. This makes it impossible to understand or change one part of the system without understanding the whole, dramatically increasing complexity and maintenance costs. Clear boundaries enable teams to work independently, facilitate testing, and make system evolution manageable by containing the blast radius of changes.
+Without well-defined boundaries, systems become "big balls of mud" where everything is connected to everything else. This makes it impossible to understand or change one part without understanding the whole, dramatically increasing complexity and maintenance costs. Clear boundaries enable teams to work independently, facilitate testing, and make system evolution manageable by containing the blast radius of changes.
 
 ## Rule Definition
 
@@ -185,34 +183,6 @@ export class AnalyticsEventHandler {
 ```
 
 ```python
-# ❌ BAD: Monolithic structure with boundary violations
-# Everything in one package with no separation
-
-class OrderProcessor:
-    def process_order(self, order_data):
-        # Payment processing mixed with order logic
-        payment_result = stripe.charge(
-            amount=order_data['total'],
-            token=order_data['payment_token']
-        )
-
-        # Inventory management mixed with payment
-        for item in order_data['items']:
-            inventory_item = database.inventory.find_one({'sku': item['sku']})
-            inventory_item['quantity'] -= item['quantity']
-            database.inventory.save(inventory_item)
-
-        # Shipping logic mixed with order processing
-        shipping_address = order_data['shipping_address']
-        shipping_cost = fedex.calculate_shipping(
-            weight=sum(item['weight'] for item in order_data['items']),
-            destination=shipping_address
-        )
-
-        # Email notification mixed with business logic
-        customer_email = order_data['customer_email']
-        email_service.send_order_confirmation(customer_email, order_data)
-
 # ✅ GOOD: Clear domain boundaries with proper separation
 # Order Domain
 class Order:
@@ -263,27 +233,6 @@ class PaymentService:
 
         return payment
 
-# Inventory Domain
-class InventoryService:
-    def __init__(self, inventory_repo: InventoryRepository):
-        self.inventory_repo = inventory_repo
-
-    def reserve_items(self, order_items: List[OrderItem]) -> ReservationResult:
-        reservations = []
-
-        for item in order_items:
-            inventory_item = self.inventory_repo.find_by_sku(item.sku)
-            if inventory_item.available_quantity >= item.quantity:
-                reservation = inventory_item.reserve(item.quantity)
-                reservations.append(reservation)
-            else:
-                # Rollback previous reservations
-                for prev_reservation in reservations:
-                    prev_reservation.cancel()
-                return ReservationResult.insufficient_inventory(item.sku)
-
-        return ReservationResult.success(reservations)
-
 # Application Layer - Orchestrates across domains
 class OrderProcessingService:
     def __init__(
@@ -329,13 +278,6 @@ class OrderProcessingService:
 ```
 
 ```go
-// ❌ BAD: Circular dependencies and boundary violations
-package main
-
-// user package imports order package
-// order package imports user package
-// circular dependency prevents clear boundaries
-
 // ✅ GOOD: Clear layered architecture with enforced boundaries
 // Domain layer - core business logic
 package domain
@@ -430,11 +372,6 @@ func (s *UserApplicationService) CreateUser(cmd CreateUserCommand) (*domain.User
 // Infrastructure layer - external concerns
 package infrastructure
 
-import (
-    "database/sql"
-    "myapp/domain"
-)
-
 type PostgresUserRepository struct {
     db *sql.DB
 }
@@ -444,67 +381,6 @@ func (r *PostgresUserRepository) Save(user *domain.User) error {
     _, err := r.db.Exec(query, user.ID, user.Email, user.Name, user.Status)
     return err
 }
-
-func (r *PostgresUserRepository) FindByID(id string) (*domain.User, error) {
-    query := `SELECT id, email, name, status FROM users WHERE id = $1`
-    row := r.db.QueryRow(query, id)
-
-    var user domain.User
-    err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Status)
-    if err != nil {
-        return nil, err
-    }
-
-    return &user, nil
-}
-
-// HTTP interface layer
-package interfaces
-
-import (
-    "encoding/json"
-    "net/http"
-    "myapp/application"
-)
-
-type UserHandler struct {
-    userApp *application.UserApplicationService
-}
-
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-    var cmd application.CreateUserCommand
-    if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
-        http.Error(w, "Invalid request", http.StatusBadRequest)
-        return
-    }
-
-    user, err := h.userApp.CreateUser(cmd)
-    if err != nil {
-        // Handle different error types appropriately
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(user)
-}
-
-// Build enforcement in go.mod
-module myapp
-
-// Enforce layering through separate modules
-require (
-    myapp/domain v0.0.0
-    myapp/application v0.0.0
-    myapp/infrastructure v0.0.0
-    myapp/interfaces v0.0.0
-)
-
-// domain module cannot import application/infrastructure/interfaces
-// application can import domain only
-// infrastructure can import domain only
-// interfaces can import application and domain
 ```
 
 ## Related Bindings

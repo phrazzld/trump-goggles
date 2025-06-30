@@ -11,41 +11,27 @@ Design systems that can modify their behavior, performance characteristics, and 
 
 ## Rationale
 
-This binding implements our adaptability and reversibility tenet by creating systems that can respond intelligently to changing conditions in real-time. Modern applications face dynamic environments where user load fluctuates, external services have varying availability, and business requirements change rapidly. Systems that can adapt their behavior at runtime are more resilient, efficient, and capable of maintaining quality service under varying conditions.
-
-Think of runtime adaptability like a skilled driver navigating changing road conditions. When traffic gets heavy, they slow down and change lanes. When weather conditions deteriorate, they adjust their driving style and route. When road construction appears, they take alternate paths. The driver doesn't need to stop the car, reprogram their GPS, and restart the journey—they adapt continuously while moving. Similarly, adaptive software systems should adjust their behavior in response to changing conditions without interrupting service.
-
-Static systems that cannot adapt at runtime become bottlenecks and failure points. When conditions change, static systems either maintain suboptimal behavior (like continuing to make expensive operations during high load) or fail catastrophically (like overwhelming databases when external services are slow). Adaptive systems prevent these problems by continuously adjusting their behavior to maintain optimal performance and reliability.
+This binding implements our adaptability and reversibility tenet by creating systems that can respond intelligently to changing conditions in real-time. Modern applications face dynamic environments where user load fluctuates, external services have varying availability, and business requirements change rapidly. Systems that can adapt their behavior at runtime are more resilient, efficient, and capable of maintaining quality service under varying conditions. Static systems that cannot adapt at runtime become bottlenecks and failure points, either maintaining suboptimal behavior or failing catastrophically when conditions change.
 
 ## Rule Definition
 
-Runtime adaptability must implement these dynamic principles:
+**Core Requirements:**
 
-- **Configuration Hot-Reloading**: Support updating configuration values at runtime without requiring application restarts or service interruptions.
+- **Configuration Hot-Reloading**: Support updating configuration values at runtime without requiring application restarts or service interruptions
 
-- **Dynamic Resource Allocation**: Automatically adjust resource usage (connections, threads, memory) based on current system load and available resources.
+- **Dynamic Resource Allocation**: Automatically adjust resource usage (connections, threads, memory) based on current system load and available resources
 
-- **Circuit Breaker Patterns**: Implement circuit breakers that can dynamically adjust timeout thresholds, failure rates, and fallback strategies based on service health.
+- **Circuit Breaker Patterns**: Implement circuit breakers that can dynamically adjust timeout thresholds, failure rates, and fallback strategies based on service health
 
-- **Adaptive Rate Limiting**: Use rate limiting that adjusts limits based on system capacity, user behavior patterns, and resource availability.
+- **Adaptive Rate Limiting**: Use rate limiting that adjusts limits based on system capacity, user behavior patterns, and resource availability
 
-- **Load-Based Behavior Changes**: Modify processing algorithms, caching strategies, and service priorities based on current system load and performance metrics.
+- **Load-Based Behavior Changes**: Modify processing algorithms, caching strategies, and service priorities based on current system load and performance metrics
 
-- **Health-Based Routing**: Dynamically route requests based on real-time health and performance metrics of downstream services.
+- **Health-Based Routing**: Dynamically route requests based on real-time health and performance metrics of downstream services
 
-**Adaptation Triggers:**
-- System performance metrics (CPU, memory, latency)
-- External service availability and response times
-- User traffic patterns and request volumes
-- Error rates and failure patterns
-- Business rule changes and operational requirements
+**Adaptation Triggers:** System performance metrics (CPU, memory, latency), external service availability and response times, user traffic patterns and request volumes, error rates and failure patterns, business rule changes and operational requirements
 
-**Adaptation Mechanisms:**
-- Dynamic configuration updates
-- Algorithm selection based on conditions
-- Resource pool resizing
-- Caching strategy modifications
-- Retry policy adjustments
+**Adaptation Mechanisms:** Dynamic configuration updates, algorithm selection based on conditions, resource pool resizing, caching strategy modifications, retry policy adjustments
 
 ## Practical Implementation
 
@@ -61,13 +47,14 @@ Runtime adaptability must implement these dynamic principles:
 
 ## Examples
 
+**Comprehensive Runtime Adaptive System:**
+
 ```typescript
 // ❌ BAD: Static configuration and fixed behavior
 class ApiService {
   private readonly maxConnections = 100;    // Fixed pool size
   private readonly timeout = 5000;          // Fixed 5 second timeout
   private readonly retryAttempts = 3;       // Fixed retry count
-  private readonly cacheSize = 1000;        // Fixed cache size
 
   async makeRequest(endpoint: string): Promise<any> {
     // Fixed timeout regardless of system load
@@ -75,9 +62,7 @@ class ApiService {
     setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      const response = await fetch(endpoint, {
-        signal: controller.signal
-      });
+      const response = await fetch(endpoint, { signal: controller.signal });
 
       if (!response.ok) {
         // Fixed retry logic regardless of error type or system state
@@ -93,50 +78,17 @@ class ApiService {
 
       return response.json();
     } catch (error) {
-      // No adaptation based on error patterns
       throw error;
     }
-  }
-
-  // Fixed caching strategy regardless of memory pressure or usage patterns
-  private cache = new Map<string, any>();
-
-  getCachedData(key: string): any {
-    return this.cache.get(key);
-  }
-
-  setCachedData(key: string, value: any): void {
-    if (this.cache.size >= this.cacheSize) {
-      // Fixed eviction - remove first item
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
-    }
-    this.cache.set(key, value);
   }
 }
 
 // ✅ GOOD: Runtime adaptive system with dynamic behavior
 interface AdaptiveConfiguration {
-  connections: {
-    min: number;
-    max: number;
-    target: number;
-  };
-  timeouts: {
-    base: number;
-    max: number;
-    current: number;
-  };
-  retries: {
-    maxAttempts: number;
-    backoffMultiplier: number;
-    circuitBreakerThreshold: number;
-  };
-  cache: {
-    maxSize: number;
-    evictionStrategy: 'lru' | 'lfu' | 'adaptive';
-    ttl: number;
-  };
+  connections: { min: number; max: number; target: number; };
+  timeouts: { base: number; max: number; current: number; };
+  retries: { maxAttempts: number; backoffMultiplier: number; circuitBreakerThreshold: number; };
+  cache: { maxSize: number; evictionStrategy: 'lru' | 'lfu' | 'adaptive'; ttl: number; };
 }
 
 interface SystemMetrics {
@@ -191,9 +143,7 @@ class AdaptiveApiService {
         const controller = new AbortController();
         setTimeout(() => controller.abort(), adaptiveTimeout);
 
-        const response = await fetch(endpoint, {
-          signal: controller.signal
-        });
+        const response = await fetch(endpoint, { signal: controller.signal });
 
         // Update metrics for future adaptations
         this.metricsCollector.recordRequest(endpoint, response.status, Date.now());
@@ -272,11 +222,6 @@ class AdaptiveApiService {
   }
 
   private async adaptConnectionPool(metrics: SystemMetrics): Promise<void> {
-    const targetConnections = this.calculateOptimalConnections(metrics);
-    await this.connectionPool.adjustSize(targetConnections);
-  }
-
-  private calculateOptimalConnections(metrics: SystemMetrics): number {
     const { min, max } = this.config.connections;
 
     // Base calculation on current load
@@ -292,7 +237,8 @@ class AdaptiveApiService {
     }
 
     // Keep within bounds
-    return Math.min(Math.max(optimal, min), max);
+    const targetConnections = Math.min(Math.max(optimal, min), max);
+    await this.connectionPool.adjustSize(targetConnections);
   }
 
   private async adaptCacheStrategy(metrics: SystemMetrics): Promise<void> {
@@ -366,11 +312,10 @@ class AdaptiveApiService {
   }
 }
 
-// Supporting adaptive components
+// Supporting adaptive components provide dynamic resource management
 class AdaptiveConnectionPool {
   private connections: Connection[] = [];
   private config: any;
-  private activeConnections = 0;
 
   constructor(config: any) {
     this.config = config;
@@ -407,7 +352,6 @@ class AdaptiveConnectionPool {
 
     if (availableConnection) {
       availableConnection.isActive = true;
-      this.activeConnections++;
       return availableConnection;
     }
 
@@ -416,7 +360,6 @@ class AdaptiveConnectionPool {
       const newConnection = await this.createConnection();
       newConnection.isActive = true;
       this.connections.push(newConnection);
-      this.activeConnections++;
       return newConnection;
     }
 
@@ -426,103 +369,7 @@ class AdaptiveConnectionPool {
 
   release(connection: Connection): void {
     connection.isActive = false;
-    this.activeConnections--;
   }
-}
-
-class AdaptiveCache {
-  private cache = new Map<string, CacheEntry>();
-  private config: any;
-  private accessCounts = new Map<string, number>();
-  private hitCount = 0;
-  private missCount = 0;
-
-  constructor(config: any) {
-    this.config = config;
-  }
-
-  async get(key: string): Promise<any> {
-    const entry = this.cache.get(key);
-
-    if (entry && !this.isExpired(entry)) {
-      this.hitCount++;
-      this.recordAccess(key);
-      return entry.value;
-    }
-
-    this.missCount++;
-    this.cache.delete(key);
-    return null;
-  }
-
-  async set(key: string, value: any, options?: { priority?: 'high' | 'normal' }): Promise<void> {
-    // Check if eviction is needed
-    if (this.cache.size >= this.config.maxSize) {
-      await this.evictEntries(options?.priority === 'high' ? 1 : Math.ceil(this.config.maxSize * 0.1));
-    }
-
-    const entry: CacheEntry = {
-      value,
-      timestamp: Date.now(),
-      ttl: this.config.ttl,
-      priority: options?.priority || 'normal'
-    };
-
-    this.cache.set(key, entry);
-  }
-
-  async reduceSize(factor: number): Promise<void> {
-    const targetSize = Math.floor(this.cache.size * factor);
-    const toEvict = this.cache.size - targetSize;
-
-    if (toEvict > 0) {
-      await this.evictEntries(toEvict);
-    }
-  }
-
-  async setEvictionStrategy(strategy: 'aggressive' | 'conservative'): Promise<void> {
-    this.config.evictionStrategy = strategy;
-  }
-
-  getHitRate(): number {
-    const total = this.hitCount + this.missCount;
-    return total > 0 ? this.hitCount / total : 0;
-  }
-
-  private async evictEntries(count: number): Promise<void> {
-    const entries = Array.from(this.cache.entries());
-
-    // Sort by access frequency and age for intelligent eviction
-    entries.sort((a, b) => {
-      const aAccess = this.accessCounts.get(a[0]) || 0;
-      const bAccess = this.accessCounts.get(b[0]) || 0;
-      const aAge = Date.now() - a[1].timestamp;
-      const bAge = Date.now() - b[1].timestamp;
-
-      // Evict less frequently accessed and older items first
-      return (aAccess - bAccess) || (bAge - aAge);
-    });
-
-    for (let i = 0; i < count && i < entries.length; i++) {
-      this.cache.delete(entries[i][0]);
-      this.accessCounts.delete(entries[i][0]);
-    }
-  }
-
-  private recordAccess(key: string): void {
-    this.accessCounts.set(key, (this.accessCounts.get(key) || 0) + 1);
-  }
-
-  private isExpired(entry: CacheEntry): boolean {
-    return Date.now() - entry.timestamp > entry.ttl;
-  }
-}
-
-interface CacheEntry {
-  value: any;
-  timestamp: number;
-  ttl: number;
-  priority: 'high' | 'normal';
 }
 
 interface Connection {
@@ -533,10 +380,7 @@ interface Connection {
 
 ## Related Bindings
 
-- [feature-flag-management.md](../../docs/bindings/core/feature-flag-management.md): Feature flags are one mechanism for enabling runtime adaptability by allowing behavior changes without deployments. Both bindings work together to create systems that can adapt quickly to changing conditions.
-
-- [centralized-configuration.md](../../docs/bindings/core/centralized-configuration.md): Runtime adaptability often depends on dynamic configuration management. Centralized configuration provides the foundation for runtime adaptability by making configuration changes possible without deployments.
-
-- [flexible-architecture-patterns.md](../../docs/bindings/core/flexible-architecture-patterns.md): Flexible architecture enables runtime adaptability by providing the structural foundation that allows systems to change behavior dynamically. Well-designed flexible architecture makes runtime adaptation possible and safe.
-
-- [automated-quality-gates.md](../../docs/bindings/core/automated-quality-gates.md): Quality gates help ensure that runtime adaptations maintain system reliability and performance. Automated monitoring and validation prevent harmful adaptations and enable safe runtime behavior changes.
+- [feature-flag-management](../../docs/bindings/core/feature-flag-management.md): Feature flags are one mechanism for enabling runtime adaptability by allowing behavior changes without deployments
+- [centralized-configuration](../../docs/bindings/core/centralized-configuration.md): Runtime adaptability often depends on dynamic configuration management providing the foundation for runtime adaptability
+- [flexible-architecture-patterns](../../docs/bindings/core/flexible-architecture-patterns.md): Flexible architecture enables runtime adaptability by providing the structural foundation that allows systems to change behavior dynamically
+- [automated-quality-gates](../../docs/bindings/core/automated-quality-gates.md): Quality gates help ensure that runtime adaptations maintain system reliability and performance through automated monitoring and validation

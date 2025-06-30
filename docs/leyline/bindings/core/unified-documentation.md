@@ -11,39 +11,25 @@ Create a unified documentation system where each piece of knowledge is documente
 
 ## Rationale
 
-This binding implements our DRY tenet by ensuring that knowledge about system behavior, APIs, processes, and decisions exists in exactly one place. When the same information is documented in multiple locations—README files, wiki pages, code comments, API docs, user manuals—you create a maintenance nightmare where updates must be applied everywhere or the documentation becomes inconsistent and unreliable.
-
-Think of unified documentation like having a single, authoritative encyclopedia for your organization. Instead of maintaining separate books that cover overlapping topics (and inevitably contradict each other), you maintain one comprehensive source that everyone references. When information changes, you update it once and everyone automatically gets the correct, current information.
-
-Duplicated documentation is worse than no documentation because it actively misleads people. Developers will waste time following outdated instructions, users will be confused by conflicting information, and teams will make decisions based on stale knowledge. The overhead of keeping multiple documentation sources synchronized often leads to documentation rot, where all versions become outdated and untrustworthy.
+This binding implements our DRY tenet by ensuring that knowledge about system behavior, APIs, processes, and decisions exists in exactly one place. When the same information is documented in multiple locations—README files, wiki pages, code comments, API docs, user manuals—you create a maintenance nightmare where updates must be applied everywhere or the documentation becomes inconsistent and unreliable. Duplicated documentation is worse than no documentation because it actively misleads people.
 
 ## Rule Definition
 
-Unified documentation must establish these organizational principles:
+**Core Requirements:**
 
-- **Single Authoritative Source**: Each piece of knowledge must have exactly one canonical location where it is documented in full detail. All other references should link to this authoritative source rather than duplicating the information.
+- **Single Authoritative Source**: Each piece of knowledge must have exactly one canonical location where it is documented in full detail. All other references should link to this authoritative source rather than duplicating the information
 
-- **Hierarchical Information Architecture**: Organize documentation in a clear hierarchy that makes it easy to find the canonical location for any piece of information. Use consistent categorization and navigation patterns.
+- **Hierarchical Information Architecture**: Organize documentation in a clear hierarchy that makes it easy to find the canonical location for any piece of information using consistent categorization and navigation patterns
 
-- **Generated Documentation**: Whenever possible, generate documentation directly from authoritative sources like code, configuration files, or schemas rather than maintaining separate documentation that can drift out of sync.
+- **Generated Documentation**: Whenever possible, generate documentation directly from authoritative sources like code, configuration files, or schemas rather than maintaining separate documentation that can drift out of sync
 
-- **Reference-Based Linking**: When information from one document is needed in another context, use references, links, or includes rather than copying the content. This ensures that updates automatically propagate to all consumers.
+- **Reference-Based Linking**: When information from one document is needed in another context, use references, links, or includes rather than copying the content to ensure updates automatically propagate
 
-- **Versioning and Change Management**: Track changes to documentation and maintain version history so that updates can be traced and reverted if necessary.
+- **Versioning and Change Management**: Track changes to documentation and maintain version history so that updates can be traced and reverted if necessary
 
-**Documentation Types:**
-- API documentation (generated from code annotations)
-- System architecture and design decisions
-- Operational procedures and runbooks
-- User guides and tutorials
-- Code comments and inline documentation
-- Configuration and deployment guides
+**Documentation Types:** API documentation (generated from code annotations), system architecture and design decisions, operational procedures and runbooks, user guides and tutorials, code comments and inline documentation, configuration and deployment guides
 
-**Consolidation Strategies:**
-- Use documentation-as-code approaches where docs live with the code
-- Generate API docs from code annotations or schema definitions
-- Create centralized decision logs and architectural decision records
-- Use content management systems with proper linking and referencing
+**Consolidation Strategies:** Use documentation-as-code approaches where docs live with the code, generate API docs from code annotations or schema definitions, create centralized decision logs and architectural decision records, use content management systems with proper linking and referencing
 
 ## Practical Implementation
 
@@ -59,78 +45,12 @@ Unified documentation must establish these organizational principles:
 
 ## Examples
 
+**Comprehensive Single-Source API Documentation:**
+
 ```typescript
 // ❌ BAD: Documentation duplicated across multiple locations
-// README.md
-/**
- * User API
- *
- * POST /api/users
- * Creates a new user account
- *
- * Request Body:
- * - name: string (required, 2-50 characters)
- * - email: string (required, valid email format)
- * - password: string (required, minimum 8 characters)
- *
- * Response: 201 with user ID
- */
-
-// api-docs.md (separate file with similar but slightly different info)
-/**
- * User Creation Endpoint
- *
- * Endpoint: POST /api/users
- * Purpose: Create user accounts
- *
- * Parameters:
- * - name: string, required, length 2-100 chars  // Different length requirement!
- * - email: string, required, must be valid
- * - password: string, required, min 8 chars
- *
- * Returns: 201 status with user object
- */
-
-// Code comments (third copy with more differences)
-class UserController {
-  /**
-   * Creates a new user
-   * @param name - User's full name (3-50 characters)  // Different minimum!
-   * @param email - Valid email address
-   * @param password - Password (minimum 6 characters)  // Different requirement!
-   */
-  async createUser(name: string, email: string, password: string) {
-    // Implementation...
-  }
-}
-
-// Swagger/OpenAPI spec (fourth copy, potentially different again)
-{
-  "paths": {
-    "/api/users": {
-      "post": {
-        "summary": "Create user",
-        "requestBody": {
-          "properties": {
-            "name": {
-              "type": "string",
-              "minLength": 2,
-              "maxLength": 60  // Yet another different max length!
-            },
-            "email": {
-              "type": "string",
-              "format": "email"
-            },
-            "password": {
-              "type": "string",
-              "minLength": 10  // Different minimum again!
-            }
-          }
-        }
-      }
-    }
-  }
-}
+// README.md, api-docs.md, code comments, and OpenAPI spec all contain
+// different versions of the same API information with conflicting requirements
 
 // ✅ GOOD: Single source of truth with generated documentation
 // schema/user.schema.ts - Single authoritative definition
@@ -251,42 +171,10 @@ export const openApiSpec = {
  */
 ```
 
+**Configuration Documentation Generation:**
+
 ```python
-# ❌ BAD: Configuration documentation scattered and duplicated
-# README.md
-"""
-Configuration:
-- DATABASE_URL: PostgreSQL connection string
-- REDIS_URL: Redis connection string
-- SECRET_KEY: Application secret (32+ chars)
-- DEBUG: Enable debug mode (true/false)
-"""
-
-# config.py (different documentation)
-class Config:
-    # Database connection string (format: postgresql://user:pass@host/db)
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-
-    # Redis URL (format: redis://host:port)
-    REDIS_URL = os.environ.get('REDIS_URL')
-
-    # Secret key for sessions (minimum 16 characters)  # Different requirement!
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-
-    # Debug flag (set to 'true' to enable)
-    DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
-
-# deployment.md (third copy, potentially outdated)
-"""
-Required Environment Variables:
-- DATABASE_URL: Postgres URL
-- REDIS_URL: Redis URL
-- SECRET_KEY: Secret key (64+ chars recommended)  # Different again!
-- DEBUG: Debug mode (default: false)
-- LOG_LEVEL: Logging level  # Missing from other docs!
-"""
-
-# ✅ GOOD: Single source configuration with generated documentation
+# Single source configuration with generated documentation
 # config/schema.py - Authoritative configuration definition
 from dataclasses import dataclass, field
 from typing import Optional
@@ -365,19 +253,7 @@ class ConfigurationSchema:
         }
     )
 
-    # API Configuration
-    api_rate_limit: int = field(
-        default=100,
-        metadata={
-            'env_var': 'API_RATE_LIMIT',
-            'description': 'Maximum API requests per minute per client',
-            'example': '100',
-            'required': False,
-            'validation': 'Must be a positive integer'
-        }
-    )
-
-# config/generator.py - Documentation generation from schema
+# Documentation generation from schema
 import inspect
 from typing import get_type_hints
 from dataclasses import fields
@@ -417,26 +293,8 @@ class ConfigurationDocumentationGenerator:
         content = "# Application Configuration\n"
         content += "# Generated from ConfigurationSchema - DO NOT EDIT MANUALLY\n\n"
 
-        current_section = ""
         for field in schema_fields:
             metadata = field.metadata
-
-            # Group by field type (simple categorization)
-            if 'database' in field.name:
-                section = "Database Configuration"
-            elif 'redis' in field.name:
-                section = "Cache Configuration"
-            elif 'secret' in field.name or 'key' in field.name:
-                section = "Security Configuration"
-            elif 'api' in field.name:
-                section = "API Configuration"
-            else:
-                section = "Application Configuration"
-
-            if section != current_section:
-                content += f"\n# {section}\n"
-                current_section = section
-
             env_var = metadata.get('env_var', field.name.upper())
             description = metadata.get('description', '')
             example = metadata.get('example', '')
@@ -495,8 +353,7 @@ class ConfigurationManager:
             redis_url=self._require_env('REDIS_URL'),
             secret_key=self._require_env('SECRET_KEY'),
             debug=os.environ.get('DEBUG', 'false').lower() == 'true',
-            log_level=LogLevel(os.environ.get('LOG_LEVEL', 'INFO')),
-            api_rate_limit=int(os.environ.get('API_RATE_LIMIT', '100'))
+            log_level=LogLevel(os.environ.get('LOG_LEVEL', 'INFO'))
         )
         self.validate()
 
@@ -535,10 +392,7 @@ ensuring it stays current with the actual implementation.
 
 ## Related Bindings
 
-- [centralized-configuration.md](../../docs/bindings/core/centralized-configuration.md): Both bindings eliminate duplication, but unified documentation focuses on knowledge and information while centralized configuration focuses on settings and parameters. They work together to create comprehensive single-source-of-truth systems.
-
-- [api-design.md](../../docs/bindings/core/api-design.md): API documentation should be unified and generated from authoritative sources like schemas or code annotations. This ensures that API documentation stays synchronized with actual implementation and provides a single source of truth for API behavior.
-
-- [automated-quality-gates.md](../../docs/bindings/core/automated-quality-gates.md): Quality gates can enforce documentation standards by checking for duplication, validating that documentation is generated from authoritative sources, and ensuring that documentation stays synchronized with code changes.
-
-- [extract-common-logic.md](../../docs/bindings/core/extract-common-logic.md): Just as common logic should be extracted to avoid duplication, common documentation patterns and content should be extracted and reused rather than duplicated across multiple documents. Both bindings support the DRY principle at different levels of the system.
+- [centralized-configuration](../../docs/bindings/core/centralized-configuration.md): Both bindings eliminate duplication, with unified documentation focusing on knowledge while centralized configuration focuses on settings and parameters
+- [api-design](../../docs/bindings/core/api-design.md): API documentation should be unified and generated from authoritative sources like schemas or code annotations to ensure synchronization with implementation
+- [automated-quality-gates](../../docs/bindings/core/automated-quality-gates.md): Quality gates can enforce documentation standards by checking for duplication and validating generation from authoritative sources
+- [extract-common-logic](../../docs/bindings/core/extract-common-logic.md): Common documentation patterns and content should be extracted and reused rather than duplicated across multiple documents

@@ -11,37 +11,25 @@ Structure data to eliminate redundancy and ensure that each piece of information
 
 ## Rationale
 
-This binding implements our DRY tenet at the data layer by ensuring that knowledge represented in data exists in only one location. When the same information is stored in multiple places—whether in database tables, object properties, or data structures—you create maintenance challenges and opportunities for data inconsistency that can corrupt your system's integrity.
-
-Think of normalized data design like organizing a library's catalog system. Instead of writing the author's biography on every book card (creating massive duplication and update problems), you store author information once in an author catalog and reference it from book records. When an author's information changes, you update it in one place and all books automatically reflect the correct information. This approach scales efficiently and maintains accuracy.
-
-Denormalized data creates a maintenance nightmare where the same fact must be updated in multiple locations, creating opportunities for inconsistency. If a customer's address is stored in five different tables and gets updated in only four of them, your system now contains conflicting information and no reliable way to determine which version is correct. This data inconsistency leads to bugs, incorrect business decisions, and user frustration.
+This binding implements our DRY tenet at the data layer by ensuring that knowledge represented in data exists in only one location. When the same information is stored in multiple places—whether in database tables, object properties, or data structures—you create maintenance challenges and opportunities for data inconsistency that can corrupt your system's integrity. Denormalized data creates a maintenance nightmare where the same fact must be updated in multiple locations, creating opportunities for inconsistency that leads to bugs, incorrect business decisions, and user frustration.
 
 ## Rule Definition
 
-Normalized data design must follow these structural principles:
+**Core Requirements:**
 
-- **Single Source of Truth**: Each distinct piece of information should be stored in exactly one location and referenced from all other locations that need it.
+- **Single Source of Truth**: Each distinct piece of information should be stored in exactly one location and referenced from all other locations that need it
 
-- **Eliminate Redundant Storage**: Avoid storing the same information in multiple places unless there's a compelling performance or business requirement that justifies the duplication.
+- **Eliminate Redundant Storage**: Avoid storing the same information in multiple places unless there's a compelling performance or business requirement that justifies the duplication
 
-- **Use Foreign Keys and References**: Establish relationships between data entities through keys and references rather than duplicating related information across entities.
+- **Use Foreign Keys and References**: Establish relationships between data entities through keys and references rather than duplicating related information across entities
 
-- **Separate Concerns by Entity Type**: Organize data according to the distinct entities and concepts in your domain, ensuring that each entity's data is managed independently.
+- **Separate Concerns by Entity Type**: Organize data according to the distinct entities and concepts in your domain, ensuring that each entity's data is managed independently
 
-- **Maintain Referential Integrity**: Implement constraints and validation that ensure references between data entities remain valid and consistent.
+- **Maintain Referential Integrity**: Implement constraints and validation that ensure references between data entities remain valid and consistent
 
-**Normalization Levels:**
-- **First Normal Form (1NF)**: Eliminate repeating groups and ensure atomic values
-- **Second Normal Form (2NF)**: Eliminate partial dependencies on composite keys
-- **Third Normal Form (3NF)**: Eliminate transitive dependencies between non-key attributes
-- **Higher Normal Forms**: Apply Boyce-Codd Normal Form (BCNF) and beyond for complex scenarios
+**Normalization Levels:** First Normal Form (1NF) - eliminate repeating groups and ensure atomic values; Second Normal Form (2NF) - eliminate partial dependencies on composite keys; Third Normal Form (3NF) - eliminate transitive dependencies between non-key attributes; Higher Normal Forms - apply Boyce-Codd Normal Form (BCNF) and beyond for complex scenarios
 
-**Controlled Denormalization:**
-- Performance optimization based on measured bottlenecks
-- Read-heavy scenarios where query performance is critical
-- Derived values that are expensive to calculate
-- Always with explicit justification and maintenance strategies
+**Controlled Denormalization:** Performance optimization based on measured bottlenecks, read-heavy scenarios where query performance is critical, derived values that are expensive to calculate - always with explicit justification and maintenance strategies
 
 ## Practical Implementation
 
@@ -56,6 +44,8 @@ Normalized data design must follow these structural principles:
 5. **Design for Query Patterns**: While maintaining normalization, consider how your data will be queried and accessed to ensure that normalized structures support efficient data retrieval.
 
 ## Examples
+
+**Comprehensive Normalized Database Design:**
 
 ```sql
 -- ❌ BAD: Denormalized data with redundancy and inconsistency risks
@@ -176,225 +166,10 @@ CREATE TABLE order_items (
 -- 6. Consistent data across all references
 ```
 
-```javascript
-// ❌ BAD: Duplicated user information in objects
-const blogPosts = [
-  {
-    id: 1,
-    title: "Introduction to JavaScript",
-    content: "JavaScript is a programming language...",
-    author: {
-      id: 101,
-      name: "John Doe",
-      email: "john@example.com",
-      bio: "John is a senior developer with 10 years experience...",
-      avatar: "https://example.com/avatars/john.jpg"
-    },
-    publishedAt: "2023-01-15T10:00:00Z"
-  },
-  {
-    id: 2,
-    title: "Advanced JavaScript Patterns",
-    content: "In this post we'll explore advanced patterns...",
-    author: {
-      id: 101,
-      name: "John Doe",           // Duplicated
-      email: "john@example.com",  // Duplicated
-      bio: "John is a senior developer with 10 years experience...", // Duplicated
-      avatar: "https://example.com/avatars/john.jpg" // Duplicated
-    },
-    publishedAt: "2023-01-20T14:30:00Z"
-  },
-  {
-    id: 3,
-    title: "React Best Practices",
-    content: "React development requires following best practices...",
-    author: {
-      id: 102,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      bio: "Jane specializes in React and frontend development...",
-      avatar: "https://example.com/avatars/jane.jpg"
-    },
-    publishedAt: "2023-01-25T09:15:00Z"
-  }
-];
-
-// Problems:
-// 1. John's bio appears in multiple places - update nightmare
-// 2. If John's email changes, must update all his posts
-// 3. Storage waste from duplicated author information
-// 4. Risk of inconsistent author data across posts
-
-// ✅ GOOD: Normalized data structure with references
-// Single source of truth for authors
-const authors = new Map([
-  [101, {
-    id: 101,
-    name: "John Doe",
-    email: "john@example.com",
-    bio: "John is a senior developer with 10 years experience in JavaScript, Node.js, and React. He enjoys mentoring junior developers and contributing to open source projects.",
-    avatar: "https://example.com/avatars/john.jpg",
-    socialLinks: {
-      twitter: "@johndoe",
-      github: "johndoe",
-      linkedin: "john-doe-dev"
-    },
-    joinedAt: "2022-01-01T00:00:00Z"
-  }],
-  [102, {
-    id: 102,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    bio: "Jane specializes in React and frontend development with a focus on user experience and performance optimization.",
-    avatar: "https://example.com/avatars/jane.jpg",
-    socialLinks: {
-      twitter: "@janesmith",
-      github: "janesmith"
-    },
-    joinedAt: "2022-03-15T00:00:00Z"
-  }]
-]);
-
-// Posts reference authors by ID only
-const blogPosts = [
-  {
-    id: 1,
-    title: "Introduction to JavaScript",
-    content: "JavaScript is a programming language...",
-    authorId: 101, // Reference only
-    publishedAt: "2023-01-15T10:00:00Z",
-    tags: ["javascript", "tutorial", "beginner"],
-    readTime: 5
-  },
-  {
-    id: 2,
-    title: "Advanced JavaScript Patterns",
-    content: "In this post we'll explore advanced patterns...",
-    authorId: 101, // Same author, no duplication
-    publishedAt: "2023-01-20T14:30:00Z",
-    tags: ["javascript", "advanced", "patterns"],
-    readTime: 12
-  },
-  {
-    id: 3,
-    title: "React Best Practices",
-    content: "React development requires following best practices...",
-    authorId: 102, // Different author
-    publishedAt: "2023-01-25T09:15:00Z",
-    tags: ["react", "best-practices", "frontend"],
-    readTime: 8
-  }
-];
-
-// Utility functions to work with normalized data
-class BlogDataManager {
-  constructor(authors, posts) {
-    this.authors = authors;
-    this.posts = posts;
-  }
-
-  // Get post with author information
-  getPostWithAuthor(postId) {
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) return null;
-
-    const author = this.authors.get(post.authorId);
-    return {
-      ...post,
-      author // Author info retrieved from single source
-    };
-  }
-
-  // Get all posts by author
-  getPostsByAuthor(authorId) {
-    const author = this.authors.get(authorId);
-    if (!author) return [];
-
-    const authorPosts = this.posts.filter(p => p.authorId === authorId);
-    return {
-      author,
-      posts: authorPosts
-    };
-  }
-
-  // Update author information (affects all their posts)
-  updateAuthor(authorId, updates) {
-    const author = this.authors.get(authorId);
-    if (!author) throw new Error('Author not found');
-
-    // Single update affects all posts by this author
-    this.authors.set(authorId, { ...author, ...updates });
-  }
-
-  // Get post statistics by author
-  getAuthorStats(authorId) {
-    const authorPosts = this.posts.filter(p => p.authorId === authorId);
-    return {
-      totalPosts: authorPosts.length,
-      totalReadTime: authorPosts.reduce((sum, post) => sum + post.readTime, 0),
-      avgReadTime: authorPosts.length ?
-        authorPosts.reduce((sum, post) => sum + post.readTime, 0) / authorPosts.length : 0,
-      mostRecentPost: authorPosts.reduce((latest, post) =>
-        !latest || post.publishedAt > latest.publishedAt ? post : latest, null)
-    };
-  }
-}
-
-// Usage demonstrates benefits of normalization
-const blogManager = new BlogDataManager(authors, blogPosts);
-
-// Author info comes from single source
-const postWithAuthor = blogManager.getPostWithAuthor(1);
-console.log(postWithAuthor.author.name); // "John Doe"
-
-// Update author once, affects all their posts
-blogManager.updateAuthor(101, {
-  bio: "John is a senior developer and technical writer...",
-  email: "john.doe@newcompany.com"
-});
-
-// All posts by John now reflect the updated information
-const johnsPosts = blogManager.getPostsByAuthor(101);
-console.log(johnsPosts.author.email); // "john.doe@newcompany.com" - updated everywhere
-```
+**Application-Level Normalized Data Management:**
 
 ```typescript
-// ❌ BAD: Nested objects with duplicated data
-interface OrderWithDuplicatedData {
-  orderId: string;
-  orderDate: Date;
-  customer: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zipCode: string;
-    };
-  };
-  items: Array<{
-    productId: string;
-    productName: string;      // Duplicated from products
-    productDescription: string; // Duplicated from products
-    category: string;         // Duplicated from products
-    unitPrice: number;
-    quantity: number;
-    totalPrice: number;
-  }>;
-  shippingAddress: {
-    street: string;           // Potentially duplicated customer address
-    city: string;
-    state: string;
-    zipCode: string;
-  };
-  totalAmount: number;
-}
-
-// ✅ GOOD: Normalized interfaces with references
+// Normalized interfaces with references
 interface Customer {
   id: string;
   name: string;
@@ -426,13 +201,6 @@ interface Product {
   updatedAt: Date;
 }
 
-interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  parentCategoryId?: string;
-}
-
 interface Order {
   id: string;
   customerId: string;        // Reference to customer
@@ -458,13 +226,12 @@ class NormalizedDataManager {
     private customers: Map<string, Customer>,
     private addresses: Map<string, Address>,
     private products: Map<string, Product>,
-    private categories: Map<string, Category>,
     private orders: Map<string, Order>,
     private orderItems: Map<string, OrderItem[]>
   ) {}
 
   // Denormalize data for presentation when needed
-  getOrderDetails(orderId: string): OrderDetails | null {
+  getOrderDetails(orderId: string) {
     const order = this.orders.get(orderId);
     if (!order) return null;
 
@@ -475,12 +242,9 @@ class NormalizedDataManager {
 
     const itemsWithDetails = items.map(item => {
       const product = this.products.get(item.productId);
-      const category = product ? this.categories.get(product.categoryId) : null;
-
       return {
         ...item,
-        product: product || null,
-        category: category || null
+        product: product || null
       };
     });
 
@@ -519,25 +283,11 @@ class NormalizedDataManager {
     // All order items automatically reference updated product info
   }
 }
-
-interface OrderDetails {
-  order: Order;
-  customer: Customer | null;
-  billingAddress: Address | null;
-  shippingAddress: Address | null;
-  items: Array<OrderItem & {
-    product: Product | null;
-    category: Category | null;
-  }>;
-}
 ```
 
 ## Related Bindings
 
-- [centralized-configuration.md](../../docs/bindings/core/centralized-configuration.md): Both bindings implement DRY principles by eliminating duplication - normalized data design eliminates data duplication while centralized configuration eliminates settings duplication. They work together to create comprehensive single-source-of-truth systems.
-
-- [extract-common-logic.md](../../docs/bindings/core/extract-common-logic.md): Just as common logic should be extracted to avoid code duplication, common data should be normalized to avoid data duplication. Both bindings support the DRY principle at different layers of the system architecture.
-
-- [interface-contracts.md](../../docs/bindings/core/interface-contracts.md): Normalized data structures should have well-defined interfaces and contracts that specify how data relationships work. Clear contracts prevent misuse of normalized data and ensure referential integrity is maintained.
-
-- [component-isolation.md](../../docs/bindings/core/component-isolation.md): Normalized data design supports component isolation by ensuring that each data entity has clear boundaries and dependencies. Components can work with normalized data through well-defined interfaces without creating tight coupling to specific data structures.
+- [centralized-configuration](../../docs/bindings/core/centralized-configuration.md): Both bindings implement DRY principles by eliminating duplication - normalized data design eliminates data duplication while centralized configuration eliminates settings duplication
+- [extract-common-logic](../../docs/bindings/core/extract-common-logic.md): Just as common logic should be extracted to avoid code duplication, common data should be normalized to avoid data duplication at different system layers
+- [interface-contracts](../../docs/bindings/core/interface-contracts.md): Normalized data structures should have well-defined interfaces and contracts that specify how data relationships work and ensure referential integrity
+- [component-isolation](../../docs/bindings/core/component-isolation.md): Normalized data design supports component isolation by ensuring that each data entity has clear boundaries and dependencies through well-defined interfaces

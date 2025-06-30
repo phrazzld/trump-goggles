@@ -1,814 +1,311 @@
 ---
 id: automated-quality-gates
-last_modified: '2025-06-02'
+last_modified: '2025-06-15'
 version: '0.1.0'
 derived_from: fix-broken-windows
 enforced_by: 'CI/CD pipelines, pre-commit hooks, automated testing, code analysis tools'
 ---
+
 # Binding: Establish Comprehensive Automated Quality Gates
 
 Implement automated validation checkpoints that prevent low-quality code from progressing through the development pipeline. Create systematic barriers that catch quality issues early, before they can compound into larger system problems.
 
 ## Rationale
 
-This binding implements our fix-broken-windows tenet by creating automated systems that prevent quality degradation before it begins. Quality gates act as checkpoints that enforce standards consistently, objectively, and without human error or oversight. When quality issues can slip through manual processes due to time pressure, oversight, or inconsistent application of standards, automated gates provide reliable protection against quality decay.
+This binding implements our fix-broken-windows tenet by creating automated systems that prevent quality degradation before it begins. Quality gates act as checkpoints that enforce standards consistently, objectively, and without human error or oversight. When quality issues can slip through manual processes due to time pressure, automated gates provide reliable protection against quality decay.
 
-Think of quality gates like a series of inspection stations in a manufacturing process. Each station checks for specific defects and prevents flawed products from continuing down the line. Without these checkpoints, defects accumulate and compound, ultimately producing unreliable products that are expensive to fix or must be scrapped entirely. In software development, quality gates catch issues like failing tests, security vulnerabilities, performance regressions, and standard violations before they become entrenched in the codebase.
-
-Manual quality assurance is insufficient because it's inconsistent, time-consuming, and prone to human error. Under pressure, manual checks are often rushed or skipped entirely. Automated quality gates eliminate this variability by applying the same rigorous standards to every change, regardless of deadlines or workload. This creates a foundation of quality that teams can build upon with confidence, knowing that fundamental issues have been systematically prevented.
+Manual quality assurance is insufficient because it's inconsistent and prone to error. Automated quality gates eliminate this variability by applying the same rigorous standards to every change, creating a foundation of quality that teams can build upon with confidence.
 
 ## Rule Definition
 
-Automated quality gates must establish these validation principles:
-
-- **Comprehensive Coverage**: Implement quality checks at multiple levels including code quality, security, performance, documentation, and functional correctness. No single type of quality issue should be able to slip through without detection.
-
-- **Fast Feedback**: Provide rapid feedback to developers so quality issues can be fixed while the context is still fresh. Gates should fail fast and provide actionable guidance for resolution.
-
-- **Consistent Enforcement**: Apply the same quality standards to all code changes regardless of author, urgency, or scope. No mechanism should exist to bypass quality gates except in documented emergency procedures.
-
-- **Escalating Rigor**: Implement increasingly rigorous quality checks as code progresses through the pipeline, with the most comprehensive validation occurring before production deployment.
-
-- **Clear Standards**: Define explicit, measurable quality criteria that can be automatically validated. Avoid subjective or ambiguous quality requirements that cannot be consistently enforced.
-
-- **Actionable Results**: Provide specific, actionable feedback when quality gates fail, including clear guidance on how to resolve the issues and prevent similar problems in the future.
-
-**Quality Gate Categories:**
-- Code quality gates (syntax, complexity, duplication, style)
-- Security gates (vulnerability scanning, dependency analysis)
-- Testing gates (coverage, test execution, regression detection)
-- Performance gates (benchmarking, resource usage, latency)
-- Documentation gates (completeness, accuracy, format validation)
-- Compliance gates (regulatory requirements, organizational policies)
-
-**Pipeline Integration Points:**
+**MUST** implement quality gates at multiple pipeline stages:
 - Pre-commit hooks for immediate feedback
 - Pull request validation for team review
 - Continuous integration for comprehensive testing
 - Pre-deployment validation for production readiness
-- Post-deployment monitoring for runtime quality
 
-## Practical Implementation
+**MUST** validate these quality categories:
+- Code quality (syntax, complexity, style, duplication)
+- Security (vulnerability scanning, dependency analysis)
+- Testing (coverage thresholds, regression detection)
+- Performance (benchmarking, resource usage validation)
 
-1. **Implement Multi-Layer Validation**: Create quality gates at different stages of the development pipeline, each with appropriate scope and rigor for its position in the workflow.
+**MUST** provide fast feedback with specific, actionable guidance for resolution.
 
-2. **Establish Quality Metrics**: Define specific, measurable quality criteria that can be automatically validated, such as test coverage percentages, complexity thresholds, and performance benchmarks.
+**MUST** implement escalating rigor as code progresses through the pipeline.
 
-3. **Create Fast Feedback Loops**: Ensure that quality gates provide rapid feedback so developers can address issues while the context is still fresh and the cost of fixing is minimal.
+**SHOULD** include emergency override mechanisms with audit trails for critical production fixes.
 
-4. **Design Emergency Overrides**: Implement controlled mechanisms for bypassing quality gates in true emergencies, with full audit trails and automatic follow-up processes.
-
-5. **Monitor Gate Effectiveness**: Track the effectiveness of quality gates by monitoring the types and frequency of issues they catch, and continuously improve gate configuration based on this data.
-
-## Examples
-
-```yaml
-# ❌ BAD: Minimal, inconsistent quality checks
-# .github/workflows/basic-ci.yml
-name: Basic CI
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-      - run: npm install
-      - run: npm test  # Only basic tests, no quality gates
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Deploying to production"  # No validation!
-
-# Problems:
-# 1. No code quality validation
-# 2. No security scanning
-# 3. No performance testing
-# 4. No documentation checks
-# 5. Direct deployment without comprehensive validation
-```
+## Quality Gate Implementation
 
 ```yaml
-# ✅ GOOD: Comprehensive automated quality gates
 # .github/workflows/quality-gates.yml
-name: Quality Gates Pipeline
+name: Quality Gates
 on: [push, pull_request]
 
-env:
-  NODE_VERSION: '18'
-  QUALITY_THRESHOLD_COVERAGE: 85
-  QUALITY_THRESHOLD_COMPLEXITY: 10
-  QUALITY_THRESHOLD_DUPLICATION: 3
-
 jobs:
-  # Gate 1: Code Quality and Standards
-  code-quality:
+  pre-flight-checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0  # Full history for better analysis
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '18'
           cache: 'npm'
+      - run: npm ci
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint code
+      # Code Quality Gate
+      - name: Code Quality Validation
         run: |
-          npm run lint
-          # Fail if any linting errors
-          if [ $? -ne 0 ]; then
-            echo "❌ Code quality gate failed: Linting errors found"
+          echo "🔍 Running code quality checks..."
+          npm run lint || { echo "❌ Linting failed. Run 'npm run lint:fix' to resolve."; exit 1; }
+          npm run format:check || { echo "❌ Formatting issues. Run 'npm run format' to fix."; exit 1; }
+
+          # Complexity check
+          npx complexity-report --format json --output complexity.json src/
+          COMPLEXITY=$(node -p "JSON.parse(require('fs').readFileSync('complexity.json')).summary.average.complexity")
+          if (( $(echo "$COMPLEXITY > 10" | bc -l) )); then
+            echo "❌ Average complexity $COMPLEXITY exceeds threshold of 10"
             exit 1
           fi
+          echo "✅ Code quality checks passed"
 
-      - name: Check code formatting
+      # Security Gate
+      - name: Security Validation
         run: |
-          npm run format:check
-          if [ $? -ne 0 ]; then
-            echo "❌ Code quality gate failed: Formatting violations found"
-            echo "Run 'npm run format' to fix formatting issues"
-            exit 1
-          fi
-
-      - name: Analyze code complexity
-        run: |
-          npm run complexity:check
-          if [ $? -ne 0 ]; then
-            echo "❌ Code quality gate failed: Complexity threshold exceeded"
-            exit 1
-          fi
-
-      - name: Check for code duplication
-        run: |
-          npm run duplication:check
-          if [ $? -ne 0 ]; then
-            echo "❌ Code quality gate failed: Code duplication detected"
-            exit 1
-          fi
-
-      - name: Validate commit messages
-        run: |
-          npm run commitlint -- --from=origin/main --to=HEAD
-          if [ $? -ne 0 ]; then
-            echo "❌ Code quality gate failed: Invalid commit messages"
-            exit 1
-          fi
-
-  # Gate 2: Security Validation
-  security-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Audit dependencies
-        run: |
-          npm audit --audit-level=high
-          if [ $? -ne 0 ]; then
-            echo "❌ Security gate failed: High/critical vulnerabilities in dependencies"
-            echo "Run 'npm audit fix' to resolve security issues"
-            exit 1
-          fi
-
-      - name: Static security analysis
-        run: |
-          npm run security:scan
-          if [ $? -ne 0 ]; then
-            echo "❌ Security gate failed: Security vulnerabilities detected in code"
-            exit 1
-          fi
-
-      - name: Check for secrets in code
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: main
-          head: HEAD
-
-      - name: License compliance check
-        run: |
-          npm run license:check
-          if [ $? -ne 0 ]; then
-            echo "❌ Security gate failed: License compliance violations"
-            exit 1
-          fi
-
-  # Gate 3: Testing and Coverage
-  testing-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run unit tests
-        run: |
-          npm run test:unit
-          if [ $? -ne 0 ]; then
-            echo "❌ Testing gate failed: Unit tests failing"
-            exit 1
-          fi
-
-      - name: Run integration tests
-        run: |
-          npm run test:integration
-          if [ $? -ne 0 ]; then
-            echo "❌ Testing gate failed: Integration tests failing"
-            exit 1
-          fi
-
-      - name: Check test coverage
-        run: |
-          npm run test:coverage
-          COVERAGE=$(npm run test:coverage:report --silent | grep "All files" | awk '{print $10}' | sed 's/%//')
-          if [ ${COVERAGE%.*} -lt ${{ env.QUALITY_THRESHOLD_COVERAGE }} ]; then
-            echo "❌ Testing gate failed: Test coverage ${COVERAGE}% below threshold ${{ env.QUALITY_THRESHOLD_COVERAGE }}%"
-            exit 1
-          fi
-          echo "✅ Test coverage: ${COVERAGE}%"
-
-      - name: Mutation testing
-        run: |
-          npm run test:mutation
-          if [ $? -ne 0 ]; then
-            echo "⚠️ Mutation testing failed: Test quality may be insufficient"
-            # Note: Might be warning vs failure depending on maturity
-          fi
-
-  # Gate 4: Performance Validation
-  performance-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-
-      - name: Bundle size analysis
-        run: |
-          npm run analyze:bundle
-          BUNDLE_SIZE=$(npm run bundle:size --silent)
-          MAX_BUNDLE_SIZE=1048576  # 1MB limit
-          if [ $BUNDLE_SIZE -gt $MAX_BUNDLE_SIZE ]; then
-            echo "❌ Performance gate failed: Bundle size ${BUNDLE_SIZE} exceeds limit ${MAX_BUNDLE_SIZE}"
-            exit 1
-          fi
-
-      - name: Performance benchmarks
-        run: |
-          npm run perf:benchmark
-          if [ $? -ne 0 ]; then
-            echo "❌ Performance gate failed: Performance regression detected"
-            exit 1
-          fi
-
-      - name: Memory leak detection
-        run: |
-          npm run test:memory-leaks
-          if [ $? -ne 0 ]; then
-            echo "❌ Performance gate failed: Memory leaks detected"
-            exit 1
-          fi
-
-  # Gate 5: Documentation and API Validation
-  documentation-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate API documentation
-        run: |
-          npm run docs:api:validate
-          if [ $? -ne 0 ]; then
-            echo "❌ Documentation gate failed: API documentation is invalid or incomplete"
-            exit 1
-          fi
-
-      - name: Check README accuracy
-        run: |
-          npm run docs:readme:check
-          if [ $? -ne 0 ]; then
-            echo "❌ Documentation gate failed: README is outdated or incomplete"
-            exit 1
-          fi
-
-      - name: Validate code examples
-        run: |
-          npm run docs:examples:test
-          if [ $? -ne 0 ]; then
-            echo "❌ Documentation gate failed: Code examples in documentation are broken"
-            exit 1
-          fi
-
-  # Pre-deployment validation (most rigorous)
-  pre-deployment-gates:
-    needs: [code-quality, security-gates, testing-gates, performance-gates, documentation-gates]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: End-to-end testing
-        run: |
-          npm run test:e2e:production
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: E2E tests failing"
-            exit 1
-          fi
-
-      - name: Load testing
-        run: |
-          npm run test:load
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: Load testing failed"
-            exit 1
-          fi
-
-      - name: Database migration validation
-        run: |
-          npm run db:migrate:validate
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: Database migrations invalid"
-            exit 1
-          fi
-
-      - name: Infrastructure validation
-        run: |
-          npm run infra:validate
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: Infrastructure configuration invalid"
-            exit 1
-          fi
-
-      - name: Security scan (final)
-        run: |
-          npm run security:scan:comprehensive
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: Final security scan failed"
-            exit 1
-          fi
-
-      - name: Generate deployment artifact
-        run: |
-          npm run build:production
-          npm run package:deployment
-
-      - name: Validate deployment artifact
-        run: |
-          npm run artifact:validate
-          if [ $? -ne 0 ]; then
-            echo "❌ Pre-deployment gate failed: Deployment artifact validation failed"
-            exit 1
-          fi
-
-  # Quality gate reporting
-  quality-report:
-    needs: [code-quality, security-gates, testing-gates, performance-gates, documentation-gates]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate quality report
-        run: |
-          echo "## Quality Gates Report" >> $GITHUB_STEP_SUMMARY
-          echo "| Gate | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Quality | ${{ needs.code-quality.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security | ${{ needs.security-gates.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Testing | ${{ needs.testing-gates.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance | ${{ needs.performance-gates.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Documentation | ${{ needs.documentation-gates.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
-```
-
-```typescript
-// ❌ BAD: Manual, inconsistent quality checks
-class PullRequestReview {
-  async reviewCode(pullRequest: PullRequest): Promise<ReviewResult> {
-    // Manual checks - inconsistent and incomplete
-
-    // Sometimes check tests, sometimes don't
-    const hasTests = this.checkIfTestsExist(pullRequest);
-
-    // Manual code review - subjective and time-consuming
-    const codeQuality = this.manualCodeReview(pullRequest);
-
-    // No security scanning
-    // No performance validation
-    // No documentation checks
-
-    return {
-      approved: hasTests && codeQuality === 'good',
-      comments: ['Looks good to me'] // Generic feedback
-    };
-  }
-}
-
-// ✅ GOOD: Automated quality gate system
-interface QualityGate {
-  name: string;
-  execute(codebase: Codebase): Promise<QualityGateResult>;
-  getRequirements(): QualityRequirement[];
-}
-
-interface QualityGateResult {
-  passed: boolean;
-  score: number;
-  issues: QualityIssue[];
-  recommendations: string[];
-  executionTime: number;
-}
-
-interface QualityIssue {
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  category: string;
-  description: string;
-  location: string;
-  suggestion: string;
-}
-
-interface QualityRequirement {
-  name: string;
-  threshold: number;
-  description: string;
-}
-
-class CodeQualityGate implements QualityGate {
-  name = 'Code Quality';
-
-  constructor(
-    private linter: Linter,
-    private complexityAnalyzer: ComplexityAnalyzer,
-    private duplicationDetector: DuplicationDetector
-  ) {}
-
-  async execute(codebase: Codebase): Promise<QualityGateResult> {
-    const startTime = Date.now();
-    const issues: QualityIssue[] = [];
-
-    // Linting validation
-    const lintResults = await this.linter.analyze(codebase);
-    for (const violation of lintResults.violations) {
-      issues.push({
-        severity: violation.severity,
-        category: 'style',
-        description: violation.message,
-        location: `${violation.file}:${violation.line}`,
-        suggestion: violation.fix || 'See linting rule documentation'
-      });
-    }
-
-    // Complexity analysis
-    const complexityResults = await this.complexityAnalyzer.analyze(codebase);
-    for (const file of complexityResults.files) {
-      if (file.cyclomaticComplexity > 10) {
-        issues.push({
-          severity: file.cyclomaticComplexity > 20 ? 'high' : 'medium',
-          category: 'complexity',
-          description: `High cyclomatic complexity: ${file.cyclomaticComplexity}`,
-          location: file.path,
-          suggestion: 'Consider breaking down complex functions into smaller, focused units'
-        });
-      }
-    }
-
-    // Duplication detection
-    const duplicationResults = await this.duplicationDetector.analyze(codebase);
-    for (const duplicate of duplicationResults.duplicates) {
-      issues.push({
-        severity: duplicate.similarity > 90 ? 'high' : 'medium',
-        category: 'duplication',
-        description: `Code duplication detected (${duplicate.similarity}% similar)`,
-        location: duplicate.locations.join(', '),
-        suggestion: 'Extract common functionality into shared utilities'
-      });
-    }
-
-    // Calculate overall score
-    const criticalIssues = issues.filter(i => i.severity === 'critical').length;
-    const highIssues = issues.filter(i => i.severity === 'high').length;
-    const mediumIssues = issues.filter(i => i.severity === 'medium').length;
-
-    const score = Math.max(0, 100 - (criticalIssues * 25) - (highIssues * 10) - (mediumIssues * 5));
-    const passed = criticalIssues === 0 && highIssues === 0 && score >= 80;
-
-    return {
-      passed,
-      score,
-      issues,
-      recommendations: this.generateRecommendations(issues),
-      executionTime: Date.now() - startTime
-    };
-  }
-
-  getRequirements(): QualityRequirement[] {
-    return [
-      { name: 'No critical issues', threshold: 0, description: 'Code must not contain critical quality violations' },
-      { name: 'No high-severity issues', threshold: 0, description: 'Code must not contain high-severity issues' },
-      { name: 'Quality score', threshold: 80, description: 'Overall quality score must be 80 or higher' }
-    ];
-  }
-
-  private generateRecommendations(issues: QualityIssue[]): string[] {
-    const recommendations: string[] = [];
-
-    const complexityIssues = issues.filter(i => i.category === 'complexity');
-    if (complexityIssues.length > 0) {
-      recommendations.push('Consider refactoring complex functions using the Extract Method pattern');
-    }
-
-    const duplicationIssues = issues.filter(i => i.category === 'duplication');
-    if (duplicationIssues.length > 0) {
-      recommendations.push('Eliminate code duplication by extracting common logic into shared utilities');
-    }
-
-    const styleIssues = issues.filter(i => i.category === 'style');
-    if (styleIssues.length > 5) {
-      recommendations.push('Consider running auto-formatter to resolve style violations');
-    }
-
-    return recommendations;
-  }
-}
-
-class SecurityGate implements QualityGate {
-  name = 'Security';
-
-  constructor(
-    private vulnerabilityScanner: VulnerabilityScanner,
-    private dependencyAnalyzer: DependencyAnalyzer,
-    private secretScanner: SecretScanner
-  ) {}
-
-  async execute(codebase: Codebase): Promise<QualityGateResult> {
-    const startTime = Date.now();
-    const issues: QualityIssue[] = [];
-
-    // Vulnerability scanning
-    const vulnResults = await this.vulnerabilityScanner.scan(codebase);
-    for (const vuln of vulnResults.vulnerabilities) {
-      issues.push({
-        severity: vuln.severity,
-        category: 'security',
-        description: `Security vulnerability: ${vuln.name}`,
-        location: vuln.location,
-        suggestion: vuln.remediation
-      });
-    }
-
-    // Dependency analysis
-    const depResults = await this.dependencyAnalyzer.analyze(codebase);
-    for (const dep of depResults.vulnerableDependencies) {
-      issues.push({
-        severity: dep.highestSeverity,
-        category: 'dependency',
-        description: `Vulnerable dependency: ${dep.name} (${dep.vulnerabilityCount} issues)`,
-        location: dep.manifestFile,
-        suggestion: `Update to version ${dep.fixedVersion} or later`
-      });
-    }
-
-    // Secret scanning
-    const secretResults = await this.secretScanner.scan(codebase);
-    for (const secret of secretResults.secrets) {
-      issues.push({
-        severity: 'critical',
-        category: 'secrets',
-        description: `Potential secret detected: ${secret.type}`,
-        location: secret.location,
-        suggestion: 'Remove hardcoded secrets and use environment variables or secret management'
-      });
-    }
-
-    const criticalIssues = issues.filter(i => i.severity === 'critical').length;
-    const highIssues = issues.filter(i => i.severity === 'high').length;
-
-    return {
-      passed: criticalIssues === 0 && highIssues === 0,
-      score: Math.max(0, 100 - (criticalIssues * 50) - (highIssues * 20)),
-      issues,
-      recommendations: [
-        'Implement security scanning in CI/CD pipeline',
-        'Regular dependency updates and security patches',
-        'Use secrets management for sensitive configuration'
-      ],
-      executionTime: Date.now() - startTime
-    };
-  }
-
-  getRequirements(): QualityRequirement[] {
-    return [
-      { name: 'No critical vulnerabilities', threshold: 0, description: 'Code must not contain critical security issues' },
-      { name: 'No high-severity vulnerabilities', threshold: 0, description: 'Code must not contain high-severity security issues' },
-      { name: 'No hardcoded secrets', threshold: 0, description: 'Code must not contain hardcoded secrets or credentials' }
-    ];
-  }
-}
-
-class QualityGateOrchestrator {
-  private gates: QualityGate[] = [];
-
-  constructor(private notificationService: NotificationService) {}
-
-  addGate(gate: QualityGate): void {
-    this.gates.push(gate);
-  }
-
-  async executeAllGates(codebase: Codebase): Promise<QualityGateReport> {
-    const results: QualityGateResult[] = [];
-    const startTime = Date.now();
-
-    console.log('🚪 Executing quality gates...');
-
-    for (const gate of this.gates) {
-      console.log(`⚡ Running ${gate.name} gate...`);
-
-      try {
-        const result = await gate.execute(codebase);
-        results.push(result);
-
-        if (result.passed) {
-          console.log(`✅ ${gate.name} gate passed (score: ${result.score})`);
-        } else {
-          console.log(`❌ ${gate.name} gate failed (${result.issues.length} issues)`);
-
-          // Log critical issues immediately
-          const criticalIssues = result.issues.filter(i => i.severity === 'critical');
-          for (const issue of criticalIssues) {
-            console.log(`  🚨 CRITICAL: ${issue.description} at ${issue.location}`);
+          echo "🛡️ Running security checks..."
+          npm audit --audit-level=moderate || {
+            echo "❌ Security vulnerabilities found. Run 'npm audit fix' to resolve.";
+            exit 1;
           }
-        }
-      } catch (error) {
-        console.log(`💥 ${gate.name} gate execution failed: ${error.message}`);
-        results.push({
-          passed: false,
-          score: 0,
-          issues: [{
-            severity: 'critical',
-            category: 'gate-failure',
-            description: `Gate execution failed: ${error.message}`,
-            location: 'gate-orchestrator',
-            suggestion: 'Check gate configuration and dependencies'
-          }],
-          recommendations: ['Fix gate execution issues before proceeding'],
-          executionTime: 0
-        });
-      }
-    }
 
-    const report = this.generateReport(results, Date.now() - startTime);
+          # Check for hardcoded secrets
+          if grep -r "password\|secret\|token\|key" src/ --include="*.ts" --include="*.js" | grep -v "test" | grep -v "example"; then
+            echo "❌ Potential hardcoded secrets detected"
+            exit 1
+          fi
+          echo "✅ Security checks passed"
 
-    // Notify stakeholders of results
-    if (!report.overallPassed) {
-      await this.notificationService.notifyQualityGateFailure(report);
-    }
+      # Testing Gate
+      - name: Testing Validation
+        run: |
+          echo "🧪 Running test validation..."
+          npm test -- --coverage --reporter=json > test-results.json
 
-    return report;
-  }
+          # Check test results
+          FAILURES=$(node -p "JSON.parse(require('fs').readFileSync('test-results.json')).stats.failures || 0")
+          if [ "$FAILURES" -gt 0 ]; then
+            echo "❌ $FAILURES test(s) failed"
+            exit 1
+          fi
 
-  private generateReport(results: QualityGateResult[], totalTime: number): QualityGateReport {
-    const allIssues = results.flatMap(r => r.issues);
-    const criticalIssues = allIssues.filter(i => i.severity === 'critical');
-    const highIssues = allIssues.filter(i => i.severity === 'high');
+          # Check coverage
+          COVERAGE=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json')).total.lines.pct")
+          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
+            echo "❌ Coverage $COVERAGE% is below 85% threshold"
+            echo "Add tests for uncovered code or update coverage threshold if appropriate"
+            exit 1
+          fi
+          echo "✅ Testing validation passed with $COVERAGE% coverage"
 
-    const overallPassed = results.every(r => r.passed);
-    const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
+  performance-gates:
+    needs: pre-flight-checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm ci
 
-    return {
-      overallPassed,
-      averageScore: Math.round(averageScore),
-      gateResults: results,
-      summary: {
-        totalGates: this.gates.length,
-        passedGates: results.filter(r => r.passed).length,
-        totalIssues: allIssues.length,
-        criticalIssues: criticalIssues.length,
-        highIssues: highIssues.length
-      },
-      executionTime: totalTime,
-      recommendations: this.generateOverallRecommendations(results)
-    };
-  }
+      # Performance Gate
+      - name: Performance Validation
+        run: |
+          echo "⚡ Running performance validation..."
+          npm run build:production
 
-  private generateOverallRecommendations(results: QualityGateResult[]): string[] {
-    const recommendations: string[] = [];
+          # Bundle size check
+          BUNDLE_SIZE=$(du -k dist/main.js | cut -f1)
+          if [ "$BUNDLE_SIZE" -gt 500 ]; then
+            echo "❌ Bundle size ${BUNDLE_SIZE}KB exceeds 500KB limit"
+            echo "Consider code splitting or removing unnecessary dependencies"
+            exit 1
+          fi
 
-    const failedGates = results.filter(r => !r.passed);
-    if (failedGates.length > 0) {
-      recommendations.push(`Address issues in ${failedGates.length} failing quality gates`);
-    }
+          # Performance benchmark
+          npm run benchmark > benchmark-results.txt
+          RESPONSE_TIME=$(grep "Average response time" benchmark-results.txt | awk '{print $4}' | sed 's/ms//')
+          if (( $(echo "$RESPONSE_TIME > 200" | bc -l) )); then
+            echo "❌ Average response time ${RESPONSE_TIME}ms exceeds 200ms threshold"
+            exit 1
+          fi
+          echo "✅ Performance validation passed (${RESPONSE_TIME}ms avg, ${BUNDLE_SIZE}KB bundle)"
 
-    const allIssues = results.flatMap(r => r.issues);
-    const criticalCount = allIssues.filter(i => i.severity === 'critical').length;
-    if (criticalCount > 0) {
-      recommendations.push(`Immediately fix ${criticalCount} critical issues`);
-    }
+  integration-gates:
+    needs: [pre-flight-checks, performance-gates]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm ci
 
-    const securityIssues = allIssues.filter(i => i.category === 'security' || i.category === 'dependency');
-    if (securityIssues.length > 0) {
-      recommendations.push('Priority: Resolve security vulnerabilities');
-    }
+      # Integration Testing Gate
+      - name: Integration Validation
+        run: |
+          echo "🔗 Running integration validation..."
 
-    return recommendations;
-  }
-}
+          # Start test environment
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 30
 
-interface QualityGateReport {
-  overallPassed: boolean;
-  averageScore: number;
-  gateResults: QualityGateResult[];
-  summary: {
-    totalGates: number;
-    passedGates: number;
-    totalIssues: number;
-    criticalIssues: number;
-    highIssues: number;
-  };
-  executionTime: number;
-  recommendations: string[];
-}
+          # Run integration tests
+          npm run test:integration || {
+            echo "❌ Integration tests failed"
+            docker-compose -f docker-compose.test.yml logs
+            docker-compose -f docker-compose.test.yml down
+            exit 1
+          }
 
-// Usage example
-const qualityOrchestrator = new QualityGateOrchestrator(notificationService);
+          # Cleanup
+          docker-compose -f docker-compose.test.yml down
+          echo "✅ Integration validation passed"
 
-// Configure quality gates
-qualityOrchestrator.addGate(new CodeQualityGate(linter, complexityAnalyzer, duplicationDetector));
-qualityOrchestrator.addGate(new SecurityGate(vulnerabilityScanner, dependencyAnalyzer, secretScanner));
-qualityOrchestrator.addGate(new TestingGate(testRunner, coverageAnalyzer));
-qualityOrchestrator.addGate(new PerformanceGate(benchmarkRunner, bundleAnalyzer));
+      # Documentation Gate
+      - name: Documentation Validation
+        run: |
+          echo "📚 Validating documentation..."
 
-// Execute all gates
-const report = await qualityOrchestrator.executeAllGates(codebase);
+          # Check for README updates on API changes
+          if git diff --name-only HEAD~1 | grep -E "(api|interface)" && ! git diff --name-only HEAD~1 | grep README; then
+            echo "❌ API changes detected but README not updated"
+            echo "Update README.md to document API changes"
+            exit 1
+          fi
 
-if (!report.overallPassed) {
-  console.log('❌ Quality gates failed - blocking deployment');
-  process.exit(1);
-} else {
-  console.log('✅ All quality gates passed - proceeding with deployment');
-}
+          # Validate TypeScript documentation
+          npx typedoc --validation.notExported --validation.invalidLink
+          echo "✅ Documentation validation passed"
+
+  deployment-readiness:
+    needs: [pre-flight-checks, performance-gates, integration-gates]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm ci
+
+      # Final Production Gates
+      - name: Production Readiness Validation
+        run: |
+          echo "🚀 Validating production readiness..."
+
+          # Ensure all environment variables are documented
+          if ! test -f .env.example; then
+            echo "❌ Missing .env.example file"
+            echo "Create .env.example with all required environment variables"
+            exit 1
+          fi
+
+          # Health check endpoint test
+          npm run build:production
+          npm start &
+          APP_PID=$!
+          sleep 10
+
+          if ! curl -f http://localhost:3000/health; then
+            echo "❌ Health check endpoint failed"
+            kill $APP_PID
+            exit 1
+          fi
+
+          kill $APP_PID
+          echo "✅ Production readiness validated"
+
+      # Emergency Override Mechanism
+      - name: Check Emergency Override
+        if: contains(github.event.head_commit.message, '[emergency-deploy]')
+        run: |
+          echo "🚨 Emergency deployment override detected"
+          echo "Override authorized by: ${{ github.actor }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "This override will be audited and reviewed post-deployment"
+
+          # Log to audit system (replace with actual audit endpoint)
+          curl -X POST "${{ secrets.AUDIT_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "emergency_override",
+              "actor": "${{ github.actor }}",
+              "commit": "${{ github.sha }}",
+              "message": "${{ github.event.head_commit.message }}",
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+            }'
 ```
 
-## Related Bindings
+## ❌ Anti-Pattern Example
 
-- [technical-debt-tracking.md](../../docs/bindings/core/technical-debt-tracking.md): Quality gates prevent new technical debt while debt tracking manages existing debt. Both bindings create a comprehensive approach to maintaining code quality through prevention and systematic remediation.
+```yaml
+# Bad: Single massive validation step
+- name: Check Everything
+  run: npm run lint && npm test && npm run security-check && npm run deploy
+```
 
-- [continuous-refactoring.md](../../docs/bindings/core/continuous-refactoring.md): Quality gates can include refactoring recommendations and prevent code that violates quality standards from entering the codebase. Both bindings work together to maintain high code quality over time.
+## Quality Gate Reporting
 
-- [no-lint-suppression.md](../../docs/bindings/core/no-lint-suppression.md): Quality gates should enforce lint rules without allowing suppressions. Both bindings prevent the accumulation of quality violations through systematic enforcement of coding standards.
+```yaml
+# Add to end of workflow for comprehensive reporting
+  quality-report:
+    needs: [pre-flight-checks, performance-gates, integration-gates, deployment-readiness]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate Quality Report
+        run: |
+          echo "📊 Quality Gates Summary"
+          echo "Pre-flight: ${{ needs.pre-flight-checks.result }}"
+          echo "Performance: ${{ needs.performance-gates.result }}"
+          echo "Integration: ${{ needs.integration-gates.result }}"
+          echo "Deployment: ${{ needs.deployment-readiness.result }}"
+```
 
-- [use-structured-logging.md](../../docs/bindings/core/use-structured-logging.md): Quality gates can validate that proper logging practices are followed throughout the codebase. Both bindings support systematic quality enforcement and operational excellence.
+## Implementation Guidelines
 
-- [git-hooks-automation.md](../../docs/bindings/core/git-hooks-automation.md): Git hooks provide the first layer of automated quality gates with immediate feedback at commit time. Both bindings create comprehensive quality automation that scales from local development to production deployment.
+**Progressive Enhancement**: Start with basic gates (lint, test, security) and add complexity gradually.
 
-- [ci-cd-pipeline-standards.md](../../docs/bindings/core/ci-cd-pipeline-standards.md): CI/CD pipelines implement comprehensive automated quality gates across the entire deployment pipeline. Both bindings establish systematic quality enforcement through automation at multiple validation layers.
+**Clear Failure Messages**: Each gate should provide specific guidance on resolution when it fails.
+
+**Performance Optimization**: Run gates in parallel where possible to minimize total pipeline time.
+
+**Emergency Procedures**: Include documented override mechanisms for critical production fixes with full audit trails.
+
+## Monitoring and Maintenance
+
+**Gate Effectiveness**: Track which gates catch the most issues to optimize validation priorities.
+
+**Performance Impact**: Monitor pipeline execution time and adjust parallelization as needed.
+
+**False Positives**: Regularly review and tune thresholds to minimize unnecessary build failures.
+
+**Coverage Analysis**: Ensure quality gates catch the types of issues that matter most to your system.
+
+## Related Standards
+
+- [ci-cd-pipeline-standards](../../docs/bindings/core/ci-cd-pipeline-standards.md): Pipeline architecture that implements these quality gates
+- [git-hooks-automation](../../docs/bindings/core/git-hooks-automation.md): Pre-commit validation that provides immediate quality feedback
+- [use-structured-logging](../../docs/bindings/core/use-structured-logging.md): Observability practices that support quality gate monitoring
+
+## References
+
+- [GitHub Actions Quality Gates](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
+- [Continuous Integration Best Practices](https://martinfowler.com/articles/continuousIntegration.html)
+- [Quality Gates in DevOps](https://www.atlassian.com/devops/frameworks/quality-gates)

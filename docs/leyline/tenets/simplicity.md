@@ -1,6 +1,6 @@
 ---
 id: simplicity
-last_modified: '2025-06-02'
+last_modified: '2025-06-17'
 version: '0.1.0'
 ---
 # Tenet: Simplicity Above All
@@ -19,14 +19,15 @@ easier to extend when requirements change.
 
 Think of code complexity like debt—it accrues interest over time. A complex solution
 might seem efficient in the short term, but you'll pay for it many times over through
-increased maintenance costs, onboarding challenges, and the cognitive load it places on
-everyone who interacts with it. Just as financial debt can cripple future opportunities,
-complexity debt can paralyze development velocity.
+increased maintenance costs, onboarding challenges, and cognitive overload. Each additional
+layer of complexity creates exponential growth in mental overhead needed to work with the code.
 
-Each additional layer of complexity creates exponential growth in the mental overhead
-needed to work with the code. What seems manageable today becomes a burden tomorrow as
-the codebase grows and team members change. This compounding effect means complexity
-becomes increasingly difficult to tame the longer it exists in your system.
+But complexity is more than just technical debt—it's a spirit demon that haunts your codebase.
+Like a malevolent entity, complexity feeds on itself, growing stronger with each "small" addition.
+What starts as an innocent "let me just add this one configuration option" becomes a web of
+interdependent settings. A simple function gains "just one more parameter" until it requires
+a reference manual to use. A straightforward class accepts "just this one special case" until
+it's riddled with conditional logic.
 
 The pursuit of simplicity isn't about cutting corners or avoiding sophisticated
 solutions when they're truly needed. Rather, it's about recognizing that there's
@@ -34,6 +35,14 @@ elegance in simplicity—finding the solution that solves the problem completely
 least moving parts. It's about distinguishing between essential complexity (inherent in
 the problem domain) and accidental complexity (introduced by our implementation
 choices).
+
+The complexity demon whispers seductive lies: "This abstraction will make future changes easier."
+"This configuration option adds flexibility." "This framework will handle all our edge cases."
+But these promises are hollow. The demon thrives on your desire to appear sophisticated, to
+build "enterprise-grade" solutions that impress other developers. Fight back with ruthless
+simplicity. When you feel the urge to add "just one more layer," stop and ask: "Am I feeding
+the complexity demon, or am I solving a real problem?" Choose the boring, obvious solution
+over the clever one. Your future self—and your teammates—will thank you.
 
 ## Practical Guidelines
 
@@ -74,97 +83,67 @@ choices).
 
 1. **Ship Good-Enough Software**: Perfect software is the enemy of useful software.
    Focus on meeting actual user needs rather than pursuing theoretical perfection.
-   Deliver value early and iterate based on real feedback rather than speculation.
-   Ask yourself: "Is this good enough for our users, future maintainers, and business
-   needs?" Quality has a cost, and over-engineering wastes resources that could be
-   better spent on features users actually need. Know when to stop polishing and
-   start delivering.
+   Ask yourself: "Is this good enough for our users and business needs?" Know when
+   to stop polishing and start delivering value.
 
-1. **Use Tracer Bullets for Early Validation**: When building new functionality,
-   create a minimal end-to-end implementation first—a "tracer bullet" that touches
-   all architectural layers but implements only core functionality. This simple
-   approach validates assumptions about integration points, data flow, and user
-   interaction early, when changes are cheap. Like actual tracer rounds that help
-   gunners adjust their aim, tracer code helps you adjust your architecture before
-   investing heavily in detailed implementation.
+1. **Use Tracer Bullets for Early Validation**: Create a minimal end-to-end
+   implementation first that touches all architectural layers but implements only
+   core functionality. This validates assumptions about integration points early,
+   when changes are cheap, before investing in detailed implementation.
 
 ## Warning Signs
 
-- **Over-engineering solutions** by creating elaborate frameworks or systems for simple
-  problems. If you're building infrastructure that far exceeds current requirements,
-  you're likely introducing unnecessary complexity. Watch for solutions that feel
-  disproportionate to the problem they solve.
+- **Over-engineering solutions** by creating elaborate frameworks for simple problems.
+  Watch for solutions that feel disproportionate to the problem they solve. The complexity
+  demon loves when you build a "flexible event system" to handle three button clicks, or
+  a "configuration abstraction layer" for two environment variables.
 
-- **Designing for imagined future requirements** rather than actual needs. When you hear
-  phrases like "We might need to..." or "What if we eventually..." without concrete use
-  cases or evidence, it's a sign that YAGNI is being violated. Focus on solving today's
-  real problems, not tomorrow's hypothetical ones.
+- **Designing for imagined future requirements** rather than actual needs. Phrases like
+  "We might need to..." without concrete use cases signal YAGNI violations. Focus on
+  solving today's real problems, not tomorrow's hypothetical ones.
 
-- **Premature abstraction** before seeing multiple concrete use cases. Abstractions are
-  valuable but costly. Creating them too early, before fully understanding the pattern,
-  often results in the wrong abstraction—which is worse than no abstraction at all. Wait
+- **Premature abstraction** before seeing multiple concrete use cases. Creating abstractions
+  too early often results in the wrong abstraction—which is worse than none at all. Wait
   until you see the same pattern at least three times before abstracting.
 
 - **Implementing overly clever or obscure code** that requires significant mental effort
-  to understand. If reviewing code requires deep concentration to follow the logic, it's
-  likely too complex, regardless of how elegant or efficient it seems. If you find
-  yourself thinking "this is clever," that's often a warning sign.
+  to understand. If you find yourself thinking "this is clever," that's often a warning sign.
+  The complexity demon feeds on your ego—it wants you to write code that makes you feel smart,
+  not code that makes the next developer's job easier.
 
 - **Deep nesting (> 2-3 levels)** of conditionals, loops, or functions, creating code
-  that requires keeping multiple contexts in mind simultaneously. This cognitive load
-  makes code difficult to reason about and error-prone to modify. Consider refactoring
+  that requires keeping multiple contexts in mind simultaneously. Consider refactoring
   deeply nested structures into smaller, more manageable pieces.
 
 - **Excessively long functions/methods** that handle multiple responsibilities. When a
   function requires scrolling to view in its entirety, it's doing too much and should be
-  decomposed into smaller, focused units. Functions should typically do one thing and do
-  it well.
+  decomposed into smaller, focused units.
 
 - **Components violating the Single Responsibility Principle**, trying to handle
-  multiple concerns. This often manifests as classes or modules that change for
-  multiple, unrelated reasons. When you find yourself making frequent changes to the
-  same file for different features, consider decomposing it.
+  multiple concerns. When you find yourself making frequent changes to the same file
+  for different features, consider decomposing it.
 
 - **Hearing justifications like "I'll make it generic so we can reuse it later"**
-  without immediate demonstrated need for that generality. Generalization adds
-  complexity and should be driven by actual requirements, not speculation. Remember that
-  premature generalization is a form of speculation that almost always leads to more
-  complexity than necessary.
+  without immediate demonstrated need. Generalization adds complexity and should be
+  driven by actual requirements, not speculation. This is the complexity demon's favorite
+  trick—it convinces you that building for imaginary future use cases is "good engineering."
 
 ## Related Tenets
 
-- [Modularity](modularity.md): While Simplicity focuses on avoiding unnecessary
-  complexity, Modularity guides how to break systems into focused, small components.
-  Together, they help you create systems that are both simple and well-structured.
-  Simplicity works at all levels of your code, while modularity provides specific
-  patterns for organization.
+- [Modularity](modularity.md): Guides breaking systems into focused, small components
+  that work together to create simple, well-structured architectures.
 
-- [Explicit over Implicit](explicit-over-implicit.md): Explicitness enhances simplicity
-  by making code behavior clear and obvious. When code is explicit, it reduces the
-  mental overhead needed to understand what's happening, directly supporting the
-  simplicity principle. While simplicity guides what to build, explicitness guides how
-  to express your intent clearly.
+- [Explicit over Implicit](explicit-over-implicit.md): Explicitness reduces mental
+  overhead by making code behavior clear and obvious.
 
-- [Testability](testability.md): Simple code is inherently more testable. By keeping
-  components focused and minimizing dependencies, you make them easier to test in
-  isolation. Testability often serves as a feedback mechanism that can indicate when
-  your design is becoming too complex.
+- [Testability](testability.md): Simple code is inherently more testable through
+  focused components and minimal dependencies.
 
-- [Maintainability](maintainability.md): Simplicity is a key contributor to
-  maintainability. Simple systems are easier to understand, modify, and extend. The
-  relationship is bidirectional: following maintainability practices often naturally
-  leads to simpler solutions as well.
+- [Maintainability](maintainability.md): Simple systems are easier to understand,
+  modify, and extend over time.
 
-- [Empathize With Your User](empathize-with-your-user.md): User empathy naturally
-  leads to simpler solutions because complex interfaces and interactions are harder
-  for users to understand and navigate. When you truly understand user needs, you
-  often discover that simpler approaches serve them better than sophisticated but
-  confusing alternatives. Simplicity enhances empathy by reducing cognitive load
-  for users.
+- [Empathize With Your User](empathize-with-your-user.md): User empathy drives
+  simpler solutions that are easier to understand and navigate.
 
-- [Product Value First](product-value-first.md): Product value focus naturally drives
-  simplicity because unnecessary complexity doesn't serve users. When you consistently
-  ask "How does this complexity benefit users?", you eliminate technical sophistication
-  that exists purely for its own sake. Both tenets work together to ensure that
-  engineering effort goes toward user-beneficial outcomes rather than abstract
-  technical pursuits.
+- [Product Value First](product-value-first.md): Value focus eliminates complexity
+  that doesn't serve users or business needs.
