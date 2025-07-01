@@ -24,3 +24,5 @@ test-results/
 # Build output
 dist/
 packages/
+
+/docs/leyline
