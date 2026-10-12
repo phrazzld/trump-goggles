@@ -134,12 +134,18 @@ This project strictly follows the `DEVELOPMENT_PHILOSOPHY.md` and its TypeScript
 
 ### Loading the Extension
 
-Chrome: Load unpacked from project directory at `chrome://extensions/`
-Firefox: Load temporary add-on using `manifest.json` at `about:debugging`
+Run `pnpm install --frozen-lockfile` and `pnpm build` from the repository root first.
+
+- Chrome / Edge: Load unpacked from `dist/` at `chrome://extensions/` or `edge://extensions/`
+- Firefox: The default build is not Firefox-ready; see the
+  [Firefox limitation](docs/deployment/LOADING-EXTENSION.md#firefox-limitation)
+
+The repository root has no manifest. See the [loading guide](docs/deployment/LOADING-EXTENSION.md)
+for rebuild and reload steps.
 
 ### Key Files
 
-- `manifest.json`: Extension configuration
+- `extension/manifest.json`: Source extension configuration, copied to `dist/manifest.json` by the build
 - `src/content/content-consolidated.js`: Main content script entry point
 - `src/background/background-combined.js`: Background script
 - `dist/`: Built extension files

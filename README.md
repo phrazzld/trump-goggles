@@ -89,27 +89,33 @@ For more details on the extension's behavior, see [docs/behavior.md](docs/behavi
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/trump-goggles.git
+git clone https://github.com/moomooskycow/trump-goggles.git
 cd trump-goggles
 
-# Install dependencies
-pnpm install
+# Install dependencies from the lockfile
+pnpm install --frozen-lockfile
+
+# Build the extension into dist/
+pnpm build
 ```
 
 ### Loading the Extension
 
-#### Chrome
+Build the extension first using the setup commands above. The loadable extension is in `dist/`; the
+repository root has no manifest, and `extension/manifest.json` is the source manifest copied by the
+build. See the [loading guide](docs/deployment/LOADING-EXTENSION.md) for rebuild and reload steps.
 
-1. Open Chrome and navigate to `chrome://extensions/`
+#### Chrome / Edge
+
+1. Open `chrome://extensions/` in Chrome or `edge://extensions/` in Edge
 2. Enable "Developer mode" in the top-right corner
-3. Click "Load unpacked" and select the project directory
+3. Click "Load unpacked" and select the `dist/` directory
 4. The extension should now be installed and active
 
 #### Firefox
 
-1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on..."
-3. Select the `manifest.json` file in the project directory
+The default build is not Firefox-ready. See the
+[Firefox limitation](docs/deployment/LOADING-EXTENSION.md#firefox-limitation) before testing in Firefox.
 
 ### Development Commands
 

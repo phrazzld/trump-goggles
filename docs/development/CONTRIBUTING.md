@@ -36,29 +36,32 @@ Thank you for considering contributing to Trump Goggles! This document outlines 
 3. **Add the original repository as an upstream remote**
 
    ```bash
-   git remote add upstream https://github.com/original-owner/trump-goggles.git
+   git remote add upstream https://github.com/moomooskycow/trump-goggles.git
    ```
 
-4. **Install dependencies**
+4. **Install dependencies and build the extension**
    ```bash
-   pnpm install
+   pnpm install --frozen-lockfile
+   pnpm build
    ```
 
 ### Installing the Extension for Testing
 
-#### Chrome
+Load the built extension from `dist/`. The repository root has no manifest, and
+`extension/manifest.json` is the source manifest copied during the build. See the
+[loading guide](../deployment/LOADING-EXTENSION.md) for rebuild and reload steps.
 
-1. Open Chrome and navigate to `chrome://extensions/`
+#### Chrome / Edge
+
+1. Open `chrome://extensions/` in Chrome or `edge://extensions/` in Edge
 2. Enable "Developer mode" in the top-right corner
-3. Click "Load unpacked" and select the root directory of the project
+3. Click "Load unpacked" and select the `dist/` directory
 4. The extension should now be installed and active
 
 #### Firefox
 
-1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on"
-3. Select the `manifest.json` file in the root directory of the project
-4. The extension should now be installed and active
+The default build is not Firefox-ready. See the
+[Firefox limitation](../deployment/LOADING-EXTENSION.md#firefox-limitation) before testing in Firefox.
 
 ## Project Structure
 
@@ -75,7 +78,8 @@ trump-goggles/
 │   ├── helpers/            # Test helpers
 │   ├── mocks/              # Mock implementations
 │   └── setup.js            # Test setup file
-├── manifest.json           # Extension manifest
+├── extension/              # Source manifest and options page
+├── dist/                   # Generated, loadable extension (after pnpm build)
 ├── background.js           # Background script
 ├── content.js              # Content script (legacy)
 ├── content-consolidated.js # Main content script
